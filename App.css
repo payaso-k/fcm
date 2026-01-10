@@ -376,61 +376,66 @@ body{
   color: transparent;      /* 元の文字は消す */
 }
 
-/* 中の○だけを描画して中央制御 */
-.listBtn.ok::before{
-  content: "○";
-  position: absolute;
-  inset: 0;
+/* --- 出欠一覧の行とボタンの修正 --- */
+.listRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 6px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
 
+.listName {
+  flex: 1;
+  min-width: 0;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.16);
+  background: rgba(0,0,0,.18);
+  padding: 0 12px;
+  color: rgba(255,255,255,.92);
+  font-weight: 900;
+  outline: none;
+}
+
+.listBtns {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.listBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.22);
+  background: rgba(0,0,0,.18);
+  color: rgba(255,255,255,.9) !important;
+  cursor: pointer;
+  font-weight: 900;
+  /* 記号を中央に配置する設定 */
   display: flex;
   align-items: center;
   justify-content: center;
-
-  font-size: 18px;         /* ← ちょうど良いサイズ */
+  padding: 0;
   line-height: 1;
-  transform: translateY(-2px);  /* ← 中身だけ上げる */
-  color: rgba(255,255,255,.9);
-}
-/* ×ボタン：中の×だけを調整 */
-.listBtn.no{
-  position: relative;
-  color: transparent; /* 元の文字を消す */
+  font-size: 18px;
 }
 
-.listBtn.no::before{
-  content: "×";
-  position: absolute;
-  inset: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  font-size: 19px;        /* ← 少し大きめ（18〜22で好み） */
-  line-height: 1;
-  transform: translateY(-1px); /* 見た目中央に */
-  color: rgba(255,255,255,.9);
-}
-/* △ボタン：中の△だけを調整 */
-.listBtn.maybe{
-  position: relative;
-  color: transparent; /* 元の文字を消す */
+/* 以前の ::before 設定を完全に無効化 */
+.listBtn::before, .listBtn.ok::before, .listBtn.maybe::before, .listBtn.no::before {
+  content: none !important;
 }
 
-.listBtn.maybe::before{
-  content: "△";
-  position: absolute;
-  inset: 0;
+.listBtn.active { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.45); }
+.listBtn.ok.active { background: rgba(74,222,128,.18); color: var(--ok) !important; }
+.listBtn.maybe.active { background: rgba(250,204,21,.18); color: var(--maybe) !important; }
+.listBtn.no.active { background: rgba(248,113,113,.18); color: var(--no) !important; }
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  font-size: 16px;        /* △はこれくらいが一番バランス良い */
-  line-height: 1;
-  transform: translateY(0px); /* ○より弱めに上げる */
-  color: rgba(255,255,255,.9);
-}
+/* 記号ごとの微調整（フォントによるズレを解消） */
+.listBtn.ok { font-size: 20px; padding-bottom: 2px; }
+.listBtn.maybe { font-size: 16px; padding-bottom: 1px; }
+.listBtn.no { font-size: 19px; }
 /* ===== Select dropdown が白くて見えない対策 ===== */
 .select{
   color: var(--text);
@@ -612,4 +617,9 @@ body{
   border:1px solid rgba(255,255,255,.10);
   background: rgba(0,0,0,.18);
   color: rgba(255,255,255,.75);
+}/* 選択されたベンチカードを光らせる */
+.benchCard.selected-m {
+  border-color: var(--maybe);
+  box-shadow: 0 0 10px var(--maybe);
+  background: rgba(250, 204, 21, 0.2);
 }
