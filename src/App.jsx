@@ -105,16 +105,16 @@ export default function App() {
 
   // 【修正1】初期読み込み時にLocalStorageからデータを復元する
   useEffect(() => {
-    const raw = localStorage.getItem(SETTINGS_KEY);
+   const raw = localStorage.getItem(SETTINGS_KEY);
     if (raw) {
       try {
         const saved = JSON.parse(raw);
         if (saved.teamName) setTeamName(saved.teamName);
         if (saved.logoDataUrl) setLogoDataUrl(saved.logoDataUrl);
-        if (saved.names) setNames(saved.names);
-        if (saved.formation) setFormation(saved.formation); // フォーメーション復元
-        if (saved.statusByDate) setStatusByDate(saved.statusByDate); // 出欠データ復元
-        if (saved.placedBySlotByDate) setPlacedBySlotByDate(saved.placedBySlotByDate); // 配置データ復元
+        if (saved.names) setNames(saved.names || {});
+        if (saved.formation) setFormation(saved.formation);
+        if (saved.statusByDate) setStatusByDate(saved.statusByDate || {});
+        if (saved.placedBySlotByDate) setPlacedBySlotByDate(saved.placedBySlotByDate || {});
       } catch (e) { console.error("Load error:", e); }
     }
     
@@ -123,14 +123,20 @@ export default function App() {
     if (token) {
       try {
         const data = decodeShare(token);
-        // ...（共有データのデコード処理）
+        if (data.teamName) setTeamName(data.teamName);
+        if (data.logoDataUrl) setLogoDataUrl(data.logoDataUrl);
+        if (data.names) setNames(data.names);
+        if (data.dayKey && data.statusDay) {
+          setStatusByDate(p => ({ ...p, [data.dayKey]: data.statusDay }));
+          setPlacedBySlotByDate(p => ({ ...p, [data.dayKey]: data.placedDay || {} }));
+        }
       } catch (e) { console.error("Decode error:", e); }
     }
   }, []);
 
   // 【修正2】データが変わるたびにLocalStorageに自動保存する
   useEffect(() => {
-    const dataToSave = {
+   const dataToSave = {
       teamName,
       logoDataUrl,
       names,
@@ -140,7 +146,6 @@ export default function App() {
     };
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(dataToSave));
   }, [teamName, logoDataUrl, names, formation, statusByDate, placedBySlotByDate]);
-
   const placeMember = (mId, sId) => {
     if (!mId) return;
     const st = status[mId];

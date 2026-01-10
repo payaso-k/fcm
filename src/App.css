@@ -80,15 +80,17 @@ body{
   position:relative;
   overflow:hidden;
   border:1px solid rgba(255,255,255,.10);
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,0)),
+background: 
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%), /* ほのかな光沢 */
     repeating-linear-gradient(
-      90deg,
-      rgba(20,120,60,.35) 0px,
-      rgba(20,120,60,.35) 52px,
-      rgba(18,105,54,.35) 52px,
-      rgba(18,105,54,.35) 104px
+      180deg, /* 向きを横縞（180deg）に変えるとより芝生っぽくなります */
+      #1a5c38 0px,
+      #1a5c38 60px,
+      #164d2f 60px,
+      #164d2f 120px
     );
+  /* -------------------------------------------------- */
+
   transform: translateZ(0);
   backface-visibility: hidden;
 }
@@ -192,7 +194,7 @@ body{
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  gap:6px;
+  gap:2px;
   text-align:center;
   z-index:2;
 
@@ -220,8 +222,8 @@ body{
 }
 
 .posName{
-  width:72px;
-  padding:6px 8px;
+  width:58px;
+  padding:4px 0px;
   border-radius: 999px;
   border:1px solid rgba(255,255,255,.18);
   background: rgba(0,0,0,.18);
@@ -229,7 +231,7 @@ body{
   outline:none;
   text-align:center;
   font-weight: 900;
-  font-size: 12px;
+  font-size: 10px;
   cursor:pointer;
   text-shadow: 0 1px 2px rgba(0,0,0,0.8);
 }
@@ -248,11 +250,11 @@ body{
 .side{ display:flex; flex-direction:column; gap:12px; min-height:0; }
 
 .panel{
-  background: rgba(255,255,255,.06);
-  border:1px solid rgba(255,255,255,.10);
-  border-radius:16px;
-  overflow:hidden;
-  min-height:0;
+background: #0f172a; /* 濃い紺色（不透明） */
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 14px; /* 下に余白を作る */
 }
 .panelHeader{
   padding:12px 12px 10px;
@@ -297,10 +299,13 @@ body{
 .benchCard.status-ok .benchStatus{ color: var(--ok); }
 .benchCard.status-maybe .benchStatus{ color: var(--maybe); }
 
-.listRows{
-  max-height: 44vh;
-  overflow:auto;
-  padding:10px 10px 12px;
+.listRows {
+  /* max-height と overflow を解除 */
+  max-height: none !important; 
+  overflow: visible !important;
+  padding: 10px 10px 12px;
+  /* 背景を不透明にして透けを防止 */
+  background: #0f172a; 
 }
 .listRow{
   display:grid;
