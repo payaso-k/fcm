@@ -88,10 +88,15 @@ function Calendar({ monthDate, selectedKey, onSelectDate, onPrev, onNext }) {
 // --- Main Component ---
 export default function App() {
   const keys = Object.keys(FORMATIONS);
-  const [formation, setFormation] = useState(keys[0] || "3-4-2-1");
+
+  // --- 1. Stateの定義（ここをセットで入れ替え） ---
+  const [formationByDate, setFormationByDate] = useState({}); // 日付ごとの記録
+  const [defaultFormation, setDefaultFormation] = useState(keys[0] || "3-4-2-1"); // 管理者が決める基本形
   const [teamName, setTeamName] = useState("TEAM NAME");
   const [logoDataUrl, setLogoDataUrl] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isMaster, setIsMaster] = useState(false); // マスター権限フラグ
+  const [adminCode, setAdminCode] = useState("1234"); // 管理者パスコード（初期値）
   const [selectedMemberId, setSelectedMemberId] = useState(null);
   const [names, setNames] = useState({});
   const [monthDate, setMonthDate] = useState(() => new Date());
@@ -99,53 +104,38 @@ export default function App() {
   const [statusByDate, setStatusByDate] = useState({});
   const [placedBySlotByDate, setPlacedBySlotByDate] = useState({});
 
+  // --- 2. 表示するフォーメーションを決めるロジック ---
+  // 「今日の設定」がなければ「管理者のデフォルト」、それもなければ「リストの1番目」
+  const currentFormation = formationByDate[selectedDateKey] || defaultFormation || keys[0];
   const status = statusByDate[selectedDateKey] || {};
   const placedBySlot = placedBySlotByDate[selectedDateKey] || {};
-  const slots = useMemo(() => FORMATIONS[formation] ?? [], [formation]);
+  const slots = useMemo(() => FORMATIONS[currentFormation] ?? [], [currentFormation]);
 
-  // 【修正1】初期読み込み時にLocalStorageからデータを復元する
+  // --- 3. 読み込みと保存（エラーが出ないように補完） ---
   useEffect(() => {
-   const raw = localStorage.getItem(SETTINGS_KEY);
+    const raw = localStorage.getItem(SETTINGS_KEY);
     if (raw) {
       try {
         const saved = JSON.parse(raw);
         if (saved.teamName) setTeamName(saved.teamName);
         if (saved.logoDataUrl) setLogoDataUrl(saved.logoDataUrl);
         if (saved.names) setNames(saved.names || {});
-        if (saved.formation) setFormation(saved.formation);
+        if (saved.formationByDate) setFormationByDate(saved.formationByDate);
+        if (saved.defaultFormation) setDefaultFormation(saved.defaultFormation); // これを読み込む
         if (saved.statusByDate) setStatusByDate(saved.statusByDate || {});
         if (saved.placedBySlotByDate) setPlacedBySlotByDate(saved.placedBySlotByDate || {});
       } catch (e) { console.error("Load error:", e); }
     }
-    
-    // 共有リンクがある場合はそちらを優先（上書き）
-    const token = readShareTokenFromHash();
-    if (token) {
-      try {
-        const data = decodeShare(token);
-        if (data.teamName) setTeamName(data.teamName);
-        if (data.logoDataUrl) setLogoDataUrl(data.logoDataUrl);
-        if (data.names) setNames(data.names);
-        if (data.dayKey && data.statusDay) {
-          setStatusByDate(p => ({ ...p, [data.dayKey]: data.statusDay }));
-          setPlacedBySlotByDate(p => ({ ...p, [data.dayKey]: data.placedDay || {} }));
-        }
-      } catch (e) { console.error("Decode error:", e); }
-    }
   }, []);
 
-  // 【修正2】データが変わるたびにLocalStorageに自動保存する
   useEffect(() => {
-   const dataToSave = {
-      teamName,
-      logoDataUrl,
-      names,
-      formation,
-      statusByDate,
-      placedBySlotByDate
+    const dataToSave = {
+      teamName, logoDataUrl, names,
+      formationByDate, defaultFormation, // これを保存する
+      statusByDate, placedBySlotByDate
     };
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(dataToSave));
-  }, [teamName, logoDataUrl, names, formation, statusByDate, placedBySlotByDate]);
+  }, [teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, placedBySlotByDate]);
   const placeMember = (mId, sId) => {
     if (!mId) return;
     const st = status[mId];
@@ -193,16 +183,88 @@ export default function App() {
             </div>
             <div className="teamBlock"><div className="teamName">{teamName}</div></div>
           </div>
-          <button className="btn ghost" type="button" onClick={() => isAdmin ? setIsAdmin(false) : (window.prompt("CODE") === ADMIN_CODE && setIsAdmin(true))}>
-            {isAdmin ? "管理者OFF" : "管理者"}
-          </button>
+          <button 
+  className="btn ghost" 
+  type="button" 
+  onClick={() => {
+    if (isAdmin || isMaster) {
+      // すでにログイン中ならログアウトする
+      setIsAdmin(false);
+      setIsMaster(false);
+    } else {
+      const code = window.prompt("ENTER CODE");
+      if (code === "5963") {
+        setIsMaster(true); // マスターログイン
+        alert("マスター権限でログインしました");
+      } else if (code === adminCode) {
+        setIsAdmin(true);  // 管理者ログイン
+        alert("管理者権限でログインしました");
+      } else {
+        alert("コードが違います");
+      }
+    }
+  }}
+>
+  {(isAdmin || isMaster) ? "ログアウト" : "管理者"}
+</button>
         </div>
         <div className="controls">
-          <select className="select" value={formation} onChange={(e) => setFormation(e.target.value)}>
-            {keys.map(k => <option key={k} value={k}>{k}</option>)}
-          </select>
+          <select 
+  className="select" 
+  value={currentFormation} // ここを currentFormation に
+  onChange={(e) => {
+    const newFormation = e.target.value;
+    // 日付をキーにして保存する
+    setFormationByDate(prev => ({
+      ...prev,
+      [selectedDateKey]: newFormation
+    }));
+  }}
+>
+  {keys.map(k => <option key={k} value={k}>{k}</option>)}
+</select>
           <button className="btn" type="button" onClick={() => { navigator.clipboard.writeText(buildShareLink()); alert("URLコピー成功"); }}>共有保存</button>
         </div>
+        {(isAdmin || isMaster) && (
+        <div style={{ padding: '15px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', margin: '10px' }}>
+          {/* チーム名設定 */}
+          <div style={{ marginBottom: '15px' }}>
+            <label style={{ fontSize: '12px', color: '#888', display: 'block', marginBottom: '5px' }}>チーム名設定</label>
+            <input 
+              className="textInput" 
+              value={teamName} 
+              onChange={(e) => setTeamName(e.target.value)} 
+              style={{ width: '100%', padding: '8px', background: '#222', border: '1px solid #444', color: '#fff', borderRadius: '4px' }} 
+            />
+          </div>
+
+          {/* デフォルトフォーメーション設定 */}
+          <div style={{ marginBottom: '15px' }}>
+            <label style={{ fontSize: '12px', color: '#888', display: 'block', marginBottom: '5px' }}>全体デフォルトフォーメーション</label>
+            <select 
+              className="select" 
+              value={defaultFormation} 
+              onChange={(e) => setDefaultFormation(e.target.value)}
+              style={{ width: '100%', padding: '8px' }}
+            >
+              {keys.map(k => <option key={k} value={k}>{k}</option>)}
+            </select>
+          </div>
+
+          {/* 管理者パスコード変更 */}
+          <div>
+            <label style={{ fontSize: '12px', color: '#ffcc00', display: 'block', marginBottom: '5px' }}>管理者パスコード変更</label>
+            <input 
+              className="textInput" 
+              type="text" 
+              value={adminCode} 
+              onChange={(e) => setAdminCode(e.target.value)} 
+              style={{ width: '100%', border: '1px solid #ffcc00', padding: '8px', background: '#222', color: '#fff' }}
+            />
+            <p style={{ fontSize: '10px', color: '#888', marginTop: '5px' }}>※マスターコード(5963)は固定です</p>
+          </div>
+        </div>
+      )}
       </header>
 
       <div className="layout">
