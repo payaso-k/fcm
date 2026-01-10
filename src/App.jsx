@@ -225,7 +225,9 @@ export default function App() {
 </select>
           <button className="btn" type="button" onClick={() => { navigator.clipboard.writeText(buildShareLink()); alert("URLコピー成功"); }}>共有保存</button>
         </div>
-        {(isAdmin || isMaster) && (
+        
+      </header>
+      {(isAdmin || isMaster) && (
         <div style={{ padding: '15px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', margin: '10px' }}>
           {/* チーム名設定 */}
           <div style={{ marginBottom: '15px' }}>
@@ -265,7 +267,6 @@ export default function App() {
           </div>
         </div>
       )}
-      </header>
 
       <div className="layout">
         <aside className="calendar">

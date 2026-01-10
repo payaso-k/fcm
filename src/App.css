@@ -628,3 +628,26 @@ background: #0f172a; /* 濃い紺色（不透明） */
   box-shadow: 0 0 10px var(--maybe);
   background: rgba(250, 204, 21, 0.2);
 }
+/* スマホ用：管理画面を中央にきれいに表示する */
+.adminPanelMobile {
+  background: #1e293b;
+  padding: 20px;
+  margin: 15px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column; /* 項目を縦に並べる */
+  gap: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* スマホで入力しやすくする */
+.adminPanelMobile input, 
+.adminPanelMobile select {
+  width: 100% !important;
+  height: 45px;
+  font-size: 16px; /* 入力時に画面がズームするのを防ぐ */
+  background: #0f172a;
+  color: white;
+  border: 1px solid #334155;
+  border-radius: 6px;
+}
