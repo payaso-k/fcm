@@ -661,3 +661,7 @@ background: #0f172a; /* 濃い紺色（不透明） */
   border-radius: 6px;
   padding: 0 10px;
 }
+.benchStatus {
+  position: relative;
+  top: 3px;  /* この数字を大きくすると、もっと下に下がります */
+}
