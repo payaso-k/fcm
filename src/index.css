@@ -97,3 +97,32 @@ button:focus-visible {
   box-shadow: 0 0 10px var(--maybe);
   background: rgba(250, 204, 21, 0.2);
 }
+/* --- チーム名をもっと長く表示できるようにする --- */
+.teamBlock {
+  /* 幅制限をなくし、余ったスペースを全部使う */
+  flex: 1;
+  min-width: 0;
+  margin-right: 8px; /* ボタンとの隙間確保 */
+}
+
+.teamName {
+  /* 1行で表示しきれない場合に ... にせず、文字サイズを小さくしてでも表示 */
+  white-space: nowrap;      /* 折り返さない */
+  overflow: visible;        /* はみ出しを許可（または hidden で隠す） */
+  text-overflow: clip;      /* ... にしない */
+  
+  /* フォントサイズを少し控えめに */
+  font-size: 16px; 
+  font-weight: bold;
+  
+  /* 幅100%確保 */
+  width: 100%;
+  display: block;
+}
+
+/* スマホの横画面など、画面が広い時は文字を大きくする */
+@media (min-width: 600px) {
+  .teamName {
+    font-size: 20px;
+  }
+}
