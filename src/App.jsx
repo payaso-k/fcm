@@ -120,7 +120,6 @@ export default function App() {
     });
   }, [teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, placedBySlotByDate, adminCode, isLoaded]);
 
-  // ★ロゴ画像の変換処理
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -159,16 +158,16 @@ export default function App() {
   return (
     <div className="page">
       <header className="topbar">
+        {/* 上段：ロゴとチーム名 */}
         <div className="brandBar">
-          <div className="brandLeft">
-            <div className="logoBox">
-              {logoDataUrl ? <img className="logoImg" src={logoDataUrl} alt="logo" /> : <div className="logoPlaceholder">LOGO</div>}
-            </div>
-            {/* チーム名表示エリア */}
-            <div className="teamBlock">
-              <div className="teamName">{teamName}</div>
-            </div>
+          <div className="logoBox">
+            {logoDataUrl ? <img className="logoImg" src={logoDataUrl} alt="logo" /> : <div className="logoPlaceholder">LOGO</div>}
           </div>
+          <div className="teamName">{teamName}</div>
+        </div>
+        
+        {/* 下段：管理者ボタンとフォーメーション */}
+        <div className="controls">
           <button className="btn ghost" type="button" onClick={() => {
             if (isAdmin || isMaster) { setIsAdmin(false); setIsMaster(false); }
             else {
@@ -178,8 +177,7 @@ export default function App() {
               else { alert("コードが違います"); }
             }
           }}>{(isAdmin || isMaster) ? "ログアウト" : "管理者"}</button>
-        </div>
-        <div className="controls">
+
           <select className="select" value={currentFormation} onChange={(e) => setFormationByDate(prev => ({ ...prev, [selectedDateKey]: e.target.value }))}>
             {keys.map(k => <option key={k} value={k}>{k}</option>)}
           </select>
@@ -192,10 +190,9 @@ export default function App() {
             <label className="adminLabel">チーム名設定</label>
             <input className="textInput" value={teamName} onChange={(e) => setTeamName(e.target.value)} />
           </div>
-          {/* ★ここ：ロゴ変更ボタンを追加 */}
           <div className="adminField">
             <label className="adminLabel">チームロゴ変更</label>
-            <input type="file" accept="image/*" onChange={handleLogoChange} style={{color: '#fff', fontSize: '12px'}} />
+            <input type="file" accept="image/*" onChange={handleLogoChange} />
           </div>
           <div className="adminField">
             <label className="adminLabel">全体デフォルトフォーメーション</label>
