@@ -126,3 +126,64 @@ button:focus-visible {
     font-size: 20px;
   }
 }
+input[type="file"] {
+  padding: 10px !important;      /* 内側に余白を作る */
+  height: auto !important;       /* 高さを自動調整して文字切れを防ぐ */
+  font-size: 14px !important;    /* 文字を少し大きく */
+  line-height: 1.5 !important;   /* 行間を広げて見やすく */
+  background-color: #0f172a !important; /* 背景色を統一 */
+  color: #ffffff !important;     /* 文字色を白に */
+  cursor: pointer;               /* 押せる感じカーソルに */
+}
+
+/* スマホでファイル名が長くてはみ出るのを防ぐ */
+.adminField input[type="file"] {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 600px) {
+  
+  /* 1. ヘッダー全体を「縦並び」にして2段にする */
+  .topbar {
+    flex-direction: column !important; /* 縦積みに変更 */
+    height: auto !important; /* 高さは自動で広げる */
+    padding: 12px !important; /* 余白を少し増やす */
+    gap: 10px !important; /* 上段と下段の隙間 */
+  }
+
+  /* 2. 上段（ロゴ・チーム名・ログアウト）の設定 */
+  .brandBar {
+    width: 100% !important; /* 横幅いっぱい使う */
+    display: flex !important;
+    justify-content: space-between !important; /* 両端に配置 */
+    align-items: center !important;
+    margin-right: 0 !important;
+  }
+
+  /* ログアウトボタンが縦にならないようにする */
+  .btn.ghost {
+    white-space: nowrap !important; /* 改行禁止 */
+    font-size: 11px !important; /* 文字を少し小さく */
+    padding: 4px 8px !important;
+    height: 32px !important; /* 高さ固定 */
+  }
+
+  /* 3. 下段（フォーメーション選択）の設定 */
+  .controls {
+    width: 100% !important; /* 横幅いっぱい使う */
+  }
+
+  .select {
+    width: 100% !important; /* 指で押しやすいように横長にする */
+    text-align: center !important;
+    height: 40px !important; /* 少し高さを出す */
+  }
+  
+  /* チーム名が長くても崩れないように */
+  .teamName {
+    font-size: 15px !important;
+    max-width: 180px; /* 横幅制限 */
+    overflow: hidden;
+    text-overflow: ellipsis; /* はみ出たら...にする */
+  }
+}
