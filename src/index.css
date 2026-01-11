@@ -187,3 +187,60 @@ input[type="file"] {
     text-overflow: ellipsis; /* はみ出たら...にする */
   }
 }
+/* =========================================
+   緊急修正コマンド（一番下に貼り付けてください）
+   ========================================= */
+
+/* --- 1. チーム名を「絶対に省略せず全部表示」する設定 --- */
+.brandBar, .brandLeft, .teamBlock {
+  /* 名前が長くなっても領域が広がるようにする */
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+.teamName {
+  /* 折り返しを許可し、全部表示する */
+  white-space: normal !important;    /* 必要なら改行する */
+  overflow: visible !important;      /* 隠さない */
+  text-overflow: clip !important;    /* "..."を出さない */
+  word-break: break-word !important; /* 長すぎる単語は途中で折る */
+  
+  width: auto !important;
+  height: auto !important;
+  max-width: none !important;        /* 幅の制限をなくす */
+  
+  /* フォントサイズ調整（スマホで見やすい大きさ） */
+  font-size: 16px !important;
+  line-height: 1.2 !important;       /* 行間を少し詰める */
+}
+
+/* スマホ表示の時も強制的に上記ルールを適用 */
+@media (max-width: 600px) {
+  .teamName {
+    max-width: none !important;
+    white-space: normal !important;
+    overflow: visible !important;
+  }
+}
+
+
+/* --- 2. ファイル選択ボタンを「枠の真ん中」にする設定 --- */
+input[type="file"] {
+  /* 他の入力欄(44px)と同じ高さに合わせて固定する */
+  height: 44px !important;
+  
+  /* 内部の要素を上下中央に揃える */
+  display: flex !important;
+  align-items: center !important;
+  
+  /* 余白の調整 */
+  padding: 0 10px !important;
+  margin: 0 !important;
+  
+  /* 見た目を整える */
+  background-color: #0f172a !important;
+  border: 1px solid #334155 !important;
+  border-radius: 6px !important;
+}
