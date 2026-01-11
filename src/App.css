@@ -665,3 +665,26 @@ background: #0f172a; /* 濃い紺色（不透明） */
   position: relative;
   top: 4px;  /* この数字を大きくすると、もっと下に下がります */
 }
+.listBtn {
+  /* 1. ボタンの大きさを固定する（好きな大きさに調整OK） */
+  width: 42px !important;
+  height: 42px !important;
+  padding: 0 !important; /* 余計な隙間をなくす */
+
+  /* 2. 文字をボタンのど真ん中に配置する */
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+
+  /* 3. 文字の大きさを統一する */
+  font-size: 22px !important;
+  
+  /* (おまけ) 少し角丸にして柔らかい印象にするなら */
+  border-radius: 8px !important;
+}
+
+/* 選択されているボタンの強調表示も調整 */
+.listBtn.active {
+  font-weight: bold;
+  /* 選択時の枠線などを微調整したい場合はここに追記 */
+}
