@@ -188,8 +188,8 @@ background:
   width:68px;
   height:68px;
   border-radius: 50%;
-  border: 2px solid rgba(255,255,255,0.55);
-  background: rgba(255,255,255,0.06);
+  border: 2px solid rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.15);
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -628,26 +628,36 @@ background: #0f172a; /* 濃い紺色（不透明） */
   box-shadow: 0 0 10px var(--maybe);
   background: rgba(250, 204, 21, 0.2);
 }
-/* スマホ用：管理画面を中央にきれいに表示する */
+/* 管理パネルをスマホで中央・全幅にする */
 .adminPanelMobile {
   background: #1e293b;
-  padding: 20px;
-  margin: 15px;
+  padding: 16px;
+  margin: 10px;
   border-radius: 12px;
   display: flex;
-  flex-direction: column; /* 項目を縦に並べる */
-  gap: 15px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex-direction: column;
+  gap: 16px;
 }
 
-/* スマホで入力しやすくする */
+.adminField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.adminLabel {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: bold;
+}
+
 .adminPanelMobile input, 
 .adminPanelMobile select {
   width: 100% !important;
-  height: 45px;
-  font-size: 16px; /* 入力時に画面がズームするのを防ぐ */
+  height: 44px;
   background: #0f172a;
   color: white;
   border: 1px solid #334155;
   border-radius: 6px;
+  padding: 0 10px;
 }
