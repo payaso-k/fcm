@@ -1,15 +1,14 @@
-/* =================================================================
-   FC LINEUP MAKER - REPAIR VERSION (スクロール優先・安全版)
-   ================================================================= */
-
-/* --- 1. 全体設定：無理に1画面に収めず、スクロールさせる --- */
+/* =========================================================
+   基本設定（元の動いていた状態）
+   ========================================================= */
 :root {
   --bg-color: #0f172a;
   --panel-bg: #1e293b;
   --text-color: #f8fafc;
-  --accent-color: #3b82f6;
   --border-color: #334155;
 }
+
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -17,31 +16,33 @@ body {
   background-color: var(--bg-color);
   color: var(--text-color);
   font-family: sans-serif;
+  overflow: hidden; /* アプリっぽく画面固定 */
 }
 
 .page {
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* 最低でも画面いっぱい */
-  height: auto;      /* 中身が増えたら縦に伸びる（重要） */
+  height: 100vh;
 }
 
-/* --- 2. ヘッダー（2段表示・チーム名改行対応） --- */
+/* --- 1. ヘッダー修正（2段にしてチーム名を全部出す） --- */
 .topbar {
   background: var(--panel-bg);
   border-bottom: 1px solid var(--border-color);
   padding: 10px;
+  /* ここからスマホ対応修正 */
   display: flex;
-  flex-direction: column; /* スマホは最初から縦並び */
+  flex-direction: column; /* 縦並び */
   gap: 10px;
+  height: auto;
 }
 
 /* 上段：ロゴとチーム名 */
 .brandBar {
   display: flex;
   align-items: center;
-  gap: 10px;
   width: 100%;
+  gap: 10px;
 }
 
 .logoBox {
@@ -49,107 +50,91 @@ body {
   height: 40px;
   border-radius: 50%;
   background: #000;
-  border: 1px solid #444;
   overflow: hidden;
   flex-shrink: 0;
 }
 .logoImg { width: 100%; height: 100%; object-fit: cover; }
 .logoPlaceholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #aaa; }
 
+/* チーム名：改行してでも全部表示する設定 */
 .teamBlock {
-  flex: 1; /* 横幅いっぱい使う */
+  flex: 1;
 }
-
 .teamName {
   font-size: 18px;
   font-weight: bold;
-  color: #fff;
-  white-space: normal;    /* 改行許可 */
-  word-break: break-all;  /* 長い単語も改行 */
+  white-space: normal;   /* 改行許可 */
+  word-break: break-all; /* 長い単語も改行 */
   line-height: 1.2;
 }
 
-/* 下段：ボタンエリア */
+/* 下段：ボタン類 */
 .controls {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
   width: 100%;
+  gap: 10px;
 }
 
 .btn {
   background: var(--panel-bg);
   border: 1px solid var(--border-color);
   color: #fff;
-  padding: 0 16px;
-  height: 40px; /* 高さ固定 */
+  padding: 8px 16px;
   border-radius: 6px;
-  font-size: 13px;
   white-space: nowrap;
 }
 
 .select {
-  flex: 1; /* 横に伸ばす */
-  height: 40px;
+  flex: 1; /* 横幅いっぱい */
   background: #0f172a;
   color: #fff;
   border: 1px solid var(--border-color);
   border-radius: 6px;
   text-align: center;
-  font-size: 14px;
+  height: 40px;
+  font-size: 16px;
 }
 
 
-/* --- 3. メインレイアウト（ここが崩れていた原因） --- */
+/* --- 2. メインレイアウト（元の構成に戻しました） --- */
 .layout {
   display: flex;
-  flex-direction: column; /* スマホは縦積み（カレンダー→ピッチ→ベンチ） */
   flex: 1;
-  padding-bottom: 40px; /* 下に余白 */
+  overflow: hidden;
+  position: relative; /* ドラッグ動作に重要 */
 }
 
-/* PCなどの広い画面なら横並びに戻す */
-@media (min-width: 900px) {
+@media (max-width: 900px) {
   .layout {
-    flex-direction: row;
-    height: calc(100vh - 80px); /* PCなら画面固定もアリ */
-    overflow: hidden;
+    flex-direction: column;
+    overflow-y: auto; /* スマホは縦スクロール */
   }
-  .side { overflow-y: auto; }
 }
 
-
-/* --- 4. カレンダー --- */
+/* カレンダー */
 .calendar {
-  width: 100%;
-  padding: 10px;
   background: var(--panel-bg);
-  border-bottom: 1px solid var(--border-color);
-}
-@media (min-width: 900px) { .calendar { width: 280px; border-right: 1px solid var(--border-color); border-bottom: none; } }
-
-.calendarCard {
-  background: #0f172a;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
   padding: 10px;
 }
-.calendarHeader { display: flex; justify-content: space-between; color: #fff; margin-bottom: 10px; font-weight: bold; }
-.navBtn { background: none; border: 1px solid #444; color: #fff; width: 30px; height: 30px; border-radius: 50%; }
+.calendarCard { background: #0f172a; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); }
+.calendarHeader { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold; }
+.navBtn { background: none; border: 1px solid #555; color: #fff; width: 30px; height: 30px; border-radius: 50%; }
 .calendarGrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-.dayCell { aspect-ratio: 1; background: none; border: 1px solid transparent; color: #aaa; border-radius: 4px; }
-.dayCell.selected { background: var(--accent-color); color: #fff; font-weight: bold; }
+.dayCell { aspect-ratio: 1; border: 1px solid transparent; color: #aaa; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+.dayCell.selected { background: #3b82f6; color: #fff; font-weight: bold; }
 
 
-/* --- 5. ピッチ（グラウンド） --- */
+/* --- 3. ピッチ（色と配置を元に戻しました） --- */
 .stage {
   flex: 1;
   background: #111;
-  padding: 20px 0;
+  position: relative;
+  overflow: hidden;
   display: flex;
+  align-items: center;
   justify-content: center;
-  align-items: flex-start; /* 上寄せ */
-  min-height: 450px; /* ★重要：これが無いと潰れる */
+  min-height: 400px;
 }
 
 .pitchWrap {
@@ -162,13 +147,13 @@ body {
 .pitch {
   width: 100%;
   height: 100%;
-  background: #35654d;
+  /* 元の色に戻しました */
+  background: #35654d; 
   border: 2px solid rgba(255,255,255,0.3);
   border-radius: 8px;
   position: relative;
 }
 
-/* ライン */
 .lineLayer div { position: absolute; border: 1px solid rgba(255,255,255,0.5); }
 .outerLine { top: 5%; bottom: 5%; left: 5%; right: 5%; }
 .halfLine { top: 50%; left: 5%; right: 5%; }
@@ -176,21 +161,24 @@ body {
 .penTop { top: 5%; left: 25%; width: 50%; height: 16%; }
 .penBottom { bottom: 5%; left: 25%; width: 50%; height: 16%; }
 
-/* 選手アイコン */
+/* 選手アイコン（操作の邪魔にならないようz-index調整済み） */
 .posSlot {
   width: 50px;
   height: 50px;
   position: absolute;
   transform: translate(-50%, -50%);
-  background: rgba(0,0,0,0.6);
+  background: rgba(0,0,0,0.5);
   border: 2px solid rgba(255,255,255,0.8);
   border-radius: 50%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  z-index: 5;
+  z-index: 10; /* クリックしやすいように手前に */
+  cursor: pointer;
 }
+.waiting-drop { background: rgba(255, 215, 0, 0.3); border-color: #ffd700; transform: translate(-50%, -50%) scale(1.1); }
+
 .posRole { font-size: 9px; color: #ccc; margin-bottom: 2px; }
 .posName {
   width: 44px;
@@ -202,97 +190,87 @@ body {
   overflow: hidden;
   text-align: center;
   font-weight: bold;
+  color: #000;
 }
-.posEmpty { font-size: 9px; color: #888; }
-/* ステータス色 */
-.slot-ok { background: rgba(59, 130, 246, 0.9); border-color: #fff; }
-.slot-maybe { background: rgba(245, 158, 11, 0.9); border-color: #fff; }
+/* 元の色設定 */
+.status-ok .posName { background: #fff; }
+.status-maybe .posName { background: #fbbf24; }
 .status-no .posName { background: #ef4444; color: #fff; }
 
+.slot-ok { background: rgba(59, 130, 246, 0.8) !important; }
+.slot-maybe { background: rgba(245, 158, 11, 0.8) !important; }
 
-/* --- 6. サイドパネル（ベンチ・リスト） --- */
+
+/* --- 4. サイドパネル --- */
 .side {
-  width: 100%;
+  width: 300px;
   background: var(--panel-bg);
-  border-top: 1px solid var(--border-color);
+  border-left: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
 }
-@media (min-width: 900px) { .side { width: 300px; border-top: none; border-left: 1px solid var(--border-color); } }
+@media (max-width: 900px) { .side { width: 100%; border-left: none; border-top: 1px solid var(--border-color); } }
 
 .panel { padding: 15px; border-bottom: 1px solid var(--border-color); }
-.panelTitle { color: #94a3b8; font-weight: bold; margin-bottom: 10px; }
 
-/* ベンチ */
-.benchGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-  gap: 8px;
-}
+.benchGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 8px; }
 .benchCard {
   background: #0f172a;
   border: 1px solid var(--border-color);
   padding: 8px;
   border-radius: 6px;
   text-align: center;
+  cursor: pointer; /* クリックできることを示す */
+  z-index: 20;     /* 確実に押せるように */
 }
-.benchName { font-size: 11px; margin-bottom: 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.benchStatus { font-weight: bold; font-size: 14px; position: relative; top: 0; }
+.selected-m { border: 2px solid #ffd700; background: #451a03; }
 
-/* リスト */
 .listRows { display: flex; flex-direction: column; gap: 8px; }
-.listRow { display: flex; align-items: center; gap: 8px; background: #0f172a; padding: 8px; border-radius: 6px; }
-.listName { flex: 1; background: transparent; border: none; color: #fff; font-size: 15px; }
-
-/* 〇△×ボタンの整形 */
+.listRow { display: flex; align-items: center; gap: 8px; background: #0f172a; padding: 5px; border-radius: 6px; }
+.listName { flex: 1; background: transparent; border: none; color: #fff; font-size: 16px; }
 .listBtns { display: flex; gap: 5px; }
 .listBtn {
-  width: 36px;
-  height: 36px;
-  border-radius: 6px;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
   border: 1px solid #334155;
   background: #1e293b;
-  color: #64748b;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  color: #aaa;
+  border-radius: 6px;
   font-size: 18px;
   padding: 0;
 }
-.listBtn.ok.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
-.listBtn.maybe.active { background: #f59e0b; color: #fff; border-color: #f59e0b; }
-.listBtn.no.active { background: #ef4444; color: #fff; border-color: #ef4444; }
+.listBtn.ok.active { background: #3b82f6; color: #fff; }
+.listBtn.maybe.active { background: #f59e0b; color: #fff; }
+.listBtn.no.active { background: #ef4444; color: #fff; }
 
 
-/* --- 7. 管理画面入力フォーム（ファイル選択ボタン含む） --- */
+/* --- 5. 管理画面＆ファイル選択（要望通り修正） --- */
 .adminPanelMobile {
   margin: 10px;
   padding: 15px;
   background: #1e293b;
-  border: 1px solid #475569;
+  border: 1px solid #555;
   border-radius: 8px;
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 .adminField { display: flex; flex-direction: column; gap: 5px; }
-.adminLabel { font-size: 12px; color: #94a3b8; }
+.adminLabel { font-size: 12px; color: #aaa; }
 .textInput {
-  height: 44px;
-  padding: 10px;
-  background: #0f172a;
-  border: 1px solid #334155;
-  color: #fff;
-  border-radius: 6px;
+  height: 40px; padding: 5px 10px;
+  background: #0f172a; border: 1px solid #555; color: #fff; border-radius: 6px;
 }
 
-/* ★ファイル選択ボタン（真ん中寄せ） */
+/* ファイル選択ボタン：枠の真ん中に文字 */
 input[type="file"] {
   height: 44px;
   background: #0f172a;
-  border: 1px solid #334155;
+  border: 1px solid #555;
   border-radius: 6px;
   color: #fff;
   display: flex;
-  align-items: center; /* 上下の真ん中 */
+  align-items: center;    /* 上下の真ん中 */
   justify-content: center; /* 左右の真ん中 */
   padding: 0 10px;
   margin-top: 5px;
