@@ -1,5 +1,5 @@
 /* =========================================================
-   FC LINEUP MAKER - REAL STRIPED PITCH & GLASS ICONS
+   FC LINEUP MAKER - REAL STRIPED PITCH & GLASS ICONS (FIXED)
    ========================================================= */
 
 /* --- 1. システムリセット --- */
@@ -19,8 +19,6 @@ button {
   --panel-bg: #1e293b;
   --text-color: #f8fafc;
   --border-color: #334155;
-  
-  /* 画像に合わせたピッチの色（濃い緑と、少し明るい緑） */
   --pitch-dark: #1a4d33;
   --pitch-light: #265c42;
 }
@@ -56,7 +54,7 @@ body {
 .select { flex: 1; height: 42px; background: #0f172a; color: #fff; border: 1px solid #475569; border-radius: 8px; text-align: center; font-size: 16px; font-weight: bold; }
 
 
-/* --- 3. レイアウト全体（ご指定通り：カレンダー→リスト→ベンチ→ピッチ） --- */
+/* --- 3. レイアウト全体 --- */
 .layout {
   display: flex;
   flex-direction: column;
@@ -86,24 +84,11 @@ body {
 
 /* --- 5. 出欠リスト（2列表示） --- */
 .section-list { padding: 0 16px; }
-.listGridWrapper {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.listRowCompact {
-  display: flex; flex-direction: column;
-  background: #1e293b; padding: 10px; border-radius: 10px; border: 1px solid #334155;
-}
-.listNameCompact {
-  background: transparent; border: none; border-bottom: 1px solid #475569;
-  color: #fff; font-size: 14px; font-weight: 500; margin-bottom: 10px; text-align: center; width: 100%;
-}
+.listGridWrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.listRowCompact { display: flex; flex-direction: column; background: #1e293b; padding: 10px; border-radius: 10px; border: 1px solid #334155; }
+.listNameCompact { background: transparent; border: none; border-bottom: 1px solid #475569; color: #fff; font-size: 14px; font-weight: 500; margin-bottom: 10px; text-align: center; width: 100%; }
 .listBtnsCompact { display: flex; justify-content: space-between; gap: 6px; }
-.listBtnCompact {
-  flex: 1; height: 34px; border-radius: 6px; border: 1px solid #475569;
-  background: #0f172a; color: #64748b; display: flex; align-items: center; justify-content: center; font-size: 14px;
-}
+.listBtnCompact { flex: 1; height: 34px; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: #64748b; display: flex; align-items: center; justify-content: center; font-size: 14px; }
 .listBtnCompact.ok.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
 .listBtnCompact.maybe.active { background: #f59e0b; color: #fff; border-color: #f59e0b; }
 .listBtnCompact.no.active { background: #ef4444; color: #fff; border-color: #ef4444; }
@@ -112,22 +97,19 @@ body {
 /* --- 6. ベンチエリア --- */
 .section-bench { padding: 0 16px; }
 .benchGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; }
-.benchCard {
-  background: #1e293b; border: 1px solid #334155; padding: 8px 4px; border-radius: 8px;
-  text-align: center; cursor: grab;
-}
+.benchCard { background: #1e293b; border: 1px solid #334155; padding: 8px 4px; border-radius: 8px; text-align: center; cursor: grab; }
 .selected-m { border: 2px solid #fbbf24; background: #451a03; }
 .benchName { font-size: 11px; margin-bottom: 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: #e2e8f0; }
 .benchStatus { font-weight: bold; font-size: 14px; color: #94a3b8; }
 
 
-/* --- 7. ピッチ（★画像通りの縞模様＆ガラスアイコン★） --- */
+/* --- 7. ピッチ（縞模様＆ガラスアイコン） --- */
 .section-pitch {
   padding: 20px 0;
   background: #111;
   display: flex;
   justify-content: center;
-  align-items: flex-start; /* 上寄せ */
+  align-items: flex-start;
   min-height: 500px;
 }
 
@@ -139,8 +121,6 @@ body {
 
 .pitch {
   width: 100%; height: 100%;
-  
-  /* ★ここがポイント：画像の縞模様を再現 */
   background: repeating-linear-gradient(
     to bottom,
     var(--pitch-dark),
@@ -148,14 +128,12 @@ body {
     var(--pitch-light) 10%,
     var(--pitch-light) 20%
   );
-  
   border: 4px solid rgba(255,255,255,0.2);
   border-radius: 12px;
   position: relative;
   overflow: hidden;
 }
 
-/* 白線 */
 .lineLayer div { position: absolute; border: 1px solid rgba(255,255,255,0.5); }
 .outerLine { top: 5%; bottom: 5%; left: 5%; right: 5%; border-width: 2px !important; }
 .halfLine { top: 50%; left: 5%; right: 5%; }
@@ -163,60 +141,43 @@ body {
 .penTop { top: 5%; left: 24%; width: 52%; height: 16%; }
 .penBottom { bottom: 5%; left: 24%; width: 52%; height: 16%; }
 
-/* ★選手アイコン：画像の通りのガラスデザイン */
 .posSlot {
   width: 56px; height: 56px;
   position: absolute;
   transform: translate(-50%, -50%);
-  
-  /* 透明なガラス背景 */
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
-  
-  /* 白いくっきりした枠線 */
   border: 2px solid rgba(255, 255, 255, 0.8);
   border-radius: 50%;
-  
   display: flex; flex-direction: column; justify-content: center; align-items: center;
   z-index: 10; cursor: pointer;
   box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
-.waiting-drop {
-  background: rgba(251, 191, 36, 0.3);
-  border-color: #fbbf24;
-  transform: translate(-50%, -50%) scale(1.1);
-}
-
-.posRole {
-  font-size: 10px; font-weight: 800; color: #fff;
-  margin-bottom: 2px; text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-}
+.waiting-drop { background: rgba(251, 191, 36, 0.3); border-color: #fbbf24; transform: translate(-50%, -50%) scale(1.1); }
+.posRole { font-size: 10px; font-weight: 800; color: #fff; margin-bottom: 2px; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
 .posEmpty { font-size: 9px; color: rgba(255,255,255,0.8); font-weight: bold; }
+.posName { width: 50px; font-size: 10px; background: #fff; border: none; border-radius: 12px; padding: 2px 0; overflow: hidden; text-align: center; font-weight: bold; color: #0f172a; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
 
-/* 名前プレート */
-.posName {
-  width: 50px; font-size: 10px;
-  background: #fff; border: none; border-radius: 12px; padding: 2px 0;
-  overflow: hidden; text-align: center; font-weight: bold; color: #0f172a;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-}
-
-/* ★配置済み選手（青・オレンジ）もガラスっぽく */
-.slot-ok {
-  background: rgba(59, 130, 246, 0.7) !important;
-  border-color: #fff !important;
-}
-.slot-maybe {
-  background: rgba(245, 158, 11, 0.7) !important;
-  border-color: #fff !important;
-}
+.slot-ok { background: rgba(59, 130, 246, 0.7) !important; border-color: #fff !important; }
+.slot-maybe { background: rgba(245, 158, 11, 0.7) !important; border-color: #fff !important; }
 
 
-/* --- 8. 管理画面 --- */
+/* --- 8. 管理画面（★ここを修正しました） --- */
 .adminPanelMobile { margin: 10px; padding: 15px; background: #1e293b; border-radius: 12px; border: 1px solid #475569; display: flex; flex-direction: column; gap: 15px; }
 .adminField { display: flex; flex-direction: column; gap: 6px; }
 .adminLabel { font-size: 12px; color: #94a3b8; font-weight: bold; }
 .textInput { height: 44px; padding: 10px; background: #0f172a; border: 1px solid #334155; color: #fff; border-radius: 8px; font-size: 16px; }
-input[type="file"] { height: 44px; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: #fff; display: flex; align-items: center; justify-content: center; padding: 0 10px; margin-top: 5px; width: 100%; }
+
+/* ★修正箇所：余計なFlex設定を消し、シンプルにしました */
+input[type="file"] {
+  width: 100%;
+  margin-top: 5px;
+  padding: 8px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+}
