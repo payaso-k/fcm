@@ -28,7 +28,7 @@ const addMonths = (d, n) => new Date(d.getFullYear(), d.getMonth() + n, 1);
 
 const MEMBERS = Array.from({ length: 20 }, (_, i) => ({
   id: `m${i + 1}`,
-  label: `Member ${i + 1}`,
+  label: `選手 ${i + 1}`,
 }));
 const ADMIN_CODE_DEFAULT = "1234";
 
@@ -36,12 +36,16 @@ const ADMIN_CODE_DEFAULT = "1234";
 function Calendar({ monthDate, selectedKey, onSelectDate, onPrev, onNext }) {
   const start = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
   const end = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
-  const startDow = (start.getDay() + 6) % 7;
+  const startDow = (start.getDay() + 6) % 7; // 月曜始まりならこう。日曜始まりなら start.getDay()
   const daysInMonth = end.getDate();
+  
   const cells = [];
   for (let i = 0; i < startDow; i++) cells.push(null);
   for (let day = 1; day <= daysInMonth; day++) cells.push(new Date(monthDate.getFullYear(), monthDate.getMonth(), day));
   while (cells.length % 7 !== 0) cells.push(null);
+
+  // 曜日ヘッダー（日曜始まり）
+  const DAYS = ["日", "月", "火", "水", "木", "金", "土"];
 
   return (
     <div className="calendarCard">
@@ -50,15 +54,20 @@ function Calendar({ monthDate, selectedKey, onSelectDate, onPrev, onNext }) {
         <div className="calendarTitle">{toKey(monthDate).substring(0, 7)}</div>
         <button className="navBtn" onClick={onNext} type="button">›</button>
       </div>
+      {/* 曜日を表示する行を追加 */}
+      <div className="weekRow">
+        {DAYS.map(d => <div key={d} className={`weekDay ${d === "日" ? "sunday" : d === "土" ? "saturday" : ""}`}>{d}</div>)}
+      </div>
       <div className="calendarGrid">
         {cells.map((d, idx) => {
           if (!d) return <div key={idx} className="dayCell empty" />;
           const key = toKey(d);
+          const isToday = key === toKey(new Date());
           return (
             <button
               key={key}
               type="button"
-              className={`dayCell ${key === selectedKey ? "selected" : ""} ${key === toKey(new Date()) ? "today" : ""}`}
+              className={`dayCell ${key === selectedKey ? "selected" : ""} ${isToday ? "today" : ""}`}
               onClick={() => onSelectDate(key)}
             >
               {d.getDate()}
@@ -158,17 +167,14 @@ export default function App() {
   return (
     <div className="page">
       <header className="topbar">
-        {/* 上段：ロゴとチーム名 */}
         <div className="brandBar">
           <div className="logoBox">
             {logoDataUrl ? <img className="logoImg" src={logoDataUrl} alt="logo" /> : <div className="logoPlaceholder">LOGO</div>}
           </div>
           <div className="teamName">{teamName}</div>
         </div>
-        
-        {/* 下段：管理者ボタンとフォーメーション */}
         <div className="controls">
-          <button className="btn ghost" type="button" onClick={() => {
+          <button className="btn" type="button" onClick={() => {
             if (isAdmin || isMaster) { setIsAdmin(false); setIsMaster(false); }
             else {
               const code = window.prompt("ENTER CODE");
@@ -207,11 +213,48 @@ export default function App() {
         </div>
       )}
 
+      {/* ★並び順変更：シンプルに上から順に並べる構造に変更 */}
       <div className="layout">
-        <aside className="calendar">
+        
+        {/* 1. カレンダー */}
+        <div className="section-calendar">
           <Calendar monthDate={monthDate} selectedKey={selectedDateKey} onSelectDate={setSelectedDateKey} onPrev={() => setMonthDate(addMonths(monthDate, -1))} onNext={() => setMonthDate(addMonths(monthDate, 1))} />
-        </aside>
-        <main className="stage">
+        </div>
+
+        {/* 2. 出欠リスト（2列表示用クラス listGridWrapper を追加） */}
+        <div className="section-list">
+          <div className="panelHeader"><div className="panelTitle">出欠確認</div></div>
+          <div className="listGridWrapper">
+            {MEMBERS.map(m => (
+              <div key={m.id} className="listRowCompact">
+                <input className="listNameCompact" value={names[m.id] || ""} placeholder={m.label} onChange={(e) => setNames({ ...names, [m.id]: e.target.value })} />
+                <div className="listBtnsCompact">
+                  {["ok", "maybe", "no"].map(type => (
+                    <button key={type} className={`listBtnCompact ${type} ${status[m.id] === type ? "active" : ""}`} onClick={() => setStatusFor(m.id, type)} type="button">
+                      {type === "ok" ? "○" : type === "maybe" ? "△" : "×"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 3. ベンチ */}
+        <div className="section-bench">
+          <div className="panelHeader"><div className="panelTitle">ベンチ（待機メンバー）</div></div>
+          <div className="benchGrid">
+            {benchMembers.map(m => (
+              <div key={m.id} className={`benchCard status-${status[m.id]} ${selectedMemberId === m.id ? "selected-m" : ""}`} draggable onDragStart={(e) => e.dataTransfer.setData("text/memberId", m.id)} onClick={() => setSelectedMemberId(m.id === selectedMemberId ? null : m.id)}>
+                <div className="benchName">{names[m.id] || m.label}</div>
+                <div className="benchStatus">{status[m.id] === "ok" ? "○" : "△"}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 4. ピッチ（一番下） */}
+        <div className="section-pitch">
           <div className="pitchWrap">
             <div className="pitch">
               <div className="lineLayer">
@@ -233,36 +276,8 @@ export default function App() {
               })}
             </div>
           </div>
-        </main>
-        <aside className="side">
-          <section className="panel">
-            <div className="panelHeader"><div className="panelTitle">ベンチ</div></div>
-            <div className="benchGrid">
-              {benchMembers.map(m => (
-                <div key={m.id} className={`benchCard status-${status[m.id]} ${selectedMemberId === m.id ? "selected-m" : ""}`} draggable onDragStart={(e) => e.dataTransfer.setData("text/memberId", m.id)} onClick={() => setSelectedMemberId(m.id === selectedMemberId ? null : m.id)}>
-                  <div className="benchName">{names[m.id] || m.label}</div>
-                  <div className="benchStatus">{status[m.id] === "ok" ? "○" : "△"}</div>
-                </div>
-              ))}
-            </div>
-          </section>
-          <section className="panel">
-            <div className="listRows">
-              {MEMBERS.map(m => (
-                <div key={m.id} className="listRow">
-                  <input className="listName" value={names[m.id] || ""} placeholder={m.label} onChange={(e) => setNames({ ...names, [m.id]: e.target.value })} />
-                  <div className="listBtns">
-                    {["ok", "maybe", "no"].map(type => (
-                      <button key={type} className={`listBtn ${type} ${status[m.id] === type ? "active" : ""}`} onClick={() => setStatusFor(m.id, type)} type="button">
-                        {type === "ok" ? "○" : type === "maybe" ? "△" : "×"}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        </aside>
+        </div>
+
       </div>
     </div>
   );
