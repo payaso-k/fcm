@@ -1,8 +1,8 @@
 /* =========================================================
-   FC LINEUP MAKER - GLASS ICONS + CLASSIC PITCH
+   FC LINEUP MAKER - REAL STRIPED PITCH & GLASS ICONS
    ========================================================= */
 
-/* --- 1. 基本リセット --- */
+/* --- 1. システムリセット --- */
 button {
   appearance: none;
   -webkit-appearance: none;
@@ -19,8 +19,10 @@ button {
   --panel-bg: #1e293b;
   --text-color: #f8fafc;
   --border-color: #334155;
-  /* ★ピッチの色を元の「落ち着いた緑」に戻しました */
-  --pitch-color: #35654d;
+  
+  /* 画像に合わせたピッチの色（濃い緑と、少し明るい緑） */
+  --pitch-dark: #1a4d33;
+  --pitch-light: #265c42;
 }
 
 * { box-sizing: border-box; }
@@ -35,7 +37,7 @@ body {
 
 .page { display: flex; flex-direction: column; min-height: 100vh; }
 
-/* --- 2. ヘッダー（縦並び） --- */
+/* --- 2. ヘッダー --- */
 .topbar {
   background: var(--panel-bg);
   border-bottom: 1px solid var(--border-color);
@@ -54,7 +56,7 @@ body {
 .select { flex: 1; height: 42px; background: #0f172a; color: #fff; border: 1px solid #475569; border-radius: 8px; text-align: center; font-size: 16px; font-weight: bold; }
 
 
-/* --- 3. レイアウト全体（上から順に配置） --- */
+/* --- 3. レイアウト全体（ご指定通り：カレンダー→リスト→ベンチ→ピッチ） --- */
 .layout {
   display: flex;
   flex-direction: column;
@@ -65,7 +67,7 @@ body {
 .panelTitle { color: #94a3b8; font-weight: bold; font-size: 13px; letter-spacing: 1px; }
 
 
-/* --- 4. カレンダー（曜日付き） --- */
+/* --- 4. カレンダー --- */
 .section-calendar { padding: 0 12px; }
 .calendarCard { background: #0f172a; padding: 12px; border-radius: 12px; border: 1px solid var(--border-color); margin-top: 10px; }
 .calendarHeader { display: flex; justify-content: space-between; margin-bottom: 12px; font-weight: bold; color: #fff; }
@@ -119,7 +121,7 @@ body {
 .benchStatus { font-weight: bold; font-size: 14px; color: #94a3b8; }
 
 
-/* --- 7. ピッチ（ガラスアイコン + 落ち着いた緑色） --- */
+/* --- 7. ピッチ（★画像通りの縞模様＆ガラスアイコン★） --- */
 .section-pitch {
   padding: 20px 0;
   background: #111;
@@ -137,40 +139,48 @@ body {
 
 .pitch {
   width: 100%; height: 100%;
-  /* ★ここを修正：元の落ち着いた緑色に戻しました */
-  background: var(--pitch-color); 
-  border: 2px solid rgba(255,255,255,0.3);
+  
+  /* ★ここがポイント：画像の縞模様を再現 */
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--pitch-dark),
+    var(--pitch-dark) 10%,
+    var(--pitch-light) 10%,
+    var(--pitch-light) 20%
+  );
+  
+  border: 4px solid rgba(255,255,255,0.2);
   border-radius: 12px;
   position: relative;
   overflow: hidden;
 }
 
 /* 白線 */
-.lineLayer div { position: absolute; border: 1px solid rgba(255,255,255,0.6); }
+.lineLayer div { position: absolute; border: 1px solid rgba(255,255,255,0.5); }
 .outerLine { top: 5%; bottom: 5%; left: 5%; right: 5%; border-width: 2px !important; }
 .halfLine { top: 50%; left: 5%; right: 5%; }
 .centerCircle { top: 50%; left: 50%; transform: translate(-50%,-50%); width: 22%; height: 15%; border-radius: 50%; }
 .penTop { top: 5%; left: 24%; width: 52%; height: 16%; }
 .penBottom { bottom: 5%; left: 24%; width: 52%; height: 16%; }
 
-/* ★選手アイコン：ガラスのデザイン（画像通り） */
+/* ★選手アイコン：画像の通りのガラスデザイン */
 .posSlot {
   width: 56px; height: 56px;
   position: absolute;
   transform: translate(-50%, -50%);
   
-  /* ガラスの質感 */
-  background: rgba(255, 255, 255, 0.1); /* 薄い白透明 */
-  backdrop-filter: blur(4px);            /* ぼかし */
-  -webkit-backdrop-filter: blur(4px);
+  /* 透明なガラス背景 */
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
   
-  /* 白く光る枠線 */
-  border: 1.5px solid rgba(255, 255, 255, 0.6);
+  /* 白いくっきりした枠線 */
+  border: 2px solid rgba(255, 255, 255, 0.8);
   border-radius: 50%;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
   
   display: flex; flex-direction: column; justify-content: center; align-items: center;
   z-index: 10; cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
 .waiting-drop {
@@ -180,10 +190,10 @@ body {
 }
 
 .posRole {
-  font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.9);
-  margin-bottom: 2px; text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  font-size: 10px; font-weight: 800; color: #fff;
+  margin-bottom: 2px; text-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
-.posEmpty { font-size: 9px; color: rgba(255,255,255,0.7); font-weight: bold; }
+.posEmpty { font-size: 9px; color: rgba(255,255,255,0.8); font-weight: bold; }
 
 /* 名前プレート */
 .posName {
@@ -193,14 +203,14 @@ body {
   box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
-/* ★選手配置後のガラス色（青・オレンジ） */
+/* ★配置済み選手（青・オレンジ）もガラスっぽく */
 .slot-ok {
-  background: rgba(59, 130, 246, 0.6) !important; /* 青ガラス */
-  border-color: rgba(255, 255, 255, 0.9) !important;
+  background: rgba(59, 130, 246, 0.7) !important;
+  border-color: #fff !important;
 }
 .slot-maybe {
-  background: rgba(245, 158, 11, 0.6) !important; /* オレンジガラス */
-  border-color: rgba(255, 255, 255, 0.9) !important;
+  background: rgba(245, 158, 11, 0.7) !important;
+  border-color: #fff !important;
 }
 
 
