@@ -1,8 +1,8 @@
 /* =========================================================
-   FC LINEUP MAKER - REAL GLASS DESIGN (FINAL)
+   FC LINEUP MAKER - GLASS ICONS + CLASSIC PITCH
    ========================================================= */
 
-/* --- 1. システムリセット（ボタンの白枠消し） --- */
+/* --- 1. 基本リセット --- */
 button {
   appearance: none;
   -webkit-appearance: none;
@@ -19,8 +19,8 @@ button {
   --panel-bg: #1e293b;
   --text-color: #f8fafc;
   --border-color: #334155;
-  --pitch-primary: #2e8b57;   /* ピッチの明るい緑 */
-  --pitch-secondary: #267347; /* ピッチの暗い緑（縞模様用） */
+  /* ★ピッチの色を元の「落ち着いた緑」に戻しました */
+  --pitch-color: #35654d;
 }
 
 * { box-sizing: border-box; }
@@ -31,12 +31,11 @@ body {
   background-color: var(--bg-color);
   color: var(--text-color);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  -webkit-font-smoothing: antialiased;
 }
 
 .page { display: flex; flex-direction: column; min-height: 100vh; }
 
-/* --- 2. ヘッダー（縦並び・チーム名全表示） --- */
+/* --- 2. ヘッダー（縦並び） --- */
 .topbar {
   background: var(--panel-bg);
   border-bottom: 1px solid var(--border-color);
@@ -49,7 +48,7 @@ body {
 .logoBox { width: 44px; height: 44px; border-radius: 50%; background: #000; border: 1px solid #444; overflow: hidden; flex-shrink: 0; }
 .logoImg { width: 100%; height: 100%; object-fit: cover; }
 .logoPlaceholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #aaa; }
-.teamName { font-size: 20px; font-weight: 700; color: #fff; line-height: 1.2; letter-spacing: 0.5px; }
+.teamName { font-size: 20px; font-weight: 700; color: #fff; line-height: 1.2; }
 .controls { display: flex; justify-content: space-between; gap: 10px; }
 .btn { background: #334155; border: 1px solid #475569; color: #fff; padding: 0 16px; height: 42px; border-radius: 8px; font-size: 13px; font-weight: bold; display: flex; align-items: center; justify-content: center; white-space: nowrap; }
 .select { flex: 1; height: 42px; background: #0f172a; color: #fff; border: 1px solid #475569; border-radius: 8px; text-align: center; font-size: 16px; font-weight: bold; }
@@ -59,19 +58,18 @@ body {
 .layout {
   display: flex;
   flex-direction: column;
-  padding-bottom: 100px; /* スクロール最下部の余白 */
+  padding-bottom: 100px;
   gap: 20px;
 }
 .panelHeader { margin-bottom: 8px; }
-.panelTitle { color: #94a3b8; font-weight: bold; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
+.panelTitle { color: #94a3b8; font-weight: bold; font-size: 13px; letter-spacing: 1px; }
 
 
 /* --- 4. カレンダー（曜日付き） --- */
 .section-calendar { padding: 0 12px; }
-.calendarCard { background: #0f172a; padding: 12px; border-radius: 12px; border: 1px solid var(--border-color); margin-top: 10px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+.calendarCard { background: #0f172a; padding: 12px; border-radius: 12px; border: 1px solid var(--border-color); margin-top: 10px; }
 .calendarHeader { display: flex; justify-content: space-between; margin-bottom: 12px; font-weight: bold; color: #fff; }
-.navBtn { width: 32px; height: 32px; border-radius: 50%; border: 1px solid #475569; color: #fff; display: flex; align-items: center; justify-content: center; background: #1e293b; transition: background 0.2s; }
-.navBtn:active { background: #334155; }
+.navBtn { width: 32px; height: 32px; border-radius: 50%; border: 1px solid #475569; color: #fff; display: flex; align-items: center; justify-content: center; background: #1e293b; }
 
 .weekRow { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 6px; }
 .weekDay { text-align: center; font-size: 12px; color: #64748b; font-weight: bold; }
@@ -80,7 +78,7 @@ body {
 
 .calendarGrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
 .dayCell { aspect-ratio: 1; background: transparent; border-radius: 8px; color: #cbd5e1; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; }
-.dayCell.selected { background: #3b82f6; color: #fff; font-weight: bold; box-shadow: 0 2px 4px rgba(59, 130, 246, 0.5); }
+.dayCell.selected { background: #3b82f6; color: #fff; font-weight: bold; }
 .dayCell.today { border: 1px solid #64748b; color: #fff; }
 
 
@@ -88,40 +86,21 @@ body {
 .section-list { padding: 0 16px; }
 .listGridWrapper {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* きっちり2列 */
+  grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
-
 .listRowCompact {
-  display: flex;
-  flex-direction: column;
-  background: #1e293b; /* 少し明るいネイビー */
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px solid #334155;
+  display: flex; flex-direction: column;
+  background: #1e293b; padding: 10px; border-radius: 10px; border: 1px solid #334155;
 }
 .listNameCompact {
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid #475569;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 500;
-  margin-bottom: 10px;
-  text-align: center;
-  width: 100%;
-  padding-bottom: 4px;
+  background: transparent; border: none; border-bottom: 1px solid #475569;
+  color: #fff; font-size: 14px; font-weight: 500; margin-bottom: 10px; text-align: center; width: 100%;
 }
 .listBtnsCompact { display: flex; justify-content: space-between; gap: 6px; }
 .listBtnCompact {
-  flex: 1; height: 34px;
-  border-radius: 6px;
-  border: 1px solid #475569;
-  background: #0f172a;
-  color: #64748b;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px;
-  transition: all 0.2s;
+  flex: 1; height: 34px; border-radius: 6px; border: 1px solid #475569;
+  background: #0f172a; color: #64748b; display: flex; align-items: center; justify-content: center; font-size: 14px;
 }
 .listBtnCompact.ok.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
 .listBtnCompact.maybe.active { background: #f59e0b; color: #fff; border-color: #f59e0b; }
@@ -132,21 +111,15 @@ body {
 .section-bench { padding: 0 16px; }
 .benchGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; }
 .benchCard {
-  background: #1e293b;
-  border: 1px solid #334155;
-  padding: 8px 4px;
-  border-radius: 8px;
-  text-align: center;
-  cursor: grab;
-  transition: transform 0.1s;
+  background: #1e293b; border: 1px solid #334155; padding: 8px 4px; border-radius: 8px;
+  text-align: center; cursor: grab;
 }
-.benchCard:active { transform: scale(0.95); }
 .selected-m { border: 2px solid #fbbf24; background: #451a03; }
 .benchName { font-size: 11px; margin-bottom: 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: #e2e8f0; }
 .benchStatus { font-weight: bold; font-size: 14px; color: #94a3b8; }
 
 
-/* --- 7. ピッチ（★ここが本番！ガラスデザイン完全再現★） --- */
+/* --- 7. ピッチ（ガラスアイコン + 落ち着いた緑色） --- */
 .section-pitch {
   padding: 20px 0;
   background: #111;
@@ -157,42 +130,30 @@ body {
 }
 
 .pitchWrap {
-  width: 95%;
-  max-width: 600px;
-  aspect-ratio: 0.7; /* 少し縦長に */
-  position: relative;
+  width: 95%; max-width: 600px; aspect-ratio: 0.7; position: relative;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
   border-radius: 12px;
 }
 
 .pitch {
-  width: 100%;
-  height: 100%;
-  /* 縞模様の緑ピッチを再現 */
-  background: repeating-linear-gradient(
-    to bottom,
-    var(--pitch-primary),
-    var(--pitch-primary) 10%,
-    var(--pitch-secondary) 10%,
-    var(--pitch-secondary) 20%
-  );
-  border: 4px solid rgba(255,255,255,0.2);
+  width: 100%; height: 100%;
+  /* ★ここを修正：元の落ち着いた緑色に戻しました */
+  background: var(--pitch-color); 
+  border: 2px solid rgba(255,255,255,0.3);
   border-radius: 12px;
   position: relative;
-  overflow: hidden; /* はみ出し防止 */
+  overflow: hidden;
 }
 
-/* ピッチの白線 */
-.lineLayer div { position: absolute; border: 1px solid rgba(255,255,255,0.6); box-shadow: 0 0 4px rgba(0,0,0,0.2); }
+/* 白線 */
+.lineLayer div { position: absolute; border: 1px solid rgba(255,255,255,0.6); }
 .outerLine { top: 5%; bottom: 5%; left: 5%; right: 5%; border-width: 2px !important; }
 .halfLine { top: 50%; left: 5%; right: 5%; }
 .centerCircle { top: 50%; left: 50%; transform: translate(-50%,-50%); width: 22%; height: 15%; border-radius: 50%; }
 .penTop { top: 5%; left: 24%; width: 52%; height: 16%; }
 .penBottom { bottom: 5%; left: 24%; width: 52%; height: 16%; }
-.sixTop { top: 5%; left: 36%; width: 28%; height: 6%; }
-.sixBottom { bottom: 5%; left: 36%; width: 28%; height: 6%; }
 
-/* ★選手アイコン：ガラス化デザイン（Blur & Border） */
+/* ★選手アイコン：ガラスのデザイン（画像通り） */
 .posSlot {
   width: 56px; height: 56px;
   position: absolute;
@@ -200,8 +161,8 @@ body {
   
   /* ガラスの質感 */
   background: rgba(255, 255, 255, 0.1); /* 薄い白透明 */
-  backdrop-filter: blur(4px);            /* 背景をぼかす */
-  -webkit-backdrop-filter: blur(4px);    /* iPhone用 */
+  backdrop-filter: blur(4px);            /* ぼかし */
+  -webkit-backdrop-filter: blur(4px);
   
   /* 白く光る枠線 */
   border: 1.5px solid rgba(255, 255, 255, 0.6);
@@ -209,51 +170,33 @@ body {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
   
   display: flex; flex-direction: column; justify-content: center; align-items: center;
-  z-index: 10;
-  cursor: pointer;
-  transition: transform 0.1s;
+  z-index: 10; cursor: pointer;
 }
 
-.posSlot:active { transform: translate(-50%, -50%) scale(0.95); }
-
-/* ドラッグ受付中の光り方 */
 .waiting-drop {
   background: rgba(251, 191, 36, 0.3);
   border-color: #fbbf24;
-  box-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
   transform: translate(-50%, -50%) scale(1.1);
 }
 
 .posRole {
-  font-size: 10px;
-  font-weight: 800;
-  color: rgba(255,255,255,0.9);
-  margin-bottom: 2px;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-  letter-spacing: 0.5px;
+  font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.9);
+  margin-bottom: 2px; text-shadow: 0 1px 2px rgba(0,0,0,0.5);
 }
 .posEmpty { font-size: 9px; color: rgba(255,255,255,0.7); font-weight: bold; }
 
-/* 選手が入った時の名前プレート */
+/* 名前プレート */
 .posName {
-  width: 50px;
-  font-size: 10px;
-  background: #fff;
-  border: none;
-  border-radius: 12px;
-  padding: 2px 0;
-  overflow: hidden;
-  text-align: center;
-  font-weight: bold;
-  color: #0f172a;
+  width: 50px; font-size: 10px;
+  background: #fff; border: none; border-radius: 12px; padding: 2px 0;
+  overflow: hidden; text-align: center; font-weight: bold; color: #0f172a;
   box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
-/* ★配置済み選手のガラス色（青・オレンジ） */
+/* ★選手配置後のガラス色（青・オレンジ） */
 .slot-ok {
   background: rgba(59, 130, 246, 0.6) !important; /* 青ガラス */
   border-color: rgba(255, 255, 255, 0.9) !important;
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
 }
 .slot-maybe {
   background: rgba(245, 158, 11, 0.6) !important; /* オレンジガラス */
