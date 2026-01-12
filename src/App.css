@@ -90,8 +90,8 @@ body {
 .listBtnsCompact { display: flex; justify-content: space-between; gap: 6px; }
 .listBtnCompact { flex: 1; height: 34px; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: #64748b; display: flex; align-items: center; justify-content: center; font-size: 14px; }
 .listBtnCompact.ok.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
-.listBtnCompact.maybe.active { background: #f59e0b; color: #fff; border-color: #f59e0b; }
-.listBtnCompact.no.active { background: #ef4444; color: #fff; border-color: #ef4444; }
+.listBtnCompact.maybe.active { background: #f5e10b; color: #fff; border-color: #f5e10b; }
+.listBtnCompact.no.active { background: #e82525; color: #fff; border-color: #e82525; }
 
 
 /* --- 6. ベンチエリア --- */
@@ -142,13 +142,13 @@ body {
 .penBottom { bottom: 5%; left: 24%; width: 52%; height: 16%; }
 
 .posSlot {
-  width: 56px; height: 56px;
+  width: 58px; height: 58px;
   position: absolute;
   transform: translate(-50%, -50%);
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
-  border: 2px solid rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 50%;
   display: flex; flex-direction: column; justify-content: center; align-items: center;
   z-index: 10; cursor: pointer;
@@ -160,8 +160,8 @@ body {
 .posEmpty { font-size: 9px; color: rgba(255,255,255,0.8); font-weight: bold; }
 .posName { width: 50px; font-size: 10px; background: #fff; border: none; border-radius: 12px; padding: 2px 0; overflow: hidden; text-align: center; font-weight: bold; color: #0f172a; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
 
-.slot-ok { background: rgba(59, 130, 246, 0.7) !important; border-color: #fff !important; }
-.slot-maybe { background: rgba(245, 158, 11, 0.7) !important; border-color: #fff !important; }
+.slot-ok { background: rgba(59, 130, 246, 0.4) !important; border-color: #fff !important; }
+.slot-maybe { background: rgba(245, 225, 11, 0.4) !important; border-color: #fff !important; }
 
 
 /* --- 8. 管理画面（★ここを修正しました） --- */
