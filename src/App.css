@@ -175,7 +175,7 @@ body {
   -webkit-backdrop-filter: blur(2px);
   
   /* 白いくっきりした枠線 */
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 2px solid rgba(255, 255, 255, 0.8);
   border-radius: 50%;
   
   display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -190,7 +190,7 @@ body {
 }
 
 .posRole {
-  font-size: 14px; font-weight: 800; color: #fff;
+  font-size: 10px; font-weight: 800; color: #fff;
   margin-bottom: 2px; text-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
 .posEmpty { font-size: 9px; color: rgba(255,255,255,0.8); font-weight: bold; }
