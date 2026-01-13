@@ -45,7 +45,7 @@ function Calendar({ monthDate, selectedKey, onSelectDate, onPrev, onNext }) {
   while (cells.length % 7 !== 0) cells.push(null);
 
   // 曜日ヘッダー（日曜始まり）
-  const DAYS = ["日", "月", "火", "水", "木", "金", "土"];
+  const DAYS = ["月", "火", "水", "木", "金", "土", "日"];
 
   return (
     <div className="calendarCard">
