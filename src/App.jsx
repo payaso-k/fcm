@@ -158,8 +158,25 @@ export default function App() {
     });
   };
 
+  // 出欠ボタンを押した時の処理（同じのを押すとキャンセル）
   const setStatusFor = (id, val) => {
-    setStatusByDate((p) => ({ ...p, [selectedDateKey]: { ...(p[selectedDateKey] || {}), [id]: val } }));
+    setStatusByDate((prev) => {
+      const currentDay = prev[selectedDateKey] || {};
+      const currentVal = currentDay[id]; // 今の状態
+
+      // コピーを作る
+      const newDay = { ...currentDay };
+
+      if (currentVal === val) {
+        // ★ここが変更点：すでに同じステータスなら「削除」
+        delete newDay[id];
+      } else {
+        // 違えば「セット」
+        newDay[id] = val;
+      }
+
+      return { ...prev, [selectedDateKey]: newDay };
+    });
   };
 
   const benchMembers = MEMBERS.filter(m => (status[m.id] === "ok" || status[m.id] === "maybe") && !Object.values(placedBySlot).includes(m.id));
