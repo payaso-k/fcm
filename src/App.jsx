@@ -94,6 +94,7 @@ export default function App() {
   const [monthDate, setMonthDate] = useState(() => new Date());
   const [selectedDateKey, setSelectedDateKey] = useState(() => toKey(new Date()));
   const [statusByDate, setStatusByDate] = useState({});
+  const [memosByDate, setMemosByDate] = useState({});
   const [placedBySlotByDate, setPlacedBySlotByDate] = useState({});
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -113,6 +114,7 @@ export default function App() {
         if (data.formationByDate) setFormationByDate(data.formationByDate);
         if (data.defaultFormation) setDefaultFormation(data.defaultFormation);
         if (data.statusByDate) setStatusByDate(data.statusByDate);
+        if (data.memosByDate) setMemosByDate(data.memosByDate);
         if (data.placedBySlotByDate) setPlacedBySlotByDate(data.placedBySlotByDate);
         if (data.adminCode) setAdminCode(data.adminCode);
       }
@@ -125,9 +127,9 @@ export default function App() {
     if (!isLoaded) return;
     const dbRef = ref(db, 'teamData/');
     set(dbRef, {
-      teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, placedBySlotByDate, adminCode
+      teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate,memosByDate, placedBySlotByDate, adminCode
     });
-  }, [teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, placedBySlotByDate, adminCode, isLoaded]);
+  }, [teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate,memosByDate, placedBySlotByDate, adminCode, isLoaded]);
 
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
@@ -243,15 +245,35 @@ export default function App() {
           <div className="panelHeader"><div className="panelTitle">出欠確認</div></div>
           <div className="listGridWrapper">
             {MEMBERS.map(m => (
-              <div key={m.id} className="listRowCompact">
-                <input className="listNameCompact" value={names[m.id] || ""} placeholder={m.label} onChange={(e) => setNames({ ...names, [m.id]: e.target.value })} />
-                <div className="listBtnsCompact">
-                  {["ok", "maybe", "no"].map(type => (
-                    <button key={type} className={`listBtnCompact ${type} ${status[m.id] === type ? "active" : ""}`} onClick={() => setStatusFor(m.id, type)} type="button">
-                      {type === "ok" ? "○" : type === "maybe" ? "△" : "×"}
-                    </button>
-                  ))}
+              <div key={m.id} className="listRowCompact" style={{ flexDirection: 'column', height: 'auto', padding: '8px', gap: '5px' }}>
+                
+                {/* 上の段：名前とボタン */}
+                <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <input className="listNameCompact" value={names[m.id] || ""} placeholder={m.label} onChange={(e) => setNames({ ...names, [m.id]: e.target.value })} />
+                  <div className="listBtnsCompact">
+                    {["ok", "maybe", "no"].map(type => (
+                      <button key={type} className={`listBtnCompact ${type} ${status[m.id] === type ? "active" : ""}`} onClick={() => setStatusFor(m.id, type)} type="button">
+                        {type === "ok" ? "○" : type === "maybe" ? "△" : "×"}
+                      </button>
+                    ))}
+                  </div>
                 </div>
+
+                {/* 下の段：一言メモ欄 */}
+                <input
+                  type="text"
+                  placeholder="一言メモ..."
+                  value={(memosByDate[selectedDateKey] || {})[m.id] || ""}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setMemosByDate(prev => ({
+                      ...prev,
+                      [selectedDateKey]: { ...(prev[selectedDateKey] || {}), [m.id]: val }
+                    }));
+                  }}
+                  style={{ width: '100%', boxSizing: 'border-box', padding: '4px', borderRadius: '4px', border: '1px solid #555', background: '#333', color: '#fff', fontSize: '12px' }}
+                />
+                
               </div>
             ))}
           </div>
