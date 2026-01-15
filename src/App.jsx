@@ -287,7 +287,7 @@ export default function App() {
 
         {/* 3. ベンチ */}
         <div className="section-bench">
-          <div className="panelHeader"><div className="panelTitle">ベンチ（待機メンバー）</div></div>
+          <div className="panelHeader"><div className="panelTitle">bench</div></div>
           <div className="benchGrid">
             {benchMembers.map(m => (
               <div key={m.id} className={`benchCard status-${status[m.id]} ${selectedMemberId === m.id ? "selected-m" : ""}`} draggable onDragStart={(e) => e.dataTransfer.setData("text/memberId", m.id)} onClick={() => setSelectedMemberId(m.id === selectedMemberId ? null : m.id)}>
