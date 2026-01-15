@@ -262,7 +262,7 @@ export default function App() {
                 {/* 下の段：一言メモ欄 */}
                 <input
                   type="text"
-                  placeholder="一言メモ..."
+                  placeholder="memo..."
                   value={(memosByDate[selectedDateKey] || {})[m.id] || ""}
                   onChange={(e) => {
                     const val = e.target.value;
