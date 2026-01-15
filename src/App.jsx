@@ -26,7 +26,7 @@ const toKey = (d) => {
 };
 const addMonths = (d, n) => new Date(d.getFullYear(), d.getMonth() + n, 1);
 
-const MEMBERS = Array.from({ length: 20 }, (_, i) => ({
+const MEMBERS = Array.from({ length: 22 }, (_, i) => ({
   id: `m${i + 1}`,
   label: `member ${i + 1}`,
 }));
