@@ -252,7 +252,13 @@ export default function App() {
                   <input className="listNameCompact" value={names[m.id] || ""} placeholder={m.label} onChange={(e) => setNames({ ...names, [m.id]: e.target.value })} />
                   <div className="listBtnsCompact">
                     {["ok", "maybe", "no"].map(type => (
-                      <button key={type} className={`listBtnCompact ${type} ${status[m.id] === type ? "active" : ""}`} onClick={() => setStatusFor(m.id, type)} type="button">
+                      <button 
+                        key={type} 
+                        className={`listBtnCompact ${type} ${status[m.id] === type ? "active" : ""}`} 
+                        onClick={() => setStatusFor(m.id, type)} 
+                        type="button"
+                        style={{ width: '50px', height: '40px', fontSize: '18px' }} /* 👈 ここで大きさを調整！ */
+                      >
                         {type === "ok" ? "○" : type === "maybe" ? "△" : "×"}
                       </button>
                     ))}
