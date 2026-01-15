@@ -257,7 +257,7 @@ export default function App() {
                         className={`listBtnCompact ${type} ${status[m.id] === type ? "active" : ""}`} 
                         onClick={() => setStatusFor(m.id, type)} 
                         type="button"
-                        style={{ width: '50px', height: '40px', fontSize: '18px' }} /* 👈 ここで大きさを調整！ */
+                        style={{ width: '25px', height: '40px', fontSize: '18px' }} /* 👈 ここで大きさを調整！ */
                       >
                         {type === "ok" ? "○" : type === "maybe" ? "△" : "×"}
                       </button>
