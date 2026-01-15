@@ -28,7 +28,7 @@ const addMonths = (d, n) => new Date(d.getFullYear(), d.getMonth() + n, 1);
 
 const MEMBERS = Array.from({ length: 20 }, (_, i) => ({
   id: `m${i + 1}`,
-  label: `member ${i + 1}`,
+  label: `name ${i + 1}`,
 }));
 const ADMIN_CODE_DEFAULT = "1234";
 
