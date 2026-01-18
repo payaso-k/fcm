@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import html2canvas from "html2canvas";
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, set, onValue } from "firebase/database";
 import { FORMATIONS } from "./formations";
@@ -159,6 +160,20 @@ export default function App() {
     });
   };
 
+  const handleDownloadPitch = async () => {
+    const element = document.getElementById("pitch-content"); // ピッチのIDを探す
+    if (!element) return;
+    
+    // 画像化（高画質にするためにscale: 2）
+    const canvas = await html2canvas(element, { scale: 3, backgroundColor: null });
+    
+    // ダウンロード用リンクを作ってクリックさせる
+    const link = document.createElement("a");
+    link.download = `formation_${teamName}_${selectedDateKey}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  };
+
   const setStatusFor = (id, val) => {
     setStatusByDate((prev) => {
       const currentDay = prev[selectedDateKey] || {};
@@ -306,8 +321,26 @@ export default function App() {
 
         {/* 4. ピッチ */}
         <div className="section-pitch">
+          
+          {/* ▼ ヘッダーと保存ボタンを追加 ▼ */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', width: '100%', maxWidth: '600px', margin: '0 auto 10px' }}>
+             <div style={{ color: '#e8e2d2', fontWeight: 'bold' }}>PITCH AREA</div>
+             <button 
+               type="button" 
+               onClick={handleDownloadPitch}
+               style={{
+                 background: '#ca9e45', color: '#3e3226', border: 'none', 
+                 padding: '6px 12px', borderRadius: '4px', fontWeight: 'bold', fontSize: '12px',
+                 cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px'
+               }}
+             >
+               📷 画像保存
+             </button>
+          </div>
+
           <div className="pitchWrap">
-            <div className="pitch">
+            {/* ▼ ここに id="pitch-content" を追加！これが撮影範囲になります ▼ */}
+            <div className="pitch" id="pitch-content">
               <div className="lineLayer">
                 <div className="outerLine" /><div className="halfLine" /><div className="centerCircle" /><div className="centerSpot" />
                 <div className="penTop" /><div className="sixTop" /><div className="spotTop" /><div className="penBottom" /><div className="sixBottom" /><div className="spotBottom" />
@@ -328,8 +361,3 @@ export default function App() {
             </div>
           </div>
         </div>
-
-      </div>
-    </div>
-  );
-}
