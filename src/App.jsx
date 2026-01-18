@@ -37,7 +37,7 @@ const ADMIN_CODE_DEFAULT = "1234";
 function Calendar({ monthDate, selectedKey, onSelectDate, onPrev, onNext }) {
   const start = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
   const end = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
-  const startDow = (start.getDay() + 6) % 7; // 月曜始まり
+  const startDow = (start.getDay() + 6) % 7; 
   const daysInMonth = end.getDate();
   
   const cells = [];
@@ -173,15 +173,15 @@ export default function App() {
     });
   };
 
-  // ★★★ 画像保存・シェア機能（修正版：縞模様を維持） ★★★
+  // ★★★ 画像保存・シェア機能（修正版：見た目通りに保存） ★★★
   const handleSaveImage = async () => {
     // 枠を含めた全体を取得
     const element = document.getElementById("pitch-content");
     if (!element) return;
 
     try {
-      // 緑色の強制指定を「削除」しました。
-      // nullにすることで、CSSのbackground（縞模様）がそのまま使われます。
+      // 背景色指定を「null」にします。
+      // これにより、要素に直接指定されたCSS（縞模様）がそのまま画像化されます。
       const canvas = await html2canvas(element, { 
         scale: 3, 
         useCORS: true,
@@ -203,6 +203,7 @@ export default function App() {
             // キャンセル時は無視
           }
         } else {
+          // PC用
           const link = document.createElement("a");
           link.download = `formation_${teamName}_${selectedDateKey}.png`;
           link.href = canvas.toDataURL("image/png");
@@ -340,7 +341,7 @@ export default function App() {
         <div className="section-pitch" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', width: '100%', maxWidth: '600px' }}>
-             <div style={{ color: '#e8e2d2', fontWeight: 'bold' }}>Starting lineup</div>
+             <div style={{ color: '#e8e2d2', fontWeight: 'bold' }}>PITCH AREA</div>
              <button 
                type="button" 
                onClick={handleSaveImage}
@@ -350,15 +351,27 @@ export default function App() {
                  cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px'
                }}
              >
-               save
+               📷 画像保存/共有
              </button>
           </div>
 
-          {/* ▼ 修正済：.pitchWrap にIDを付与＆backgroundColorはnullに設定。
-              これでCSSの縞模様が表示されたまま保存されます。
-          */}
           <div className="pitchWrap" id="pitch-content">
-            <div className="pitch">
+            {/* ★★★ 修正箇所：CSSファイルを使わず、ここに直接「縞模様」を書き込みました ★★★
+                 これにより、画像生成時に読み込みエラーが起きず、必ずこの縞模様で保存されます。
+            */}
+            <div 
+              className="pitch" 
+              style={{
+                // 濃い緑と少し明るい緑のストライプ（縞模様）を直接指定
+                background: 'repeating-linear-gradient(to bottom, #2f4f2f, #2f4f2f 10%, #3a633a 10%, #3a633a 20%)',
+                border: '4px solid rgba(255,255,255,0.8)',
+                borderRadius: '12px',
+                position: 'relative',
+                overflow: 'hidden',
+                width: '100%',
+                height: '100%'
+              }}
+            >
               <div className="lineLayer">
                 <div className="outerLine" /><div className="halfLine" /><div className="centerCircle" /><div className="centerSpot" />
                 <div className="penTop" /><div className="sixTop" /><div className="spotTop" /><div className="penBottom" /><div className="sixBottom" /><div className="spotBottom" />
