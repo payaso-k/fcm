@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import html2canvas from "html2canvas";
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, set, onValue } from "firebase/database";
+import html2canvas from "html2canvas";
 import { FORMATIONS } from "./formations";
 import "./App.css";
 
@@ -45,7 +45,6 @@ function Calendar({ monthDate, selectedKey, onSelectDate, onPrev, onNext }) {
   for (let day = 1; day <= daysInMonth; day++) cells.push(new Date(monthDate.getFullYear(), monthDate.getMonth(), day));
   while (cells.length % 7 !== 0) cells.push(null);
 
-  // 曜日ヘッダー（月曜始まり）
   const DAYS = ["月", "火", "水", "木", "金", "土", "日"];
 
   return (
@@ -160,34 +159,34 @@ export default function App() {
     });
   };
 
-  const handleDownloadPitch = async () => {
-    const element = document.getElementById("pitch-content"); // ピッチのIDを探す
-    if (!element) return;
-    
-    // 画像化（高画質にするためにscale: 2）
-    const canvas = await html2canvas(element, { scale: 3, backgroundColor: null });
-    
-    // ダウンロード用リンクを作ってクリックさせる
-    const link = document.createElement("a");
-    link.download = `formation_${teamName}_${selectedDateKey}.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-  };
-
   const setStatusFor = (id, val) => {
     setStatusByDate((prev) => {
       const currentDay = prev[selectedDateKey] || {};
       const currentVal = currentDay[id]; 
       const newDay = { ...currentDay };
-
       if (currentVal === val) {
         delete newDay[id];
       } else {
         newDay[id] = val;
       }
-
       return { ...prev, [selectedDateKey]: newDay };
     });
+  };
+
+  // 画像保存機能
+  const handleDownloadPitch = async () => {
+    const element = document.getElementById("pitch-content");
+    if (!element) return;
+    try {
+      const canvas = await html2canvas(element, { scale: 3, backgroundColor: null });
+      const link = document.createElement("a");
+      link.download = `formation_${teamName}_${selectedDateKey}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    } catch (err) {
+      console.error("保存失敗:", err);
+      alert("画像の保存に失敗しました");
+    }
   };
 
   const benchMembers = MEMBERS.filter(m => (status[m.id] === "ok" || status[m.id] === "maybe") && !Object.values(placedBySlot).includes(m.id));
@@ -211,8 +210,6 @@ export default function App() {
               else { alert("コードが違います"); }
             }
           }}>{(isAdmin || isMaster) ? "ログアウト" : "管理者"}</button>
-          
-          {/* ★削除：ここにあったSelectを削除しました */}
         </div>
       </header>
 
@@ -256,17 +253,12 @@ export default function App() {
                   <input className="listNameCompact" value={names[m.id] || ""} placeholder={m.label} onChange={(e) => setNames({ ...names, [m.id]: e.target.value })} />
                   <div className="listBtnsCompact">
                     {["ok", "maybe", "no"].map(type => (
-                     <button 
+                      <button 
                         key={type} 
                         className={`listBtnCompact ${type} ${status[m.id] === type ? "active" : ""}`} 
                         onClick={() => setStatusFor(m.id, type)} 
                         type="button"
-                        style={{ 
-                          width: '24px',   /* 幅はそのまま */
-                          height: '40px',  /* 高さもそのまま */
-                          /* ▼▼▼ ここを変更！〇だけ14px、他は18pxにする ▼▼▼ */
-                          fontSize: type === 'ok' ? '14px' : '18px' 
-                        }}
+                        style={{ width: '24px', height: '40px', fontSize: type === 'ok' ? '14px' : '18px' }}
                       >
                         {type === "ok" ? "○" : type === "maybe" ? "△" : "×"}
                       </button>
@@ -304,7 +296,7 @@ export default function App() {
           </div>
         </div>
 
-        {/* ★★★ 追加：フォーメーション選択をここに移動 ★★★ */}
+        {/* フォーメーション選択エリア */}
         <div className="section-formation" style={{ background: '#e8e2d2', padding: '15px', borderRadius: '12px', border: '1px solid #c4b6a6', boxShadow: '0 2px 5px rgba(62, 50, 38, 0.1)' }}>
            <div className="panelHeader" style={{ borderBottom: '2px solid #9a2c2e', marginBottom: '15px', paddingBottom: '10px' }}>
               <div className="panelTitle" style={{ color: '#3e3226', fontWeight: 'bold' }}>フォーメーション変更</div>
@@ -322,7 +314,7 @@ export default function App() {
         {/* 4. ピッチ */}
         <div className="section-pitch">
           
-          {/* ▼ ヘッダーと保存ボタンを追加 ▼ */}
+          {/* 画像保存ボタン */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', width: '100%', maxWidth: '600px', margin: '0 auto 10px' }}>
              <div style={{ color: '#e8e2d2', fontWeight: 'bold' }}>PITCH AREA</div>
              <button 
@@ -339,7 +331,6 @@ export default function App() {
           </div>
 
           <div className="pitchWrap">
-            {/* ▼ ここに id="pitch-content" を追加！これが撮影範囲になります ▼ */}
             <div className="pitch" id="pitch-content">
               <div className="lineLayer">
                 <div className="outerLine" /><div className="halfLine" /><div className="centerCircle" /><div className="centerSpot" />
@@ -361,3 +352,8 @@ export default function App() {
             </div>
           </div>
         </div>
+
+      </div>
+    </div>
+  );
+}
