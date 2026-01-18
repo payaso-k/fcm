@@ -342,7 +342,7 @@ export default function App() {
         <div className="section-pitch" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', width: '100%', maxWidth: '600px' }}>
-             <div style={{ color: '#e8e2d2', fontWeight: 'bold' }}>PITCH AREA</div>
+             <div style={{ color: '#e8e2d2', fontWeight: 'bold' }}>starting lineup</div>
              <button 
                type="button" 
                onClick={handleSaveImage}
@@ -352,7 +352,7 @@ export default function App() {
                  cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px'
                }}
              >
-               📷 画像保存/共有
+               save
              </button>
           </div>
 
