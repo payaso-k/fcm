@@ -173,26 +173,27 @@ export default function App() {
     });
   };
 
-  // ★★★ 画像保存・シェア機能（スマホ対応版） ★★★
+  // ★★★ 画像保存機能（修正版） ★★★
   const handleSaveImage = async () => {
+    // 変更：.pitch ではなく .pitchWrap（外枠）を取得する
     const element = document.getElementById("pitch-content");
     if (!element) return;
 
     try {
-      // 1. 画像を作る（芝生も含まれるように設定を調整）
+      // 緑色の強制指定を削除し、null（透明）を指定
+      // ※これでCSSのbackground（縞模様）がそのまま透けて見えるようになります
       const canvas = await html2canvas(element, { 
         scale: 3, 
-        useCORS: true, 
-        allowTaint: true
-        // backgroundColor: null を削除しました（これが原因で芝生が消えていました）
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: null, 
       });
 
-      // 2. スマホの「共有メニュー」を開く（カメラロール保存用）
       canvas.toBlob(async (blob) => {
         if (!blob) return;
         const file = new File([blob], `formation_${teamName}_${selectedDateKey}.png`, { type: "image/png" });
 
-        // スマホで「共有（保存）」が使えるかチェック
+        // スマホの共有メニュー呼び出し
         if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
           try {
             await navigator.share({
@@ -200,10 +201,10 @@ export default function App() {
               title: 'Formation',
             });
           } catch (error) {
-            // キャンセル時は何もしない
+            // キャンセル時は無視
           }
         } else {
-          // PCなどは今まで通りダウンロード
+          // PC用ダウンロード
           const link = document.createElement("a");
           link.download = `formation_${teamName}_${selectedDateKey}.png`;
           link.href = canvas.toDataURL("image/png");
@@ -337,10 +338,9 @@ export default function App() {
            </select>
         </div>
 
-        {/* 4. ピッチ（修正済み：サイズと並び順を元に戻しました） */}
+        {/* 4. ピッチ */}
         <div className="section-pitch" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           
-          {/* 画像保存ボタン */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', width: '100%', maxWidth: '600px' }}>
              <div style={{ color: '#e8e2d2', fontWeight: 'bold' }}>PITCH AREA</div>
              <button 
@@ -352,13 +352,16 @@ export default function App() {
                  cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px'
                }}
              >
-               save
+               📷 画像保存/共有
              </button>
           </div>
 
-          <div className="pitchWrap">
-            {/* 撮影用ID: pitch-content */}
-            <div className="pitch" id="pitch-content">
+          {/* ▼ 変更点：ID="pitch-content" を .pitchWrap に移動しました 
+              これで芝生(.pitch)だけでなく、その周りの枠(.pitchWrap)も含めて撮影されるので、
+              見た目通りの縞模様と枠線が保存されます。
+          */}
+          <div className="pitchWrap" id="pitch-content">
+            <div className="pitch">
               <div className="lineLayer">
                 <div className="outerLine" /><div className="halfLine" /><div className="centerCircle" /><div className="centerSpot" />
                 <div className="penTop" /><div className="sixTop" /><div className="spotTop" /><div className="penBottom" /><div className="sixBottom" /><div className="spotBottom" />
