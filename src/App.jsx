@@ -173,20 +173,19 @@ export default function App() {
     });
   };
 
-  // ★★★ 画像保存・シェア機能（修正版：見た目通りに保存） ★★★
+  // ★★★ 画像保存・シェア機能 ★★★
   const handleSaveImage = async () => {
-    // 枠を含めた全体を取得
     const element = document.getElementById("pitch-content");
     if (!element) return;
 
     try {
-      // 背景色指定を「null」にします。
-      // これにより、要素に直接指定されたCSS（縞模様）がそのまま画像化されます。
+      // 緑色の強制指定を削除しました。
+      // 代わりに、Element側のstyleに縞模様を直接記述しているので、それがそのまま保存されます。
       const canvas = await html2canvas(element, { 
         scale: 3, 
         useCORS: true,
         allowTaint: true,
-        backgroundColor: null, 
+        backgroundColor: null, // ここは透明にして、Elementのデザインを優先
       });
 
       canvas.toBlob(async (blob) => {
@@ -341,7 +340,7 @@ export default function App() {
         <div className="section-pitch" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', width: '100%', maxWidth: '600px' }}>
-             <div style={{ color: '#e8e2d2', fontWeight: 'bold' }}>LINEUP</div>
+             <div style={{ color: '#e8e2d2', fontWeight: 'bold' }}>PITCH AREA</div>
              <button 
                type="button" 
                onClick={handleSaveImage}
@@ -351,18 +350,18 @@ export default function App() {
                  cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px'
                }}
              >
-               save
+               📷 画像保存/共有
              </button>
           </div>
 
-          <div className="pitchWrap" id="pitch-content">
-            {/* ★★★ 修正箇所：CSSファイルを使わず、ここに直接「縞模様」を書き込みました ★★★
-                 これにより、画像生成時に読み込みエラーが起きず、必ずこの縞模様で保存されます。
-            */}
+          <div className="pitchWrap">
+            {/* ★ここがポイント：縞模様（repeating-linear-gradient）をCSSファイルではなく
+                ここに直接「style」として書き込みました。
+                これにより、画像生成ツールが確実に縞模様を認識・描画します。 */}
             <div 
               className="pitch" 
+              id="pitch-content" 
               style={{
-                // 濃い緑と少し明るい緑のストライプ（縞模様）を直接指定
                 background: 'repeating-linear-gradient(to bottom, #2f4f2f, #2f4f2f 10%, #3a633a 10%, #3a633a 20%)',
                 border: '4px solid rgba(255,255,255,0.8)',
                 borderRadius: '12px',
