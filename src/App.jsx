@@ -173,17 +173,44 @@ export default function App() {
     });
   };
 
-  const handleDownloadPitch = async () => {
+  // ★★★ 画像保存・シェア機能（スマホ対応版） ★★★
+  const handleSaveImage = async () => {
     const element = document.getElementById("pitch-content");
     if (!element) return;
+
     try {
-      const canvas = await html2canvas(element, { scale: 3, backgroundColor: null });
-      const link = document.createElement("a");
-      link.download = `formation_${teamName}_${selectedDateKey}.png`;
-      link.href = canvas.toDataURL("image/png");
-      link.click();
+      // 1. 画像を作る（芝生も含まれるように設定を調整）
+      const canvas = await html2canvas(element, { 
+        scale: 3, 
+        useCORS: true, 
+        allowTaint: true
+        // backgroundColor: null を削除しました（これが原因で芝生が消えていました）
+      });
+
+      // 2. スマホの「共有メニュー」を開く（カメラロール保存用）
+      canvas.toBlob(async (blob) => {
+        if (!blob) return;
+        const file = new File([blob], `formation_${teamName}_${selectedDateKey}.png`, { type: "image/png" });
+
+        // スマホで「共有（保存）」が使えるかチェック
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: 'Formation',
+            });
+          } catch (error) {
+            // キャンセル時は何もしない
+          }
+        } else {
+          // PCなどは今まで通りダウンロード
+          const link = document.createElement("a");
+          link.download = `formation_${teamName}_${selectedDateKey}.png`;
+          link.href = canvas.toDataURL("image/png");
+          link.click();
+        }
+      });
     } catch (err) {
-      console.error("保存失敗:", err);
       alert("画像の保存に失敗しました");
     }
   };
@@ -310,8 +337,7 @@ export default function App() {
            </select>
         </div>
 
-        {/* 4. ピッチ（ここを修正しました） */}
-        {/* ★flexDirection: 'column' を追加して縦並びにしました。これでピッチのサイズが戻ります */}
+        {/* 4. ピッチ（修正済み：サイズと並び順を元に戻しました） */}
         <div className="section-pitch" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           
           {/* 画像保存ボタン */}
@@ -319,18 +345,19 @@ export default function App() {
              <div style={{ color: '#e8e2d2', fontWeight: 'bold' }}>PITCH AREA</div>
              <button 
                type="button" 
-               onClick={handleDownloadPitch}
+               onClick={handleSaveImage}
                style={{
                  background: '#ca9e45', color: '#3e3226', border: 'none', 
                  padding: '6px 12px', borderRadius: '4px', fontWeight: 'bold', fontSize: '12px',
                  cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px'
                }}
              >
-               📷 画像保存
+               📷 画像保存/共有
              </button>
           </div>
 
           <div className="pitchWrap">
+            {/* 撮影用ID: pitch-content */}
             <div className="pitch" id="pitch-content">
               <div className="lineLayer">
                 <div className="outerLine" /><div className="halfLine" /><div className="centerCircle" /><div className="centerSpot" />
