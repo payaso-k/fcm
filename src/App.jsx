@@ -36,7 +36,7 @@ const ADMIN_CODE_DEFAULT = "1234";
 function Calendar({ monthDate, selectedKey, onSelectDate, onPrev, onNext }) {
   const start = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
   const end = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
-  const startDow = (start.getDay() + 6) % 7; // 月曜始まりならこう。日曜始まりなら start.getDay()
+  const startDow = (start.getDay() + 6) % 7; // 月曜始まり
   const daysInMonth = end.getDate();
   
   const cells = [];
@@ -44,7 +44,7 @@ function Calendar({ monthDate, selectedKey, onSelectDate, onPrev, onNext }) {
   for (let day = 1; day <= daysInMonth; day++) cells.push(new Date(monthDate.getFullYear(), monthDate.getMonth(), day));
   while (cells.length % 7 !== 0) cells.push(null);
 
-  // 曜日ヘッダー（日曜始まり）
+  // 曜日ヘッダー（月曜始まり）
   const DAYS = ["月", "火", "水", "木", "金", "土", "日"];
 
   return (
@@ -54,7 +54,6 @@ function Calendar({ monthDate, selectedKey, onSelectDate, onPrev, onNext }) {
         <div className="calendarTitle">{toKey(monthDate).substring(0, 7)}</div>
         <button className="navBtn" onClick={onNext} type="button">›</button>
       </div>
-      {/* 曜日を表示する行を追加 */}
       <div className="weekRow">
         {DAYS.map(d => <div key={d} className={`weekDay ${d === "日" ? "sunday" : d === "土" ? "saturday" : ""}`}>{d}</div>)}
       </div>
@@ -127,9 +126,9 @@ export default function App() {
     if (!isLoaded) return;
     const dbRef = ref(db, 'teamData/');
     set(dbRef, {
-      teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate,memosByDate, placedBySlotByDate, adminCode
+      teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode
     });
-  }, [teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate,memosByDate, placedBySlotByDate, adminCode, isLoaded]);
+  }, [teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, isLoaded]);
 
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
@@ -160,20 +159,15 @@ export default function App() {
     });
   };
 
-  // 出欠ボタンを押した時の処理（同じのを押すとキャンセル）
   const setStatusFor = (id, val) => {
     setStatusByDate((prev) => {
       const currentDay = prev[selectedDateKey] || {};
-      const currentVal = currentDay[id]; // 今の状態
-
-      // コピーを作る
+      const currentVal = currentDay[id]; 
       const newDay = { ...currentDay };
 
       if (currentVal === val) {
-        // ★ここが変更点：すでに同じステータスなら「削除」
         delete newDay[id];
       } else {
-        // 違えば「セット」
         newDay[id] = val;
       }
 
@@ -202,10 +196,8 @@ export default function App() {
               else { alert("コードが違います"); }
             }
           }}>{(isAdmin || isMaster) ? "ログアウト" : "管理者"}</button>
-
-          <select className="select" value={currentFormation} onChange={(e) => setFormationByDate(prev => ({ ...prev, [selectedDateKey]: e.target.value }))}>
-            {keys.map(k => <option key={k} value={k}>{k}</option>)}
-          </select>
+          
+          {/* ★削除：ここにあったSelectを削除しました */}
         </div>
       </header>
 
@@ -226,13 +218,12 @@ export default function App() {
             </select>
           </div>
           <div className="adminField">
-            <label className="adminLabel" style={{ color: '#ffcc00' }}>管理者パスコード変更</label>
-            <input className="textInput" type="text" value={adminCode} onChange={(e) => setAdminCode(e.target.value)} style={{ border: '1px solid #ffcc00' }} />
+            <label className="adminLabel" style={{ color: '#ca9e45' }}>管理者パスコード変更</label>
+            <input className="textInput" type="text" value={adminCode} onChange={(e) => setAdminCode(e.target.value)} style={{ border: '1px solid #ca9e45' }} />
           </div>
         </div>
       )}
 
-      {/* ★並び順変更：シンプルに上から順に並べる構造に変更 */}
       <div className="layout">
         
         {/* 1. カレンダー */}
@@ -240,14 +231,12 @@ export default function App() {
           <Calendar monthDate={monthDate} selectedKey={selectedDateKey} onSelectDate={setSelectedDateKey} onPrev={() => setMonthDate(addMonths(monthDate, -1))} onNext={() => setMonthDate(addMonths(monthDate, 1))} />
         </div>
 
-        {/* 2. 出欠リスト（2列表示用クラス listGridWrapper を追加） */}
+        {/* 2. 出欠リスト */}
         <div className="section-list">
           <div className="panelHeader"><div className="panelTitle">出欠確認</div></div>
           <div className="listGridWrapper">
             {MEMBERS.map(m => (
               <div key={m.id} className="listRowCompact" style={{ flexDirection: 'column', height: 'auto', padding: '8px', gap: '5px' }}>
-                
-                {/* 上の段：名前とボタン */}
                 <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center' }}>
                   <input className="listNameCompact" value={names[m.id] || ""} placeholder={m.label} onChange={(e) => setNames({ ...names, [m.id]: e.target.value })} />
                   <div className="listBtnsCompact">
@@ -257,18 +246,16 @@ export default function App() {
                         className={`listBtnCompact ${type} ${status[m.id] === type ? "active" : ""}`} 
                         onClick={() => setStatusFor(m.id, type)} 
                         type="button"
-                        style={{ width: '24px', height: '40px', fontSize: '18px' }} /* 👈 ここで大きさを調整！ */
+                        style={{ width: '24px', height: '40px', fontSize: '18px' }}
                       >
                         {type === "ok" ? "○" : type === "maybe" ? "△" : "×"}
                       </button>
                     ))}
                   </div>
                 </div>
-
-                {/* 下の段：一言メモ欄 */}
                 <input
                   type="text"
-                  placeholder="memo..."
+                  placeholder="メモ..."
                   value={(memosByDate[selectedDateKey] || {})[m.id] || ""}
                   onChange={(e) => {
                     const val = e.target.value;
@@ -277,9 +264,8 @@ export default function App() {
                       [selectedDateKey]: { ...(prev[selectedDateKey] || {}), [m.id]: val }
                     }));
                   }}
-                  style={{ width: '100%', boxSizing: 'border-box', padding: '4px', borderRadius: '4px', border: '1px solid #555', background: '#333', color: '#fff', fontSize: '12px' }}
+                  style={{ width: '100%', boxSizing: 'border-box', padding: '4px', borderRadius: '4px', border: '1px solid #c4b6a6', background: '#fff', color: '#3e3226', fontSize: '12px' }}
                 />
-                
               </div>
             ))}
           </div>
@@ -287,7 +273,7 @@ export default function App() {
 
         {/* 3. ベンチ */}
         <div className="section-bench">
-          <div className="panelHeader"><div className="panelTitle">bench</div></div>
+          <div className="panelHeader"><div className="panelTitle">ベンチ（待機メンバー）</div></div>
           <div className="benchGrid">
             {benchMembers.map(m => (
               <div key={m.id} className={`benchCard status-${status[m.id]} ${selectedMemberId === m.id ? "selected-m" : ""}`} draggable onDragStart={(e) => e.dataTransfer.setData("text/memberId", m.id)} onClick={() => setSelectedMemberId(m.id === selectedMemberId ? null : m.id)}>
@@ -298,7 +284,22 @@ export default function App() {
           </div>
         </div>
 
-        {/* 4. ピッチ（一番下） */}
+        {/* ★★★ 追加：フォーメーション選択をここに移動 ★★★ */}
+        <div className="section-formation" style={{ background: '#e8e2d2', padding: '15px', borderRadius: '12px', border: '1px solid #c4b6a6', boxShadow: '0 2px 5px rgba(62, 50, 38, 0.1)' }}>
+           <div className="panelHeader" style={{ borderBottom: '2px solid #9a2c2e', marginBottom: '15px', paddingBottom: '10px' }}>
+              <div className="panelTitle" style={{ color: '#3e3226', fontWeight: 'bold' }}>フォーメーション変更</div>
+           </div>
+           <select 
+             className="select" 
+             style={{ width: '100%', maxWidth: '100%', cursor: 'pointer', background: '#fff', color: '#3e3226', border: '1px solid #c4b6a6' }}
+             value={currentFormation} 
+             onChange={(e) => setFormationByDate(prev => ({ ...prev, [selectedDateKey]: e.target.value }))}
+           >
+             {keys.map(k => <option key={k} value={k}>{k}</option>)}
+           </select>
+        </div>
+
+        {/* 4. ピッチ */}
         <div className="section-pitch">
           <div className="pitchWrap">
             <div className="pitch">
