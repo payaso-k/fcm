@@ -173,7 +173,6 @@ export default function App() {
     });
   };
 
-  // 画像保存機能
   const handleDownloadPitch = async () => {
     const element = document.getElementById("pitch-content");
     if (!element) return;
@@ -296,7 +295,7 @@ export default function App() {
           </div>
         </div>
 
-        {/* フォーメーション選択エリア */}
+        {/* フォーメーション選択 */}
         <div className="section-formation" style={{ background: '#e8e2d2', padding: '15px', borderRadius: '12px', border: '1px solid #c4b6a6', boxShadow: '0 2px 5px rgba(62, 50, 38, 0.1)' }}>
            <div className="panelHeader" style={{ borderBottom: '2px solid #9a2c2e', marginBottom: '15px', paddingBottom: '10px' }}>
               <div className="panelTitle" style={{ color: '#3e3226', fontWeight: 'bold' }}>フォーメーション変更</div>
@@ -311,11 +310,12 @@ export default function App() {
            </select>
         </div>
 
-        {/* 4. ピッチ */}
-        <div className="section-pitch">
+        {/* 4. ピッチ（ここを修正しました） */}
+        {/* ★flexDirection: 'column' を追加して縦並びにしました。これでピッチのサイズが戻ります */}
+        <div className="section-pitch" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           
           {/* 画像保存ボタン */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', width: '100%', maxWidth: '600px', margin: '0 auto 10px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', width: '100%', maxWidth: '600px' }}>
              <div style={{ color: '#e8e2d2', fontWeight: 'bold' }}>PITCH AREA</div>
              <button 
                type="button" 
