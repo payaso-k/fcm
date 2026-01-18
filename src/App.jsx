@@ -352,7 +352,7 @@ export default function App() {
                  cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px'
                }}
              >
-               📷 画像保存/共有
+               save
              </button>
           </div>
 
