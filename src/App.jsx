@@ -173,7 +173,7 @@ export default function App() {
     });
   };
 
-  // ★★★ 画像保存・シェア機能 ★★★
+  // ★★★ 画像保存・シェア機能（修正版） ★★★
   const handleSaveImage = async () => {
     const element = document.getElementById("pitch-content");
     if (!element) return;
@@ -183,7 +183,9 @@ export default function App() {
         scale: 3, 
         useCORS: true,
         allowTaint: true,
-        backgroundColor: null,
+        // ★修正1：背景色を「薄い緑(#3a633a)」に強制指定
+        // これで「真っ白（透明）」になるのを防ぎます
+        backgroundColor: "#3a633a",
       });
 
       canvas.toBlob(async (blob) => {
@@ -338,7 +340,7 @@ export default function App() {
         <div className="section-pitch" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', width: '100%', maxWidth: '600px' }}>
-             <div style={{ color: '#e8e2d2', fontWeight: 'bold' }}></div>
+             <div style={{ color: '#e8e2d2', fontWeight: 'bold' }}>LINEUP</div>
              <button 
                type="button" 
                onClick={handleSaveImage}
@@ -353,11 +355,8 @@ export default function App() {
           </div>
 
           <div className="pitchWrap">
-            {/* ★修正箇所★
-               色の順番を入れ替え（濃淡を逆に）しました：
-               以前：#2f4f2f(暗) -> #3a633a(明)
-               今回：#3a633a(明) -> #2f4f2f(暗)
-               これでご希望の色味になるはずです。
+            {/* ★修正2：色の順序を入れ替えました
+               薄い緑(#3a633a) → 濃い緑(#2f4f2f) の順にすることで、ご希望の濃淡順になります。
             */}
             <div 
               className="pitch" 
