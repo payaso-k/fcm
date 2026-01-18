@@ -173,15 +173,15 @@ export default function App() {
     });
   };
 
-  // ★★★ 画像保存機能（修正版） ★★★
+  // ★★★ 画像保存・シェア機能（修正版：縞模様を維持） ★★★
   const handleSaveImage = async () => {
-    // 変更：.pitch ではなく .pitchWrap（外枠）を取得する
+    // 枠を含めた全体を取得
     const element = document.getElementById("pitch-content");
     if (!element) return;
 
     try {
-      // 緑色の強制指定を削除し、null（透明）を指定
-      // ※これでCSSのbackground（縞模様）がそのまま透けて見えるようになります
+      // 緑色の強制指定を「削除」しました。
+      // nullにすることで、CSSのbackground（縞模様）がそのまま使われます。
       const canvas = await html2canvas(element, { 
         scale: 3, 
         useCORS: true,
@@ -193,7 +193,6 @@ export default function App() {
         if (!blob) return;
         const file = new File([blob], `formation_${teamName}_${selectedDateKey}.png`, { type: "image/png" });
 
-        // スマホの共有メニュー呼び出し
         if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
           try {
             await navigator.share({
@@ -204,7 +203,6 @@ export default function App() {
             // キャンセル時は無視
           }
         } else {
-          // PC用ダウンロード
           const link = document.createElement("a");
           link.download = `formation_${teamName}_${selectedDateKey}.png`;
           link.href = canvas.toDataURL("image/png");
@@ -342,7 +340,7 @@ export default function App() {
         <div className="section-pitch" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', width: '100%', maxWidth: '600px' }}>
-             <div style={{ color: '#e8e2d2', fontWeight: 'bold' }}>starting lineup</div>
+             <div style={{ color: '#e8e2d2', fontWeight: 'bold' }}>Starting lineup</div>
              <button 
                type="button" 
                onClick={handleSaveImage}
@@ -356,9 +354,8 @@ export default function App() {
              </button>
           </div>
 
-          {/* ▼ 変更点：ID="pitch-content" を .pitchWrap に移動しました 
-              これで芝生(.pitch)だけでなく、その周りの枠(.pitchWrap)も含めて撮影されるので、
-              見た目通りの縞模様と枠線が保存されます。
+          {/* ▼ 修正済：.pitchWrap にIDを付与＆backgroundColorはnullに設定。
+              これでCSSの縞模様が表示されたまま保存されます。
           */}
           <div className="pitchWrap" id="pitch-content">
             <div className="pitch">
