@@ -1,8 +1,29 @@
 /* =========================================================
-   FC LINEUP MAKER - REAL STRIPED PITCH & GLASS ICONS (FIXED)
+   FC LINEUP MAKER - CLASSIC GOLD & RED THEME
+   (Layout Preserved, Colors Updated)
    ========================================================= */
 
-/* --- 1. システムリセット --- */
+/* --- 1. カラーパレット定義（ロゴ配色） --- */
+:root {
+  /* メイン背景：ロゴのクリーム色 */
+  --bg-color: #f2eee2;
+  /* パネル背景：少し濃いクリーム色 */
+  --panel-bg: #e8e2d2;
+  /* 文字色：ロゴの濃い茶色 */
+  --text-color: #3e3226;
+  /* 枠線：薄い茶色 */
+  --border-color: #c4b6a6;
+  
+  /* アクセントカラー */
+  --accent-red: #9a2c2e;   /* OK / 決定 / 日曜 */
+  --accent-gold: #ca9e45;  /* Maybe / 土曜 */
+  --accent-dark: #3e3226;  /* No / 黒 */
+  
+  /* ピッチの色（ここは芝生なので緑のまま、少し落ち着かせました） */
+  --pitch-dark: #2f4f2f;
+  --pitch-light: #3a633a;
+}
+
 button {
   appearance: none;
   -webkit-appearance: none;
@@ -12,15 +33,6 @@ button {
   padding: 0;
   margin: 0;
   font-family: inherit;
-}
-
-:root {
-  --bg-color: #0f172a;
-  --panel-bg: #1e293b;
-  --text-color: #f8fafc;
-  --border-color: #334155;
-  --pitch-dark: #1a4d33;
-  --pitch-light: #265c42;
 }
 
 * { box-sizing: border-box; }
@@ -38,20 +50,38 @@ body {
 /* --- 2. ヘッダー --- */
 .topbar {
   background: var(--panel-bg);
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 2px solid var(--border-color); /* 枠線を少し太く */
   padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 .brandBar { display: flex; align-items: center; gap: 12px; }
-.logoBox { width: 44px; height: 44px; border-radius: 50%; background: #000; border: 1px solid #444; overflow: hidden; flex-shrink: 0; }
+.logoBox { 
+  width: 44px; height: 44px; 
+  border-radius: 50%; 
+  background: #fff; 
+  border: 2px solid var(--accent-gold); /* 枠を金に */
+  overflow: hidden; flex-shrink: 0; 
+}
 .logoImg { width: 100%; height: 100%; object-fit: cover; }
 .logoPlaceholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #aaa; }
-.teamName { font-size: 20px; font-weight: 700; color: #fff; line-height: 1.2; }
+.teamName { font-size: 20px; font-weight: 700; color: var(--accent-red); line-height: 1.2; } /* チーム名を赤に */
+
 .controls { display: flex; justify-content: space-between; gap: 10px; }
-.btn { background: #334155; border: 1px solid #475569; color: #fff; padding: 0 16px; height: 42px; border-radius: 8px; font-size: 13px; font-weight: bold; display: flex; align-items: center; justify-content: center; white-space: nowrap; }
-.select { flex: 1; height: 42px; background: #0f172a; color: #fff; border: 1px solid #475569; border-radius: 8px; text-align: center; font-size: 16px; font-weight: bold; }
+.btn { 
+  background: var(--accent-red); /* ボタンを赤に */
+  border: 1px solid var(--accent-dark); 
+  color: #fff; /* 文字は白 */
+  padding: 0 16px; height: 42px; border-radius: 8px; font-size: 13px; font-weight: bold; display: flex; align-items: center; justify-content: center; white-space: nowrap; 
+}
+.select { 
+  flex: 1; height: 42px; 
+  background: #fff; /* 白背景 */
+  color: var(--text-color); /* 茶色文字 */
+  border: 1px solid var(--border-color); 
+  border-radius: 8px; text-align: center; font-size: 16px; font-weight: bold; 
+}
 
 
 /* --- 3. レイアウト全体 --- */
@@ -62,51 +92,88 @@ body {
   gap: 20px;
 }
 .panelHeader { margin-bottom: 8px; }
-.panelTitle { color: #94a3b8; font-weight: bold; font-size: 13px; letter-spacing: 1px; }
+.panelTitle { color: var(--accent-dark); font-weight: bold; font-size: 13px; letter-spacing: 1px; opacity: 0.7; }
 
 
 /* --- 4. カレンダー --- */
 .section-calendar { padding: 0 12px; }
-.calendarCard { background: #0f172a; padding: 12px; border-radius: 12px; border: 1px solid var(--border-color); margin-top: 10px; }
-.calendarHeader { display: flex; justify-content: space-between; margin-bottom: 12px; font-weight: bold; color: #fff; }
-.navBtn { width: 32px; height: 32px; border-radius: 50%; border: 1px solid #475569; color: #fff; display: flex; align-items: center; justify-content: center; background: #1e293b; }
+.calendarCard { 
+  background: var(--panel-bg); 
+  padding: 12px; border-radius: 12px; 
+  border: 1px solid var(--border-color); margin-top: 10px; 
+  box-shadow: 0 2px 5px rgba(62, 50, 38, 0.1); /* 薄い影を追加 */
+}
+.calendarHeader { display: flex; justify-content: space-between; margin-bottom: 12px; font-weight: bold; color: var(--text-color); }
+.navBtn { 
+  width: 32px; height: 32px; border-radius: 50%; 
+  border: 1px solid var(--accent-gold); 
+  color: var(--accent-red); 
+  display: flex; align-items: center; justify-content: center; background: #fff; 
+}
 
 .weekRow { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 6px; }
-.weekDay { text-align: center; font-size: 12px; color: #64748b; font-weight: bold; }
-.weekDay.sunday { color: #ef4444; }
-.weekDay.saturday { color: #3b82f6; }
+.weekDay { text-align: center; font-size: 12px; color: var(--text-color); font-weight: bold; }
+.weekDay.sunday { color: var(--accent-red); }
+.weekDay.saturday { color: var(--accent-gold); }
 
 .calendarGrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-.dayCell { aspect-ratio: 1; background: transparent; border-radius: 8px; color: #cbd5e1; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; }
-.dayCell.selected { background: #3b82f6; color: #fff; font-weight: bold; }
-.dayCell.today { border: 1px solid #64748b; color: #fff; }
+.dayCell { 
+  aspect-ratio: 1; background: #fff; border-radius: 8px; 
+  color: var(--text-color); 
+  border: 1px solid transparent;
+  display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; 
+}
+.dayCell.selected { background: var(--accent-red); color: #fff; font-weight: bold; }
+.dayCell.today { border: 2px solid var(--accent-gold); color: var(--text-color); }
 
 
 /* --- 5. 出欠リスト（2列表示） --- */
 .section-list { padding: 0 16px; }
 .listGridWrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.listRowCompact { display: flex; flex-direction: column; background: #1e293b; padding: 10px; border-radius: 10px; border: 1px solid #334155; }
-.listNameCompact { background: transparent; border: none; border-bottom: 1px solid #475569; color: #fff; font-size: 14px; font-weight: 500; margin-bottom: 10px; text-align: center; width: 100%; }
+.listRowCompact { 
+  display: flex; flex-direction: column; 
+  background: #fff; /* カード白 */
+  padding: 10px; border-radius: 10px; 
+  border: 1px solid var(--border-color); 
+}
+.listNameCompact { 
+  background: transparent; border: none; 
+  border-bottom: 1px solid var(--border-color); 
+  color: var(--text-color); 
+  font-size: 14px; font-weight: 500; margin-bottom: 10px; text-align: center; width: 100%; 
+}
 .listBtnsCompact { display: flex; justify-content: space-between; gap: 6px; }
-.listBtnCompact { flex: 1; height: 34px; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: #64748b; display: flex; align-items: center; justify-content: center; font-size: 14px; }
-.listBtnCompact.ok.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
-.listBtnCompact.maybe.active { background: #f59e0b; color: #fff; border-color: #f59e0b; }
-.listBtnCompact.no.active { background: #e82525; color: #fff; border-color: #e82525; }
+.listBtnCompact { 
+  flex: 1; height: 34px; border-radius: 6px; 
+  border: 1px solid var(--border-color); 
+  background: #f9f9f9; 
+  color: #999; 
+  display: flex; align-items: center; justify-content: center; font-size: 14px; 
+}
+.listBtnCompact.ok.active { background: var(--accent-red); color: #fff; border-color: var(--accent-red); }
+.listBtnCompact.maybe.active { background: var(--accent-gold); color: #fff; border-color: var(--accent-gold); }
+.listBtnCompact.no.active { background: var(--accent-dark); color: #fff; border-color: var(--accent-dark); }
 
 
 /* --- 6. ベンチエリア --- */
 .section-bench { padding: 0 16px; }
 .benchGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; }
-.benchCard { background: #1e293b; border: 1px solid #334155; padding: 8px 4px; border-radius: 8px; text-align: center; cursor: grab; }
-.selected-m { border: 2px solid #fbbf24; background: #451a03; }
-.benchName { font-size: 11px; margin-bottom: 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: #e2e8f0; }
-.benchStatus { font-weight: bold; font-size: 14px; color: #94a3b8; }
+.benchCard { 
+  background: #fff; 
+  border: 1px solid var(--border-color); 
+  padding: 8px 4px; border-radius: 8px; text-align: center; cursor: grab; 
+}
+.selected-m { border: 2px solid var(--accent-gold); background: #fffce0; }
+.benchName { font-size: 11px; margin-bottom: 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--text-color); }
+.benchStatus { font-weight: bold; font-size: 14px; color: var(--accent-dark); }
 
 
-/* --- 7. ピッチ（縞模様＆ガラスアイコン） --- */
+/* --- 7. ピッチ（背景を高級感のある茶色に変更） --- */
 .section-pitch {
   padding: 20px 0;
-  background: #111;
+  background: var(--text-color); /* ここを濃い茶色に */
+  border-top: 4px solid var(--accent-gold);
+  border-bottom: 4px solid var(--accent-gold);
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -121,6 +188,7 @@ body {
 
 .pitch {
   width: 100%; height: 100%;
+  /* 芝生の色（少し落ち着いたトーンに調整） */
   background: repeating-linear-gradient(
     to bottom,
     var(--pitch-dark),
@@ -128,13 +196,13 @@ body {
     var(--pitch-light) 10%,
     var(--pitch-light) 20%
   );
-  border: 4px solid rgba(255,255,255,0.2);
+  border: 4px solid rgba(255,255,255,0.8);
   border-radius: 12px;
   position: relative;
   overflow: hidden;
 }
 
-.lineLayer div { position: absolute; border: 1px solid rgba(255,255,255,0.5); }
+.lineLayer div { position: absolute; border: 1px solid rgba(255,255,255,0.7); }
 .outerLine { top: 5%; bottom: 5%; left: 5%; right: 5%; border-width: 2px !important; }
 .halfLine { top: 50%; left: 5%; right: 5%; }
 .centerCircle { top: 50%; left: 50%; transform: translate(-50%,-50%); width: 22%; height: 15%; border-radius: 50%; }
@@ -145,39 +213,57 @@ body {
   width: 58px; height: 58px;
   position: absolute;
   transform: translate(-50%, -50%);
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.2); /* ガラス感を少し明るく */
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: 50%;
   display: flex; flex-direction: column; justify-content: center; align-items: center;
   z-index: 10; cursor: pointer;
   box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
-.waiting-drop { background: rgba(251, 191, 36, 0.3); border-color: #fbbf24; transform: translate(-50%, -50%) scale(1.1); }
+.waiting-drop { background: rgba(202, 158, 69, 0.5); border-color: var(--accent-gold); transform: translate(-50%, -50%) scale(1.1); }
 .posRole { font-size: 10px; font-weight: 800; color: #fff; margin-bottom: 2px; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
-.posEmpty { font-size: 9px; color: rgba(255,255,255,0.8); font-weight: bold; }
-.posName { width: 50px; font-size: 12px; background: rgba(255, 255, 255, 0.8); border: #fff; border-radius: 12px; padding: 2px 0; overflow: hidden; text-align: center; font-weight: bold; color: #0f172a; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+.posEmpty { font-size: 9px; color: rgba(255,255,255,0.9); font-weight: bold; }
+.posName { 
+  width: 50px; font-size: 12px; 
+  background: #fff; /* 名前背景は白 */
+  border: #fff; border-radius: 12px; padding: 2px 0; overflow: hidden; text-align: center; font-weight: bold; 
+  color: var(--text-color); /* 文字は茶色 */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3); 
+}
 
-.slot-ok { background: rgba(59, 130, 246, 0.4) !important; border-color: #fff !important; }
-.slot-maybe { background: rgba(245, 158, 11, 0.5) !important; border-color: #fff !important; }
+/* ピッチ上のステータス色も変更 */
+.slot-ok { background: rgba(154, 44, 46, 0.7) !important; border-color: #fff !important; color: #fff; } /* 赤 */
+.slot-maybe { background: rgba(202, 158, 69, 0.7) !important; border-color: #fff !important; } /* 金 */
 
 
-/* --- 8. 管理画面（★ここを修正しました） --- */
-.adminPanelMobile { margin: 10px; padding: 15px; background: #1e293b; border-radius: 12px; border: 1px solid #475569; display: flex; flex-direction: column; gap: 15px; }
+/* --- 8. 管理画面 --- */
+.adminPanelMobile { 
+  margin: 10px; padding: 15px; 
+  background: var(--panel-bg); 
+  border-radius: 12px; 
+  border: 2px solid var(--accent-gold); /* 枠を金に */
+  display: flex; flex-direction: column; gap: 15px; 
+}
 .adminField { display: flex; flex-direction: column; gap: 6px; }
-.adminLabel { font-size: 12px; color: #94a3b8; font-weight: bold; }
-.textInput { height: 44px; padding: 10px; background: #0f172a; border: 1px solid #334155; color: #fff; border-radius: 8px; font-size: 16px; }
+.adminLabel { font-size: 12px; color: var(--text-color); font-weight: bold; }
+.textInput { 
+  height: 44px; padding: 10px; 
+  background: #fff; /* 白背景 */
+  border: 1px solid var(--border-color); 
+  color: var(--text-color); 
+  border-radius: 8px; font-size: 16px; 
+}
 
-/* ★修正箇所：余計なFlex設定を消し、シンプルにしました */
 input[type="file"] {
   width: 100%;
   margin-top: 5px;
   padding: 8px;
-  background: #0f172a;
-  border: 1px solid #334155;
+  background: #fff;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  color: #fff;
+  color: var(--text-color);
   font-size: 14px;
 }
