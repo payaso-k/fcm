@@ -173,9 +173,8 @@ export default function App() {
     });
   };
 
-  // ★★★ 画像保存・シェア機能（背景「緑色」保証版） ★★★
+  // ★★★ 画像保存・シェア機能（修正版：確実なストライプ描画） ★★★
   const handleSaveImage = async () => {
-    // 撮影対象：ピッチそのもの
     const element = document.getElementById("pitch-content");
     if (!element) return;
 
@@ -184,11 +183,10 @@ export default function App() {
         scale: 3, 
         useCORS: true,
         allowTaint: true,
-        // ★ここが最重要修正：背景色を「濃い緑」に指定します。
-        // 万が一、縞模様の描画に失敗しても、ここで指定した緑色が背景になるため、
-        // 「真っ白（透明）でラインが見えない」という事故を100%防ぎます。
-        // （縞模様が成功すれば、この色の上に縞模様が描画されます）
-        backgroundColor: "#2f4f2f",
+        // ★真っ白になるのを防ぐため、ベースの色（濃い緑）を指定します。
+        // これにより、もし模様がずれても「白背景でライン消滅」は絶対に起きません。
+        // さらに下のstyle修正で、この上に確実に縞模様を描画させます。
+        backgroundColor: "#2f4f2f", 
       });
 
       canvas.toBlob(async (blob) => {
@@ -205,6 +203,7 @@ export default function App() {
             // キャンセル時は無視
           }
         } else {
+          // PC用
           const link = document.createElement("a");
           link.download = `formation_${teamName}_${selectedDateKey}.png`;
           link.href = canvas.toDataURL("image/png");
@@ -357,12 +356,20 @@ export default function App() {
           </div>
 
           <div className="pitchWrap">
-            {/* IDをピッチ本体に戻しました */}
+            {/* ★修正ポイント★
+               「repeating-linear-gradient」はツールによってはバグりやすいため、
+               「background-size」を使った確実なストライプ方式に変更しました。
+               ・背景色：#2f4f2f（濃い緑）
+               ・模様：透明と薄い黒のグラデーション（linear-gradient）を縦にリピート
+               これにより、見た目は同じ縞模様ですが、保存時に消えなくなります。
+            */}
             <div 
               className="pitch" 
               id="pitch-content" 
               style={{
-                background: 'repeating-linear-gradient(to bottom, #2f4f2f, #2f4f2f 10%, #3a633a 10%, #3a633a 20%)',
+                backgroundColor: '#2f4f2f',
+                backgroundImage: 'linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.2) 50%)',
+                backgroundSize: '100% 20%', // これで縞模様を作ります
                 border: '4px solid rgba(255,255,255,0.8)',
                 borderRadius: '12px',
                 position: 'relative',
