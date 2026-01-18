@@ -173,19 +173,22 @@ export default function App() {
     });
   };
 
-  // ★★★ 画像保存・シェア機能 ★★★
+  // ★★★ 画像保存・シェア機能（背景「緑色」保証版） ★★★
   const handleSaveImage = async () => {
+    // 撮影対象：ピッチそのもの
     const element = document.getElementById("pitch-content");
     if (!element) return;
 
     try {
-      // 緑色の強制指定を削除しました。
-      // 代わりに、Element側のstyleに縞模様を直接記述しているので、それがそのまま保存されます。
       const canvas = await html2canvas(element, { 
         scale: 3, 
         useCORS: true,
         allowTaint: true,
-        backgroundColor: null, // ここは透明にして、Elementのデザインを優先
+        // ★ここが最重要修正：背景色を「濃い緑」に指定します。
+        // 万が一、縞模様の描画に失敗しても、ここで指定した緑色が背景になるため、
+        // 「真っ白（透明）でラインが見えない」という事故を100%防ぎます。
+        // （縞模様が成功すれば、この色の上に縞模様が描画されます）
+        backgroundColor: "#2f4f2f",
       });
 
       canvas.toBlob(async (blob) => {
@@ -202,7 +205,6 @@ export default function App() {
             // キャンセル時は無視
           }
         } else {
-          // PC用
           const link = document.createElement("a");
           link.download = `formation_${teamName}_${selectedDateKey}.png`;
           link.href = canvas.toDataURL("image/png");
@@ -355,9 +357,7 @@ export default function App() {
           </div>
 
           <div className="pitchWrap">
-            {/* ★ここがポイント：縞模様（repeating-linear-gradient）をCSSファイルではなく
-                ここに直接「style」として書き込みました。
-                これにより、画像生成ツールが確実に縞模様を認識・描画します。 */}
+            {/* IDをピッチ本体に戻しました */}
             <div 
               className="pitch" 
               id="pitch-content" 
