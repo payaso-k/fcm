@@ -173,7 +173,7 @@ export default function App() {
     });
   };
 
-  // ★★★ 画像保存・シェア機能（修正版：確実なストライプ描画） ★★★
+  // ★★★ 画像保存・シェア機能 ★★★
   const handleSaveImage = async () => {
     const element = document.getElementById("pitch-content");
     if (!element) return;
@@ -183,10 +183,7 @@ export default function App() {
         scale: 3, 
         useCORS: true,
         allowTaint: true,
-        // ★真っ白になるのを防ぐため、ベースの色（濃い緑）を指定します。
-        // これにより、もし模様がずれても「白背景でライン消滅」は絶対に起きません。
-        // さらに下のstyle修正で、この上に確実に縞模様を描画させます。
-        backgroundColor: "#2f4f2f", 
+        backgroundColor: null,
       });
 
       canvas.toBlob(async (blob) => {
@@ -341,7 +338,7 @@ export default function App() {
         <div className="section-pitch" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', width: '100%', maxWidth: '600px' }}>
-             <div style={{ color: '#e8e2d2', fontWeight: 'bold' }}>PITCH AREA</div>
+             <div style={{ color: '#e8e2d2', fontWeight: 'bold' }}></div>
              <button 
                type="button" 
                onClick={handleSaveImage}
@@ -351,25 +348,22 @@ export default function App() {
                  cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px'
                }}
              >
-               📷 画像保存/共有
+               save
              </button>
           </div>
 
           <div className="pitchWrap">
-            {/* ★修正ポイント★
-               「repeating-linear-gradient」はツールによってはバグりやすいため、
-               「background-size」を使った確実なストライプ方式に変更しました。
-               ・背景色：#2f4f2f（濃い緑）
-               ・模様：透明と薄い黒のグラデーション（linear-gradient）を縦にリピート
-               これにより、見た目は同じ縞模様ですが、保存時に消えなくなります。
+            {/* ★修正箇所★
+               色の順番を入れ替え（濃淡を逆に）しました：
+               以前：#2f4f2f(暗) -> #3a633a(明)
+               今回：#3a633a(明) -> #2f4f2f(暗)
+               これでご希望の色味になるはずです。
             */}
             <div 
               className="pitch" 
               id="pitch-content" 
               style={{
-                backgroundColor: '#2f4f2f',
-                backgroundImage: 'linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.2) 50%)',
-                backgroundSize: '100% 20%', // これで縞模様を作ります
+                background: 'repeating-linear-gradient(to bottom, #3a633a, #3a633a 10%, #2f4f2f 10%, #2f4f2f 20%)',
                 border: '4px solid rgba(255,255,255,0.8)',
                 borderRadius: '12px',
                 position: 'relative',
