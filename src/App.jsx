@@ -33,6 +33,73 @@ const MEMBERS = Array.from({ length: 20 }, (_, i) => ({
 const ADMIN_CODE_DEFAULT = "1234";
 
 // --- Sub Components ---
+
+// ★追加：週間集計コンポーネント
+function WeeklySummary({ currentKey, statusByDate }) {
+  if (!currentKey) return null;
+
+  // 選択日を基準に、その週の月曜日を算出
+  const targetDate = new Date(currentKey);
+  const day = targetDate.getDay(); // 0(日)〜6(土)
+  // 月曜(1)を基準とした差分を計算 (日曜は-6、月曜は0、火曜は-1...)
+  const diff = targetDate.getDate() - (day === 0 ? 6 : day - 1);
+  const monday = new Date(targetDate.setDate(diff));
+
+  const weekData = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    const key = toKey(d);
+    
+    // その日のステータスを集計
+    const dayStatuses = statusByDate[key] || {};
+    let ok = 0, maybe = 0, no = 0;
+    Object.values(dayStatuses).forEach(val => {
+      if (val === "ok") ok++;
+      if (val === "maybe") maybe++;
+      if (val === "no") no++;
+    });
+    weekData.push({ date: d, key, ok, maybe, no });
+  }
+
+  const WEEKS = ["月", "火", "水", "木", "金", "土", "日"];
+
+  return (
+    <div style={{ marginTop: '10px', padding: '8px 4px', background: '#f9f9f9', borderRadius: '8px', border: '1px solid #ddd' }}>
+      <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#555', marginBottom: '5px', textAlign: 'center' }}>
+        週間集計 ({toKey(monday).slice(5).replace('-', '/')} 〜)
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
+        {weekData.map((item, idx) => {
+          const isSelected = item.key === currentKey;
+          const isSat = idx === 5;
+          const isSun = idx === 6;
+          return (
+            <div key={item.key} style={{ 
+              flex: 1, 
+              textAlign: 'center', 
+              border: isSelected ? '2px solid #ca9e45' : '1px solid transparent',
+              borderRadius: '6px',
+              padding: '4px 0',
+              background: isSelected ? '#fff' : 'transparent',
+              color: '#333'
+            }}>
+              <div style={{ fontWeight: 'bold', color: isSun ? '#e03e3e' : isSat ? '#3e7ae0' : '#333' }}>
+                {WEEKS[idx]} <span style={{ fontSize: '9px', fontWeight: 'normal', color: '#888' }}>{item.date.getDate()}</span>
+              </div>
+              <div style={{ marginTop: '4px', lineHeight: '1.2' }}>
+                <div style={{ color: '#2f8f2f' }}>○ {item.ok}</div>
+                <div style={{ color: '#d4a306' }}>△ {item.maybe}</div>
+                <div style={{ color: '#cf4342' }}>× {item.no}</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function Calendar({ monthDate, selectedKey, onSelectDate, onPrev, onNext }) {
   const start = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
   const end = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
@@ -193,9 +260,6 @@ export default function App() {
               else { alert("コードが違います"); }
             }
           }}>{(isAdmin || isMaster) ? "ログアウト" : "管理者"}</button>
-          <select className="select" value={currentFormation} onChange={(e) => setFormationByDate(prev => ({ ...prev, [selectedDateKey]: e.target.value }))}>
-            {keys.map(k => <option key={k} value={k}>{k}</option>)}
-          </select>
         </div>
       </header>
 
@@ -216,8 +280,8 @@ export default function App() {
             </select>
           </div>
           <div className="adminField">
-            <label className="adminLabel" style={{ color: '#ffcc00' }}>管理者パスコード変更</label>
-            <input className="textInput" type="text" value={adminCode} onChange={(e) => setAdminCode(e.target.value)} style={{ border: '1px solid #ffcc00' }} />
+            <label className="adminLabel" style={{ color: '#ca9e45' }}>管理者パスコード変更</label>
+            <input className="textInput" type="text" value={adminCode} onChange={(e) => setAdminCode(e.target.value)} style={{ border: '1px solid #ca9e45' }} />
           </div>
         </div>
       )}
@@ -227,6 +291,8 @@ export default function App() {
         {/* 1. カレンダー */}
         <div className="section-calendar">
           <Calendar monthDate={monthDate} selectedKey={selectedDateKey} onSelectDate={setSelectedDateKey} onPrev={() => setMonthDate(addMonths(monthDate, -1))} onNext={() => setMonthDate(addMonths(monthDate, 1))} />
+          {/* ★カレンダーの下に週間集計を追加 */}
+          <WeeklySummary currentKey={selectedDateKey} statusByDate={statusByDate} />
         </div>
 
         {/* 2. 出欠リスト */}
@@ -251,20 +317,19 @@ export default function App() {
                     ))}
                   </div>
                 </div>
-                {/* ★ここを修正（入力中に消えないように変更） */}
                 <input
                   type="text"
-                  placeholder="memo..."
-                  key={`${m.id}-${selectedDateKey}`} // 日付が変わったらリセット
-                  defaultValue={(memosByDate[selectedDateKey] || {})[m.id] || ""} // 初期値だけセット
-                  onBlur={(e) => { // 入力完了時（フォーカスが外れた時）に保存
+                  placeholder="メモ..."
+                  key={`${m.id}-${selectedDateKey}`}
+                  defaultValue={(memosByDate[selectedDateKey] || {})[m.id] || ""}
+                  onBlur={(e) => {
                     const val = e.target.value;
                     setMemosByDate(prev => ({
                       ...prev,
                       [selectedDateKey]: { ...(prev[selectedDateKey] || {}), [m.id]: val }
                     }));
                   }}
-                  style={{ width: '100%', boxSizing: 'border-box', padding: '4px', borderRadius: '4px', border: '1px solid #555', background: '#333', color: '#fff', fontSize: '12px' }}
+                  style={{ width: '100%', boxSizing: 'border-box', padding: '4px', borderRadius: '4px', border: '1px solid #c4b6a6', background: '#fff', color: '#3e3226', fontSize: '12px' }}
                 />
               </div>
             ))}
@@ -273,7 +338,7 @@ export default function App() {
 
         {/* 3. ベンチ */}
         <div className="section-bench">
-          <div className="panelHeader"><div className="panelTitle">bench</div></div>
+          <div className="panelHeader"><div className="panelTitle">ベンチ（待機メンバー）</div></div>
           <div className="benchGrid">
             {benchMembers.map(m => (
               <div key={m.id} className={`benchCard status-${status[m.id]} ${selectedMemberId === m.id ? "selected-m" : ""}`} draggable onDragStart={(e) => e.dataTransfer.setData("text/memberId", m.id)} onClick={() => setSelectedMemberId(m.id === selectedMemberId ? null : m.id)}>
@@ -284,8 +349,23 @@ export default function App() {
           </div>
         </div>
 
+        {/* フォーメーション選択 */}
+        <div className="section-formation" style={{ background: '#e8e2d2', padding: '15px', borderRadius: '12px', border: '1px solid #c4b6a6', boxShadow: '0 2px 5px rgba(62, 50, 38, 0.1)' }}>
+           <div className="panelHeader" style={{ borderBottom: '2px solid #9a2c2e', marginBottom: '15px', paddingBottom: '10px' }}>
+              <div className="panelTitle" style={{ color: '#3e3226', fontWeight: 'bold' }}>フォーメーション変更</div>
+           </div>
+           <select 
+             className="select" 
+             style={{ width: '100%', maxWidth: '100%', cursor: 'pointer', background: '#fff', color: '#3e3226', border: '1px solid #c4b6a6' }}
+             value={currentFormation} 
+             onChange={(e) => setFormationByDate(prev => ({ ...prev, [selectedDateKey]: e.target.value }))}
+           >
+             {keys.map(k => <option key={k} value={k}>{k}</option>)}
+           </select>
+        </div>
+
         {/* 4. ピッチ */}
-        <div className="section-pitch">
+        <div className="section-pitch" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div className="pitchWrap">
             <div className="pitch">
               <div className="lineLayer">
