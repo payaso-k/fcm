@@ -26,22 +26,21 @@ const toKey = (d) => {
 };
 const addMonths = (d, n) => new Date(d.getFullYear(), d.getMonth() + n, 1);
 
-const MEMBERS = Array.from({ length: 20 }, (_, i) => ({
+// ★変更点：初期データとしての定義（保存データがない場合のみ使用）
+const INITIAL_MEMBERS = Array.from({ length: 20 }, (_, i) => ({
   id: `m${i + 1}`,
-  label: `name ${i + 1}`,
+  label: `Member ${i + 1}`,
 }));
+
 const ADMIN_CODE_DEFAULT = "1234";
 
 // --- Sub Components ---
 
-// ★追加：週間集計コンポーネント
 function WeeklySummary({ currentKey, statusByDate }) {
   if (!currentKey) return null;
 
-  // 選択日を基準に、その週の月曜日を算出
   const targetDate = new Date(currentKey);
-  const day = targetDate.getDay(); // 0(日)〜6(土)
-  // 月曜(1)を基準とした差分を計算 (日曜は-6、月曜は0、火曜は-1...)
+  const day = targetDate.getDay(); 
   const diff = targetDate.getDate() - (day === 0 ? 6 : day - 1);
   const monday = new Date(targetDate.setDate(diff));
 
@@ -51,7 +50,6 @@ function WeeklySummary({ currentKey, statusByDate }) {
     d.setDate(monday.getDate() + i);
     const key = toKey(d);
     
-    // その日のステータスを集計
     const dayStatuses = statusByDate[key] || {};
     let ok = 0, maybe = 0, no = 0;
     Object.values(dayStatuses).forEach(val => {
@@ -147,6 +145,10 @@ function Calendar({ monthDate, selectedKey, onSelectDate, onPrev, onNext }) {
 // --- Main Component ---
 export default function App() {
   const keys = Object.keys(FORMATIONS);
+  
+  // ★変更点：メンバーリストをStateで管理（初期値は空、ロード後にセット）
+  const [membersList, setMembersList] = useState(INITIAL_MEMBERS);
+  
   const [formationByDate, setFormationByDate] = useState({});
   const [defaultFormation, setDefaultFormation] = useState(keys[0] || "3-4-2-1");
   const [teamName, setTeamName] = useState("TEAM NAME");
@@ -182,6 +184,11 @@ export default function App() {
         if (data.memosByDate) setMemosByDate(data.memosByDate);
         if (data.placedBySlotByDate) setPlacedBySlotByDate(data.placedBySlotByDate);
         if (data.adminCode) setAdminCode(data.adminCode);
+        
+        // ★変更点：メンバーリストを読み込む
+        if (data.membersList) {
+          setMembersList(data.membersList);
+        }
       }
       setIsLoaded(true);
     });
@@ -192,9 +199,19 @@ export default function App() {
     if (!isLoaded) return;
     const dbRef = ref(db, 'teamData/');
     set(dbRef, {
-      teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode
+      teamName, 
+      logoDataUrl, 
+      names, 
+      formationByDate, 
+      defaultFormation, 
+      statusByDate, 
+      memosByDate, 
+      placedBySlotByDate, 
+      adminCode,
+      // ★変更点：メンバーリストも保存する
+      membersList 
     });
-  }, [teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, isLoaded]);
+  }, [teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, membersList, isLoaded]);
 
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
@@ -239,7 +256,20 @@ export default function App() {
     });
   };
 
-  const benchMembers = MEMBERS.filter(m => (status[m.id] === "ok" || status[m.id] === "maybe") && !Object.values(placedBySlot).includes(m.id));
+  // ★追加：メンバー追加機能
+  const handleAddMember = () => {
+    const newId = `m${Date.now()}`; // 時間を使ってユニークID作成
+    setMembersList([...membersList, { id: newId, label: `Member` }]);
+  };
+
+  // ★追加：メンバー削除機能
+  const handleDeleteMember = (id) => {
+    if (window.confirm("このメンバーを削除しますか？\n（過去のデータは残りますが、リストからは消えます）")) {
+      setMembersList(membersList.filter(m => m.id !== id));
+    }
+  };
+
+  const benchMembers = membersList.filter(m => (status[m.id] === "ok" || status[m.id] === "maybe") && !Object.values(placedBySlot).includes(m.id));
 
   return (
     <div className="page">
@@ -291,7 +321,6 @@ export default function App() {
         {/* 1. カレンダー */}
         <div className="section-calendar">
           <Calendar monthDate={monthDate} selectedKey={selectedDateKey} onSelectDate={setSelectedDateKey} onPrev={() => setMonthDate(addMonths(monthDate, -1))} onNext={() => setMonthDate(addMonths(monthDate, 1))} />
-          {/* ★カレンダーの下に週間集計を追加 */}
           <WeeklySummary currentKey={selectedDateKey} statusByDate={statusByDate} />
         </div>
 
@@ -299,9 +328,25 @@ export default function App() {
         <div className="section-list">
           <div className="panelHeader"><div className="panelTitle">出欠確認</div></div>
           <div className="listGridWrapper">
-            {MEMBERS.map(m => (
+            {/* ★変更：membersList（保存されたリスト）を使って表示 */}
+            {membersList.map(m => (
               <div key={m.id} className="listRowCompact" style={{ flexDirection: 'column', height: 'auto', padding: '8px', gap: '5px' }}>
                 <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center' }}>
+                  
+                  {/* ★追加：管理者のみ削除ボタン表示 */}
+                  {(isAdmin || isMaster) && (
+                    <button 
+                      type="button" 
+                      onClick={() => handleDeleteMember(m.id)}
+                      style={{ 
+                        background: '#cf4342', color: '#fff', border: 'none', borderRadius: '4px', 
+                        width: '20px', height: '20px', fontSize: '10px', marginRight: '5px', cursor: 'pointer'
+                      }}
+                    >
+                      ×
+                    </button>
+                  )}
+
                   <input className="listNameCompact" value={names[m.id] || ""} placeholder={m.label} onChange={(e) => setNames({ ...names, [m.id]: e.target.value })} />
                   <div className="listBtnsCompact">
                     {["ok", "maybe", "no"].map(type => (
@@ -319,7 +364,7 @@ export default function App() {
                 </div>
                 <input
                   type="text"
-                  placeholder="メモ..."
+                  placeholder="memo..."
                   key={`${m.id}-${selectedDateKey}`}
                   defaultValue={(memosByDate[selectedDateKey] || {})[m.id] || ""}
                   onBlur={(e) => {
@@ -334,6 +379,22 @@ export default function App() {
               </div>
             ))}
           </div>
+
+          {/* ★追加：管理者のみ追加ボタン表示（リストの一番下） */}
+          {(isAdmin || isMaster) && (
+            <div style={{ marginTop: '15px', textAlign: 'center' }}>
+              <button 
+                type="button" 
+                onClick={handleAddMember}
+                style={{ 
+                  background: '#2f4f2f', color: '#fff', border: 'none', borderRadius: '6px', 
+                  padding: '8px 16px', fontSize: '14px', cursor: 'pointer', fontWeight: 'bold', width: '100%'
+                }}
+              >
+                ＋ メンバーを追加
+              </button>
+            </div>
+          )}
         </div>
 
         {/* 3. ベンチ */}
