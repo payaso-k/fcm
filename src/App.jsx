@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, set, onValue } from "firebase/database";
+import html2canvas from "html2canvas"; // 画像保存用に必要（先ほど消しましたが復活させます）
 import { FORMATIONS } from "./formations";
 import "./App.css";
 
@@ -32,11 +33,12 @@ const INITIAL_MEMBERS = Array.from({ length: 20 }, (_, i) => ({
 }));
 
 const ADMIN_CODE_DEFAULT = "1234";
+// ★デフォルトのチームカラー（元の金/黄土色）
+const DEFAULT_THEME_COLOR = "#ca9e45"; 
 
 // --- Sub Components ---
 
-// ★変更：引数に onSelectDate と membersCount を追加
-function WeeklySummary({ currentKey, statusByDate, onSelectDate, membersCount }) {
+function WeeklySummary({ currentKey, statusByDate, onSelectDate, membersCount, themeColor }) {
   if (!currentKey) return null;
 
   const targetDate = new Date(currentKey);
@@ -57,8 +59,6 @@ function WeeklySummary({ currentKey, statusByDate, onSelectDate, membersCount })
       if (val === "maybe") maybe++;
       if (val === "no") no++;
     });
-    // ★追加：未入力数を計算（全メンバー数 - 回答済み数）
-    // ※メンバー数が0の時はマイナスにならないよう0にする
     const unknown = Math.max(0, membersCount - (ok + maybe + no));
 
     weekData.push({ date: d, key, ok, maybe, no, unknown });
@@ -79,17 +79,17 @@ function WeeklySummary({ currentKey, statusByDate, onSelectDate, membersCount })
           return (
             <div 
               key={item.key} 
-              // ★追加：クリックでその日に移動
               onClick={() => onSelectDate(item.key)}
               style={{ 
                 flex: 1, 
                 textAlign: 'center', 
-                border: isSelected ? '2px solid #ca9e45' : '1px solid transparent',
+                // ★変更：選択時の色をチームカラーに
+                border: isSelected ? `2px solid ${themeColor}` : '1px solid transparent',
                 borderRadius: '6px',
                 padding: '4px 0',
                 background: isSelected ? '#fff' : 'transparent',
                 color: '#333',
-                cursor: 'pointer' // クリックできる感を追加
+                cursor: 'pointer'
               }}
             >
               <div style={{ fontWeight: 'bold', color: isSun ? '#e03e3e' : isSat ? '#3e7ae0' : '#333' }}>
@@ -99,7 +99,6 @@ function WeeklySummary({ currentKey, statusByDate, onSelectDate, membersCount })
                 <div style={{ color: '#2f8f2f' }}>○ {item.ok}</div>
                 <div style={{ color: '#d4a306' }}>△ {item.maybe}</div>
                 <div style={{ color: '#cf4342' }}>× {item.no}</div>
-                {/* ★追加：未入力数の表示 */}
                 <div style={{ color: '#888' }}>- {item.unknown}</div>
               </div>
             </div>
@@ -110,7 +109,7 @@ function WeeklySummary({ currentKey, statusByDate, onSelectDate, membersCount })
   );
 }
 
-function Calendar({ monthDate, selectedKey, onSelectDate, onPrev, onNext }) {
+function Calendar({ monthDate, selectedKey, onSelectDate, onPrev, onNext, themeColor }) {
   const start = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
   const end = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
   const startDow = (start.getDay() + 6) % 7; 
@@ -138,11 +137,14 @@ function Calendar({ monthDate, selectedKey, onSelectDate, onPrev, onNext }) {
           if (!d) return <div key={idx} className="dayCell empty" />;
           const key = toKey(d);
           const isToday = key === toKey(new Date());
+          const isSelected = key === selectedKey;
           return (
             <button
               key={key}
               type="button"
-              className={`dayCell ${key === selectedKey ? "selected" : ""} ${isToday ? "today" : ""}`}
+              className={`dayCell ${isToday ? "today" : ""}`}
+              // ★変更：選択時の色をチームカラーに（styleで上書き）
+              style={isSelected ? { borderColor: themeColor, color: themeColor, fontWeight: 'bold', background: '#fff' } : {}}
               onClick={() => onSelectDate(key)}
             >
               {d.getDate()}
@@ -159,11 +161,13 @@ export default function App() {
   const keys = Object.keys(FORMATIONS);
   
   const [membersList, setMembersList] = useState(INITIAL_MEMBERS);
-  
   const [formationByDate, setFormationByDate] = useState({});
   const [defaultFormation, setDefaultFormation] = useState(keys[0] || "3-4-2-1");
   const [teamName, setTeamName] = useState("TEAM NAME");
   const [logoDataUrl, setLogoDataUrl] = useState("");
+  // ★追加：チームカラーの状態管理
+  const [themeColor, setThemeColor] = useState(DEFAULT_THEME_COLOR);
+  
   const [isAdmin, setIsAdmin] = useState(false);
   const [isMaster, setIsMaster] = useState(false);
   const [adminCode, setAdminCode] = useState(ADMIN_CODE_DEFAULT);
@@ -195,9 +199,9 @@ export default function App() {
         if (data.memosByDate) setMemosByDate(data.memosByDate);
         if (data.placedBySlotByDate) setPlacedBySlotByDate(data.placedBySlotByDate);
         if (data.adminCode) setAdminCode(data.adminCode);
-        if (data.membersList) {
-          setMembersList(data.membersList);
-        }
+        if (data.membersList) setMembersList(data.membersList);
+        // ★追加：保存されたカラーがあれば読み込む
+        if (data.themeColor) setThemeColor(data.themeColor);
       }
       setIsLoaded(true);
     });
@@ -217,9 +221,10 @@ export default function App() {
       memosByDate, 
       placedBySlotByDate, 
       adminCode,
-      membersList 
+      membersList,
+      themeColor // ★追加：カラーも保存
     });
-  }, [teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, membersList, isLoaded]);
+  }, [teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, membersList, themeColor, isLoaded]);
 
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
@@ -270,21 +275,43 @@ export default function App() {
   };
 
   const handleDeleteMember = (id) => {
-    if (window.confirm("このメンバーを削除しますか？\n（過去のデータは残りますが、リストからは消えます）")) {
+    if (window.confirm("このメンバーを削除しますか？")) {
       setMembersList(membersList.filter(m => m.id !== id));
     }
+  };
+
+  // 画像保存機能（ボタン復活）
+  const handleSaveImage = async () => {
+    const element = document.getElementById("pitch-content");
+    if (!element) return;
+    try {
+      const canvas = await html2canvas(element, { scale: 3, useCORS: true, allowTaint: true, backgroundColor: null });
+      canvas.toBlob(async (blob) => {
+        if (!blob) return;
+        const file = new File([blob], `formation.png`, { type: "image/png" });
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          try { await navigator.share({ files: [file], title: 'Formation' }); } catch (error) {}
+        } else {
+          const link = document.createElement("a");
+          link.download = `formation.png`;
+          link.href = canvas.toDataURL("image/png");
+          link.click();
+        }
+      });
+    } catch (err) { alert("保存失敗"); }
   };
 
   const benchMembers = membersList.filter(m => (status[m.id] === "ok" || status[m.id] === "maybe") && !Object.values(placedBySlot).includes(m.id));
 
   return (
     <div className="page">
-      <header className="topbar">
+      {/* ★変更：ヘッダーの背景色をチームカラーに */}
+      <header className="topbar" style={{ background: themeColor, borderBottom: 'none' }}>
         <div className="brandBar">
           <div className="logoBox">
             {logoDataUrl ? <img className="logoImg" src={logoDataUrl} alt="logo" /> : <div className="logoPlaceholder">LOGO</div>}
           </div>
-          <div className="teamName">{teamName}</div>
+          <div className="teamName" style={{ color: '#fff' }}>{teamName}</div>
         </div>
         <div className="controls">
           <button className="btn" type="button" onClick={() => {
@@ -309,6 +336,19 @@ export default function App() {
             <label className="adminLabel">チームロゴ変更</label>
             <input type="file" accept="image/*" onChange={handleLogoChange} />
           </div>
+          {/* ★追加：チームカラー設定 */}
+          <div className="adminField">
+            <label className="adminLabel">チームテーマカラー</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <input 
+                type="color" 
+                value={themeColor} 
+                onChange={(e) => setThemeColor(e.target.value)} 
+                style={{ border: 'none', width: '50px', height: '40px', cursor: 'pointer' }}
+              />
+              <span style={{ color: '#fff', fontSize: '12px' }}>{themeColor}</span>
+            </div>
+          </div>
           <div className="adminField">
             <label className="adminLabel">全体デフォルトフォーメーション</label>
             <select className="select" value={defaultFormation} onChange={(e) => setDefaultFormation(e.target.value)}>
@@ -316,8 +356,8 @@ export default function App() {
             </select>
           </div>
           <div className="adminField">
-            <label className="adminLabel" style={{ color: '#ca9e45' }}>管理者パスコード変更</label>
-            <input className="textInput" type="text" value={adminCode} onChange={(e) => setAdminCode(e.target.value)} style={{ border: '1px solid #ca9e45' }} />
+            <label className="adminLabel" style={{ color: themeColor }}>管理者パスコード変更</label>
+            <input className="textInput" type="text" value={adminCode} onChange={(e) => setAdminCode(e.target.value)} style={{ border: `1px solid ${themeColor}` }} />
           </div>
         </div>
       )}
@@ -326,13 +366,14 @@ export default function App() {
         
         {/* 1. カレンダー */}
         <div className="section-calendar">
-          <Calendar monthDate={monthDate} selectedKey={selectedDateKey} onSelectDate={setSelectedDateKey} onPrev={() => setMonthDate(addMonths(monthDate, -1))} onNext={() => setMonthDate(addMonths(monthDate, 1))} />
-          {/* ★変更：メンバー数と選択関数を渡して、クリック遷移＆未入力表示に対応 */}
+          {/* ★変更：テーマカラーを渡す */}
+          <Calendar monthDate={monthDate} selectedKey={selectedDateKey} onSelectDate={setSelectedDateKey} onPrev={() => setMonthDate(addMonths(monthDate, -1))} onNext={() => setMonthDate(addMonths(monthDate, 1))} themeColor={themeColor} />
           <WeeklySummary 
             currentKey={selectedDateKey} 
             statusByDate={statusByDate} 
             onSelectDate={setSelectedDateKey} 
             membersCount={membersList.length} 
+            themeColor={themeColor} 
           />
         </div>
 
@@ -395,8 +436,9 @@ export default function App() {
               <button 
                 type="button" 
                 onClick={handleAddMember}
+                // ★変更：追加ボタンの色をチームカラーに
                 style={{ 
-                  background: '#2f4f2f', color: '#fff', border: 'none', borderRadius: '6px', 
+                  background: themeColor, color: '#fff', border: 'none', borderRadius: '6px', 
                   padding: '8px 16px', fontSize: '14px', cursor: 'pointer', fontWeight: 'bold', width: '100%'
                 }}
               >
@@ -420,7 +462,8 @@ export default function App() {
         </div>
 
         {/* フォーメーション選択 */}
-        <div className="section-formation" style={{ background: '#e8e2d2', padding: '15px', borderRadius: '12px', border: '1px solid #c4b6a6', boxShadow: '0 2px 5px rgba(62, 50, 38, 0.1)' }}>
+        {/* ★変更：枠線をチームカラーに */}
+        <div className="section-formation" style={{ background: '#e8e2d2', padding: '15px', borderRadius: '12px', border: `1px solid ${themeColor}`, boxShadow: '0 2px 5px rgba(62, 50, 38, 0.1)' }}>
            <div className="panelHeader" style={{ borderBottom: '2px solid #9a2c2e', marginBottom: '15px', paddingBottom: '10px' }}>
               <div className="panelTitle" style={{ color: '#3e3226', fontWeight: 'bold' }}>フォーメーション変更</div>
            </div>
@@ -436,8 +479,38 @@ export default function App() {
 
         {/* 4. ピッチ */}
         <div className="section-pitch" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', width: '100%', maxWidth: '600px' }}>
+             <div style={{ color: '#e8e2d2', fontWeight: 'bold' }}>PITCH AREA</div>
+             <button 
+               type="button" 
+               onClick={handleSaveImage}
+               // ★変更：保存ボタンをチームカラーに
+               style={{
+                 background: themeColor, color: '#fff', border: 'none', 
+                 padding: '6px 12px', borderRadius: '4px', fontWeight: 'bold', fontSize: '12px',
+                 cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px'
+               }}
+             >
+               📷 画像保存/共有
+             </button>
+          </div>
+
           <div className="pitchWrap">
-            <div className="pitch">
+            <div 
+              className="pitch" 
+              id="pitch-content" 
+              style={{
+                // 芝生はサッカーらしい緑のまま固定（変えない方が見やすい）
+                background: 'repeating-linear-gradient(to bottom, #3a633a, #3a633a 10%, #2f4f2f 10%, #2f4f2f 20%)',
+                border: '4px solid rgba(255,255,255,0.8)',
+                borderRadius: '12px',
+                position: 'relative',
+                overflow: 'hidden',
+                width: '100%',
+                height: '100%'
+              }}
+            >
               <div className="lineLayer">
                 <div className="outerLine" /><div className="halfLine" /><div className="centerCircle" /><div className="centerSpot" />
                 <div className="penTop" /><div className="sixTop" /><div className="spotTop" /><div className="penBottom" /><div className="sixBottom" /><div className="spotBottom" />
