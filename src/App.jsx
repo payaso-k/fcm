@@ -26,7 +26,6 @@ const toKey = (d) => {
 };
 const addMonths = (d, n) => new Date(d.getFullYear(), d.getMonth() + n, 1);
 
-// ★変更点：初期データとしての定義（保存データがない場合のみ使用）
 const INITIAL_MEMBERS = Array.from({ length: 20 }, (_, i) => ({
   id: `m${i + 1}`,
   label: `Member ${i + 1}`,
@@ -36,7 +35,8 @@ const ADMIN_CODE_DEFAULT = "1234";
 
 // --- Sub Components ---
 
-function WeeklySummary({ currentKey, statusByDate }) {
+// ★変更：引数に onSelectDate と membersCount を追加
+function WeeklySummary({ currentKey, statusByDate, onSelectDate, membersCount }) {
   if (!currentKey) return null;
 
   const targetDate = new Date(currentKey);
@@ -57,7 +57,11 @@ function WeeklySummary({ currentKey, statusByDate }) {
       if (val === "maybe") maybe++;
       if (val === "no") no++;
     });
-    weekData.push({ date: d, key, ok, maybe, no });
+    // ★追加：未入力数を計算（全メンバー数 - 回答済み数）
+    // ※メンバー数が0の時はマイナスにならないよう0にする
+    const unknown = Math.max(0, membersCount - (ok + maybe + no));
+
+    weekData.push({ date: d, key, ok, maybe, no, unknown });
   }
 
   const WEEKS = ["月", "火", "水", "木", "金", "土", "日"];
@@ -73,15 +77,21 @@ function WeeklySummary({ currentKey, statusByDate }) {
           const isSat = idx === 5;
           const isSun = idx === 6;
           return (
-            <div key={item.key} style={{ 
-              flex: 1, 
-              textAlign: 'center', 
-              border: isSelected ? '2px solid #ca9e45' : '1px solid transparent',
-              borderRadius: '6px',
-              padding: '4px 0',
-              background: isSelected ? '#fff' : 'transparent',
-              color: '#333'
-            }}>
+            <div 
+              key={item.key} 
+              // ★追加：クリックでその日に移動
+              onClick={() => onSelectDate(item.key)}
+              style={{ 
+                flex: 1, 
+                textAlign: 'center', 
+                border: isSelected ? '2px solid #ca9e45' : '1px solid transparent',
+                borderRadius: '6px',
+                padding: '4px 0',
+                background: isSelected ? '#fff' : 'transparent',
+                color: '#333',
+                cursor: 'pointer' // クリックできる感を追加
+              }}
+            >
               <div style={{ fontWeight: 'bold', color: isSun ? '#e03e3e' : isSat ? '#3e7ae0' : '#333' }}>
                 {WEEKS[idx]} <span style={{ fontSize: '9px', fontWeight: 'normal', color: '#888' }}>{item.date.getDate()}</span>
               </div>
@@ -89,6 +99,8 @@ function WeeklySummary({ currentKey, statusByDate }) {
                 <div style={{ color: '#2f8f2f' }}>○ {item.ok}</div>
                 <div style={{ color: '#d4a306' }}>△ {item.maybe}</div>
                 <div style={{ color: '#cf4342' }}>× {item.no}</div>
+                {/* ★追加：未入力数の表示 */}
+                <div style={{ color: '#888' }}>- {item.unknown}</div>
               </div>
             </div>
           );
@@ -146,7 +158,6 @@ function Calendar({ monthDate, selectedKey, onSelectDate, onPrev, onNext }) {
 export default function App() {
   const keys = Object.keys(FORMATIONS);
   
-  // ★変更点：メンバーリストをStateで管理（初期値は空、ロード後にセット）
   const [membersList, setMembersList] = useState(INITIAL_MEMBERS);
   
   const [formationByDate, setFormationByDate] = useState({});
@@ -184,8 +195,6 @@ export default function App() {
         if (data.memosByDate) setMemosByDate(data.memosByDate);
         if (data.placedBySlotByDate) setPlacedBySlotByDate(data.placedBySlotByDate);
         if (data.adminCode) setAdminCode(data.adminCode);
-        
-        // ★変更点：メンバーリストを読み込む
         if (data.membersList) {
           setMembersList(data.membersList);
         }
@@ -208,7 +217,6 @@ export default function App() {
       memosByDate, 
       placedBySlotByDate, 
       adminCode,
-      // ★変更点：メンバーリストも保存する
       membersList 
     });
   }, [teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, membersList, isLoaded]);
@@ -256,13 +264,11 @@ export default function App() {
     });
   };
 
-  // ★追加：メンバー追加機能
   const handleAddMember = () => {
-    const newId = `m${Date.now()}`; // 時間を使ってユニークID作成
+    const newId = `m${Date.now()}`;
     setMembersList([...membersList, { id: newId, label: `Member` }]);
   };
 
-  // ★追加：メンバー削除機能
   const handleDeleteMember = (id) => {
     if (window.confirm("このメンバーを削除しますか？\n（過去のデータは残りますが、リストからは消えます）")) {
       setMembersList(membersList.filter(m => m.id !== id));
@@ -321,19 +327,23 @@ export default function App() {
         {/* 1. カレンダー */}
         <div className="section-calendar">
           <Calendar monthDate={monthDate} selectedKey={selectedDateKey} onSelectDate={setSelectedDateKey} onPrev={() => setMonthDate(addMonths(monthDate, -1))} onNext={() => setMonthDate(addMonths(monthDate, 1))} />
-          <WeeklySummary currentKey={selectedDateKey} statusByDate={statusByDate} />
+          {/* ★変更：メンバー数と選択関数を渡して、クリック遷移＆未入力表示に対応 */}
+          <WeeklySummary 
+            currentKey={selectedDateKey} 
+            statusByDate={statusByDate} 
+            onSelectDate={setSelectedDateKey} 
+            membersCount={membersList.length} 
+          />
         </div>
 
         {/* 2. 出欠リスト */}
         <div className="section-list">
           <div className="panelHeader"><div className="panelTitle">出欠確認</div></div>
           <div className="listGridWrapper">
-            {/* ★変更：membersList（保存されたリスト）を使って表示 */}
             {membersList.map(m => (
               <div key={m.id} className="listRowCompact" style={{ flexDirection: 'column', height: 'auto', padding: '8px', gap: '5px' }}>
                 <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center' }}>
                   
-                  {/* ★追加：管理者のみ削除ボタン表示 */}
                   {(isAdmin || isMaster) && (
                     <button 
                       type="button" 
@@ -380,7 +390,6 @@ export default function App() {
             ))}
           </div>
 
-          {/* ★追加：管理者のみ追加ボタン表示（リストの一番下） */}
           {(isAdmin || isMaster) && (
             <div style={{ marginTop: '15px', textAlign: 'center' }}>
               <button 
