@@ -33,16 +33,10 @@ const INITIAL_MEMBERS = Array.from({ length: 20 }, (_, i) => ({
 
 const ADMIN_CODE_DEFAULT = "1234";
 
-// ★デフォルトカラー定義（元の配色）
-const DEFAULT_COLORS = {
-  main: "#3e3226",    // 焦げ茶（ヘッダー、文字）
-  accent: "#ca9e45",  // 金（ボタン、アクティブ状態）
-  bg: "#e8e2d2"       // ベージュ（背景）
-};
-
 // --- Sub Components ---
 
-function WeeklySummary({ currentKey, statusByDate, onSelectDate, membersCount, colors }) {
+// ★変更：引数に onSelectDate と membersCount を追加
+function WeeklySummary({ currentKey, statusByDate, onSelectDate, membersCount }) {
   if (!currentKey) return null;
 
   const targetDate = new Date(currentKey);
@@ -63,6 +57,8 @@ function WeeklySummary({ currentKey, statusByDate, onSelectDate, membersCount, c
       if (val === "maybe") maybe++;
       if (val === "no") no++;
     });
+    // ★追加：未入力数を計算（全メンバー数 - 回答済み数）
+    // ※メンバー数が0の時はマイナスにならないよう0にする
     const unknown = Math.max(0, membersCount - (ok + maybe + no));
 
     weekData.push({ date: d, key, ok, maybe, no, unknown });
@@ -83,17 +79,17 @@ function WeeklySummary({ currentKey, statusByDate, onSelectDate, membersCount, c
           return (
             <div 
               key={item.key} 
+              // ★追加：クリックでその日に移動
               onClick={() => onSelectDate(item.key)}
               style={{ 
                 flex: 1, 
                 textAlign: 'center', 
-                // ★アクセントカラーで強調
-                border: isSelected ? `2px solid ${colors.accent}` : '1px solid transparent',
+                border: isSelected ? '2px solid #ca9e45' : '1px solid transparent',
                 borderRadius: '6px',
                 padding: '4px 0',
                 background: isSelected ? '#fff' : 'transparent',
                 color: '#333',
-                cursor: 'pointer'
+                cursor: 'pointer' // クリックできる感を追加
               }}
             >
               <div style={{ fontWeight: 'bold', color: isSun ? '#e03e3e' : isSat ? '#3e7ae0' : '#333' }}>
@@ -103,6 +99,7 @@ function WeeklySummary({ currentKey, statusByDate, onSelectDate, membersCount, c
                 <div style={{ color: '#2f8f2f' }}>○ {item.ok}</div>
                 <div style={{ color: '#d4a306' }}>△ {item.maybe}</div>
                 <div style={{ color: '#cf4342' }}>× {item.no}</div>
+                {/* ★追加：未入力数の表示 */}
                 <div style={{ color: '#888' }}>- {item.unknown}</div>
               </div>
             </div>
@@ -113,7 +110,7 @@ function WeeklySummary({ currentKey, statusByDate, onSelectDate, membersCount, c
   );
 }
 
-function Calendar({ monthDate, selectedKey, onSelectDate, onPrev, onNext, colors }) {
+function Calendar({ monthDate, selectedKey, onSelectDate, onPrev, onNext }) {
   const start = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
   const end = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
   const startDow = (start.getDay() + 6) % 7; 
@@ -141,23 +138,11 @@ function Calendar({ monthDate, selectedKey, onSelectDate, onPrev, onNext, colors
           if (!d) return <div key={idx} className="dayCell empty" />;
           const key = toKey(d);
           const isToday = key === toKey(new Date());
-          const isSelected = key === selectedKey;
-          
-          // ★カレンダーの色制御
-          let style = {};
-          if (isSelected) {
-            style = { borderColor: colors.accent, color: colors.accent, fontWeight: 'bold', background: '#fff' };
-          } else if (isToday) {
-            // 今日（未選択）の場合は少し薄くアクセントを入れるか、太字にする
-            style = { color: colors.accent, fontWeight: 'bold' };
-          }
-
           return (
             <button
               key={key}
               type="button"
-              className={`dayCell ${isToday ? "today" : ""}`}
-              style={style}
+              className={`dayCell ${key === selectedKey ? "selected" : ""} ${isToday ? "today" : ""}`}
               onClick={() => onSelectDate(key)}
             >
               {d.getDate()}
@@ -174,16 +159,11 @@ export default function App() {
   const keys = Object.keys(FORMATIONS);
   
   const [membersList, setMembersList] = useState(INITIAL_MEMBERS);
+  
   const [formationByDate, setFormationByDate] = useState({});
   const [defaultFormation, setDefaultFormation] = useState(keys[0] || "3-4-2-1");
   const [teamName, setTeamName] = useState("TEAM NAME");
   const [logoDataUrl, setLogoDataUrl] = useState("");
-  
-  // ★3色の状態管理
-  const [themeMain, setThemeMain] = useState(DEFAULT_COLORS.main);
-  const [themeAccent, setThemeAccent] = useState(DEFAULT_COLORS.accent);
-  const [themeBg, setThemeBg] = useState(DEFAULT_COLORS.bg);
-  
   const [isAdmin, setIsAdmin] = useState(false);
   const [isMaster, setIsMaster] = useState(false);
   const [adminCode, setAdminCode] = useState(ADMIN_CODE_DEFAULT);
@@ -201,8 +181,6 @@ export default function App() {
   const placedBySlot = placedBySlotByDate[selectedDateKey] || {};
   const slots = useMemo(() => FORMATIONS[currentFormation] ?? [], [currentFormation]);
 
-  const currentColors = { main: themeMain, accent: themeAccent, bg: themeBg };
-
   useEffect(() => {
     const dbRef = ref(db, 'teamData/');
     const unsubscribe = onValue(dbRef, (snapshot) => {
@@ -217,14 +195,9 @@ export default function App() {
         if (data.memosByDate) setMemosByDate(data.memosByDate);
         if (data.placedBySlotByDate) setPlacedBySlotByDate(data.placedBySlotByDate);
         if (data.adminCode) setAdminCode(data.adminCode);
-        if (data.membersList) setMembersList(data.membersList);
-        
-        // カラー読み込み
-        if (data.themeMain) setThemeMain(data.themeMain);
-        else if (data.themeColor) setThemeMain(data.themeColor); 
-        
-        if (data.themeAccent) setThemeAccent(data.themeAccent);
-        if (data.themeBg) setThemeBg(data.themeBg);
+        if (data.membersList) {
+          setMembersList(data.membersList);
+        }
       }
       setIsLoaded(true);
     });
@@ -235,10 +208,18 @@ export default function App() {
     if (!isLoaded) return;
     const dbRef = ref(db, 'teamData/');
     set(dbRef, {
-      teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, membersList,
-      themeMain, themeAccent, themeBg
+      teamName, 
+      logoDataUrl, 
+      names, 
+      formationByDate, 
+      defaultFormation, 
+      statusByDate, 
+      memosByDate, 
+      placedBySlotByDate, 
+      adminCode,
+      membersList 
     });
-  }, [teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, membersList, themeMain, themeAccent, themeBg, isLoaded]);
+  }, [teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, membersList, isLoaded]);
 
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
@@ -289,7 +270,7 @@ export default function App() {
   };
 
   const handleDeleteMember = (id) => {
-    if (window.confirm("このメンバーを削除しますか？")) {
+    if (window.confirm("このメンバーを削除しますか？\n（過去のデータは残りますが、リストからは消えます）")) {
       setMembersList(membersList.filter(m => m.id !== id));
     }
   };
@@ -298,13 +279,12 @@ export default function App() {
 
   return (
     <div className="page">
-      {/* ★ヘッダー：メインカラー */}
-      <header className="topbar" style={{ background: themeMain, borderBottom: 'none' }}>
+      <header className="topbar">
         <div className="brandBar">
           <div className="logoBox">
             {logoDataUrl ? <img className="logoImg" src={logoDataUrl} alt="logo" /> : <div className="logoPlaceholder">LOGO</div>}
           </div>
-          <div className="teamName" style={{ color: '#fff' }}>{teamName}</div>
+          <div className="teamName">{teamName}</div>
         </div>
         <div className="controls">
           <button className="btn" type="button" onClick={() => {
@@ -329,25 +309,6 @@ export default function App() {
             <label className="adminLabel">チームロゴ変更</label>
             <input type="file" accept="image/*" onChange={handleLogoChange} />
           </div>
-          
-          <div className="adminField">
-            <label className="adminLabel">チームカラー設定</label>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '5px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '12px', color: '#ccc' }}>1. メイン（ヘッダー）</span>
-                <input type="color" value={themeMain} onChange={(e) => setThemeMain(e.target.value)} style={{ cursor: 'pointer' }} />
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '12px', color: '#ccc' }}>2. アクセント（ボタン・強調）</span>
-                <input type="color" value={themeAccent} onChange={(e) => setThemeAccent(e.target.value)} style={{ cursor: 'pointer' }} />
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '12px', color: '#ccc' }}>3. 背景（フォーメーション）</span>
-                <input type="color" value={themeBg} onChange={(e) => setThemeBg(e.target.value)} style={{ cursor: 'pointer' }} />
-              </div>
-            </div>
-          </div>
-
           <div className="adminField">
             <label className="adminLabel">全体デフォルトフォーメーション</label>
             <select className="select" value={defaultFormation} onChange={(e) => setDefaultFormation(e.target.value)}>
@@ -355,27 +316,29 @@ export default function App() {
             </select>
           </div>
           <div className="adminField">
-            <label className="adminLabel" style={{ color: themeAccent }}>管理者パスコード変更</label>
-            <input className="textInput" type="text" value={adminCode} onChange={(e) => setAdminCode(e.target.value)} style={{ border: `1px solid ${themeAccent}` }} />
+            <label className="adminLabel" style={{ color: '#ca9e45' }}>管理者パスコード変更</label>
+            <input className="textInput" type="text" value={adminCode} onChange={(e) => setAdminCode(e.target.value)} style={{ border: '1px solid #ca9e45' }} />
           </div>
         </div>
       )}
 
       <div className="layout">
         
+        {/* 1. カレンダー */}
         <div className="section-calendar">
-          <Calendar monthDate={monthDate} selectedKey={selectedDateKey} onSelectDate={setSelectedDateKey} onPrev={() => setMonthDate(addMonths(monthDate, -1))} onNext={() => setMonthDate(addMonths(monthDate, 1))} colors={currentColors} />
+          <Calendar monthDate={monthDate} selectedKey={selectedDateKey} onSelectDate={setSelectedDateKey} onPrev={() => setMonthDate(addMonths(monthDate, -1))} onNext={() => setMonthDate(addMonths(monthDate, 1))} />
+          {/* ★変更：メンバー数と選択関数を渡して、クリック遷移＆未入力表示に対応 */}
           <WeeklySummary 
             currentKey={selectedDateKey} 
             statusByDate={statusByDate} 
             onSelectDate={setSelectedDateKey} 
             membersCount={membersList.length} 
-            colors={currentColors} 
           />
         </div>
 
+        {/* 2. 出欠リスト */}
         <div className="section-list">
-          <div className="panelHeader"><div className="panelTitle" style={{ color: themeMain }}>出欠確認</div></div>
+          <div className="panelHeader"><div className="panelTitle">出欠確認</div></div>
           <div className="listGridWrapper">
             {membersList.map(m => (
               <div key={m.id} className="listRowCompact" style={{ flexDirection: 'column', height: 'auto', padding: '8px', gap: '5px' }}>
@@ -396,28 +359,17 @@ export default function App() {
 
                   <input className="listNameCompact" value={names[m.id] || ""} placeholder={m.label} onChange={(e) => setNames({ ...names, [m.id]: e.target.value })} />
                   <div className="listBtnsCompact">
-                    {["ok", "maybe", "no"].map(type => {
-                      // ★ここが修正点：Activeなボタンの色をアクセントカラーにする
-                      const isActive = status[m.id] === type;
-                      return (
-                        <button 
-                          key={type} 
-                          className={`listBtnCompact ${type} ${isActive ? "active" : ""}`} 
-                          onClick={() => setStatusFor(m.id, type)} 
-                          type="button"
-                          style={{ 
-                            width: '24px', 
-                            height: '40px', 
-                            fontSize: '18px',
-                            // Activeならアクセントカラー、それ以外はCSS任せ
-                            background: isActive ? themeAccent : undefined,
-                            borderColor: isActive ? themeAccent : undefined
-                          }}
-                        >
-                          {type === "ok" ? "○" : type === "maybe" ? "△" : "×"}
-                        </button>
-                      );
-                    })}
+                    {["ok", "maybe", "no"].map(type => (
+                      <button 
+                        key={type} 
+                        className={`listBtnCompact ${type} ${status[m.id] === type ? "active" : ""}`} 
+                        onClick={() => setStatusFor(m.id, type)} 
+                        type="button"
+                        style={{ width: '24px', height: '40px', fontSize: '18px' }}
+                      >
+                        {type === "ok" ? "○" : type === "maybe" ? "△" : "×"}
+                      </button>
+                    ))}
                   </div>
                 </div>
                 <input
@@ -443,9 +395,8 @@ export default function App() {
               <button 
                 type="button" 
                 onClick={handleAddMember}
-                // ★追加ボタン：アクセントカラー
                 style={{ 
-                  background: themeAccent, color: '#fff', border: 'none', borderRadius: '6px', 
+                  background: '#2f4f2f', color: '#fff', border: 'none', borderRadius: '6px', 
                   padding: '8px 16px', fontSize: '14px', cursor: 'pointer', fontWeight: 'bold', width: '100%'
                 }}
               >
@@ -455,8 +406,9 @@ export default function App() {
           )}
         </div>
 
+        {/* 3. ベンチ */}
         <div className="section-bench">
-          <div className="panelHeader"><div className="panelTitle" style={{ color: themeMain }}>ベンチ（待機メンバー）</div></div>
+          <div className="panelHeader"><div className="panelTitle">ベンチ（待機メンバー）</div></div>
           <div className="benchGrid">
             {benchMembers.map(m => (
               <div key={m.id} className={`benchCard status-${status[m.id]} ${selectedMemberId === m.id ? "selected-m" : ""}`} draggable onDragStart={(e) => e.dataTransfer.setData("text/memberId", m.id)} onClick={() => setSelectedMemberId(m.id === selectedMemberId ? null : m.id)}>
@@ -467,14 +419,14 @@ export default function App() {
           </div>
         </div>
 
-        {/* ★フォーメーションエリア：背景カラー＆アクセントカラー */}
-        <div className="section-formation" style={{ background: themeBg, padding: '15px', borderRadius: '12px', border: `1px solid ${themeAccent}`, boxShadow: '0 2px 5px rgba(62, 50, 38, 0.1)' }}>
-           <div className="panelHeader" style={{ borderBottom: `2px solid ${themeMain}`, marginBottom: '15px', paddingBottom: '10px' }}>
-              <div className="panelTitle" style={{ color: themeMain, fontWeight: 'bold' }}>フォーメーション変更</div>
+        {/* フォーメーション選択 */}
+        <div className="section-formation" style={{ background: '#e8e2d2', padding: '15px', borderRadius: '12px', border: '1px solid #c4b6a6', boxShadow: '0 2px 5px rgba(62, 50, 38, 0.1)' }}>
+           <div className="panelHeader" style={{ borderBottom: '2px solid #9a2c2e', marginBottom: '15px', paddingBottom: '10px' }}>
+              <div className="panelTitle" style={{ color: '#3e3226', fontWeight: 'bold' }}>フォーメーション変更</div>
            </div>
            <select 
              className="select" 
-             style={{ width: '100%', maxWidth: '100%', cursor: 'pointer', background: '#fff', color: '#333', border: '1px solid #ccc' }}
+             style={{ width: '100%', maxWidth: '100%', cursor: 'pointer', background: '#fff', color: '#3e3226', border: '1px solid #c4b6a6' }}
              value={currentFormation} 
              onChange={(e) => setFormationByDate(prev => ({ ...prev, [selectedDateKey]: e.target.value }))}
            >
@@ -482,6 +434,7 @@ export default function App() {
            </select>
         </div>
 
+        {/* 4. ピッチ */}
         <div className="section-pitch" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div className="pitchWrap">
             <div className="pitch">
