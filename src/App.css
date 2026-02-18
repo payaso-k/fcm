@@ -90,6 +90,10 @@ body {
   flex-direction: column;
   padding-bottom: 100px;
   gap: 20px;
+  /* ★追加：PCでは中央寄せ & 最大幅制限 */
+  width: 100%;
+  max-width: 1200px; 
+  margin: 0 auto;
 }
 .panelHeader { margin-bottom: 8px; }
 .panelTitle { color: var(--accent-dark); font-weight: bold; font-size: 13px; letter-spacing: 1px; opacity: 0.7; }
@@ -266,4 +270,63 @@ input[type="file"] {
   border-radius: 8px;
   color: var(--text-color);
   font-size: 14px;
+}
+
+/* ★★★ PC向けのレイアウト調整 ★★★ */
+@media (min-width: 768px) {
+  /* 全体の幅を制限 */
+  .layout {
+    display: grid;
+    /* 左側にカレンダーとリスト、右側にピッチ */
+    grid-template-columns: 350px 1fr;
+    grid-template-rows: auto auto auto;
+    align-items: start;
+    gap: 20px;
+    padding: 20px;
+  }
+
+  /* カレンダーを左上に */
+  .section-calendar {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+    /* カレンダーの幅を固定 */
+    max-width: 100%;
+  }
+  
+  /* 出欠リストを左下に */
+  .section-list {
+    grid-column: 1 / 2;
+    grid-row: 2 / 4;
+    overflow-y: auto;
+    max-height: 80vh; /* スクロール可能に */
+  }
+  
+  /* リストを1列表示に戻す（PCの左側サイドバーに収めるため） */
+  .listGridWrapper {
+    grid-template-columns: 1fr; 
+  }
+
+  /* ベンチエリアを右上に */
+  .section-bench {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+  }
+
+  /* フォーメーション選択を右のベンチ下に */
+  .section-formation {
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* ピッチを右下に */
+  .section-pitch {
+    grid-column: 2 / 3;
+    grid-row: 3 / 4;
+    background: transparent; /* PCでは全体の背景に馴染ませる */
+    border: none;
+    min-height: auto;
+  }
 }
