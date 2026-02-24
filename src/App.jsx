@@ -35,7 +35,6 @@ const ADMIN_CODE_DEFAULT = "1234";
 
 // --- Sub Components ---
 
-// ★変更：引数に onSelectDate と membersCount を追加
 function WeeklySummary({ currentKey, statusByDate, onSelectDate, membersCount }) {
   if (!currentKey) return null;
 
@@ -57,8 +56,6 @@ function WeeklySummary({ currentKey, statusByDate, onSelectDate, membersCount })
       if (val === "maybe") maybe++;
       if (val === "no") no++;
     });
-    // ★追加：未入力数を計算（全メンバー数 - 回答済み数）
-    // ※メンバー数が0の時はマイナスにならないよう0にする
     const unknown = Math.max(0, membersCount - (ok + maybe + no));
 
     weekData.push({ date: d, key, ok, maybe, no, unknown });
@@ -79,7 +76,6 @@ function WeeklySummary({ currentKey, statusByDate, onSelectDate, membersCount })
           return (
             <div 
               key={item.key} 
-              // ★追加：クリックでその日に移動
               onClick={() => onSelectDate(item.key)}
               style={{ 
                 flex: 1, 
@@ -89,7 +85,7 @@ function WeeklySummary({ currentKey, statusByDate, onSelectDate, membersCount })
                 padding: '4px 0',
                 background: isSelected ? '#fff' : 'transparent',
                 color: '#333',
-                cursor: 'pointer' // クリックできる感を追加
+                cursor: 'pointer' 
               }}
             >
               <div style={{ fontWeight: 'bold', color: isSun ? '#e03e3e' : isSat ? '#3e7ae0' : '#333' }}>
@@ -99,7 +95,6 @@ function WeeklySummary({ currentKey, statusByDate, onSelectDate, membersCount })
                 <div style={{ color: '#2f8f2f' }}>○ {item.ok}</div>
                 <div style={{ color: '#d4a306' }}>△ {item.maybe}</div>
                 <div style={{ color: '#cf4342' }}>× {item.no}</div>
-                {/* ★追加：未入力数の表示 */}
                 <div style={{ color: '#888' }}>- {item.unknown}</div>
               </div>
             </div>
@@ -110,7 +105,8 @@ function WeeklySummary({ currentKey, statusByDate, onSelectDate, membersCount })
   );
 }
 
-function Calendar({ monthDate, selectedKey, onSelectDate, onPrev, onNext }) {
+// ★変更：引数に generalMemosByDate を追加
+function Calendar({ monthDate, selectedKey, onSelectDate, onPrev, onNext, generalMemosByDate = {} }) {
   const start = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
   const end = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
   const startDow = (start.getDay() + 6) % 7; 
@@ -138,14 +134,21 @@ function Calendar({ monthDate, selectedKey, onSelectDate, onPrev, onNext }) {
           if (!d) return <div key={idx} className="dayCell empty" />;
           const key = toKey(d);
           const isToday = key === toKey(new Date());
+          const isSelected = key === selectedKey;
+          
+          // ★追加：その日に全体メモが存在するかどうかを判定
+          const hasMemo = generalMemosByDate[key] && generalMemosByDate[key].trim() !== "";
+
           return (
             <button
               key={key}
               type="button"
-              className={`dayCell ${key === selectedKey ? "selected" : ""} ${isToday ? "today" : ""}`}
+              className={`dayCell ${isSelected ? "selected" : ""} ${isToday ? "today" : ""}`}
               onClick={() => onSelectDate(key)}
             >
               {d.getDate()}
+              {/* ★追加：メモがあればドットを表示 */}
+              {hasMemo && <div className="memo-dot" />}
             </button>
           );
         })}
@@ -159,7 +162,6 @@ export default function App() {
   const keys = Object.keys(FORMATIONS);
   
   const [membersList, setMembersList] = useState(INITIAL_MEMBERS);
-  
   const [formationByDate, setFormationByDate] = useState({});
   const [defaultFormation, setDefaultFormation] = useState(keys[0] || "3-4-2-1");
   const [teamName, setTeamName] = useState("TEAM NAME");
@@ -174,6 +176,10 @@ export default function App() {
   const [statusByDate, setStatusByDate] = useState({});
   const [memosByDate, setMemosByDate] = useState({});
   const [placedBySlotByDate, setPlacedBySlotByDate] = useState({});
+  
+  // ★追加：全体メモの状態管理
+  const [generalMemosByDate, setGeneralMemosByDate] = useState({});
+  
   const [isLoaded, setIsLoaded] = useState(false);
 
   const currentFormation = formationByDate[selectedDateKey] || defaultFormation || keys[0];
@@ -195,9 +201,10 @@ export default function App() {
         if (data.memosByDate) setMemosByDate(data.memosByDate);
         if (data.placedBySlotByDate) setPlacedBySlotByDate(data.placedBySlotByDate);
         if (data.adminCode) setAdminCode(data.adminCode);
-        if (data.membersList) {
-          setMembersList(data.membersList);
-        }
+        if (data.membersList) setMembersList(data.membersList);
+        
+        // ★追加：全体メモを読み込み
+        if (data.generalMemosByDate) setGeneralMemosByDate(data.generalMemosByDate);
       }
       setIsLoaded(true);
     });
@@ -217,9 +224,10 @@ export default function App() {
       memosByDate, 
       placedBySlotByDate, 
       adminCode,
-      membersList 
+      membersList,
+      generalMemosByDate // ★追加：全体メモを保存
     });
-  }, [teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, membersList, isLoaded]);
+  }, [teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, membersList, generalMemosByDate, isLoaded]);
 
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
@@ -326,8 +334,15 @@ export default function App() {
         
         {/* 1. カレンダー */}
         <div className="section-calendar">
-          <Calendar monthDate={monthDate} selectedKey={selectedDateKey} onSelectDate={setSelectedDateKey} onPrev={() => setMonthDate(addMonths(monthDate, -1))} onNext={() => setMonthDate(addMonths(monthDate, 1))} />
-          {/* ★変更：メンバー数と選択関数を渡して、クリック遷移＆未入力表示に対応 */}
+          {/* ★変更：Calendarに generalMemosByDate を渡す */}
+          <Calendar 
+            monthDate={monthDate} 
+            selectedKey={selectedDateKey} 
+            onSelectDate={setSelectedDateKey} 
+            onPrev={() => setMonthDate(addMonths(monthDate, -1))} 
+            onNext={() => setMonthDate(addMonths(monthDate, 1))} 
+            generalMemosByDate={generalMemosByDate}
+          />
           <WeeklySummary 
             currentKey={selectedDateKey} 
             statusByDate={statusByDate} 
@@ -336,8 +351,26 @@ export default function App() {
           />
         </div>
 
-        {/* 2. 出欠リスト */}
+        {/* 2. 全体メモ ＆ 出欠リスト */}
         <div className="section-list">
+          
+          {/* ★追加：全体メモ欄（出欠リストのすぐ上に配置） */}
+          <div className="panelHeader"><div className="panelTitle">全体メモ</div></div>
+          <textarea
+            className="generalMemoInput"
+            placeholder="全体への連絡事項（時間・場所など）..."
+            key={`general-memo-${selectedDateKey}`}
+            defaultValue={generalMemosByDate[selectedDateKey] || ""}
+            onBlur={(e) => {
+              const val = e.target.value;
+              setGeneralMemosByDate(prev => ({
+                ...prev,
+                [selectedDateKey]: val
+              }));
+            }}
+            style={{ marginBottom: '20px' }} // 下の出欠確認との余白
+          />
+
           <div className="panelHeader"><div className="panelTitle">出欠確認</div></div>
           <div className="listGridWrapper">
             {membersList.map(m => (
