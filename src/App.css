@@ -330,3 +330,43 @@ input[type="file"] {
     min-height: auto;
   }
 }
+/* --- カレンダーのマーク（ドット） --- */
+.dayCell {
+  position: relative; /* ドットを配置するために追加 */
+}
+
+.memo-dot {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  background-color: var(--accent-red);
+  border-radius: 50%;
+}
+
+/* 選択されている時はドットを白にして目立たせる */
+.dayCell.selected .memo-dot {
+  background-color: #fff;
+}
+
+/* --- 全体メモ入力欄 --- */
+.generalMemoInput {
+  width: 100%;
+  min-height: 60px;
+  padding: 10px;
+  background: #fff;
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  border-radius: 8px;
+  font-size: 14px;
+  resize: vertical;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.generalMemoInput:focus {
+  outline: 2px solid var(--accent-gold);
+  border-color: transparent;
+}
