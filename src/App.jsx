@@ -358,7 +358,7 @@ export default function App() {
           <div className="panelHeader"><div className="panelTitle">全体メモ</div></div>
           <textarea
             className="generalMemoInput"
-            placeholder="全体への連絡事項（時間・場所など）..."
+            placeholder="全体への連絡事項"
             key={`general-memo-${selectedDateKey}`}
             defaultValue={generalMemosByDate[selectedDateKey] || ""}
             onBlur={(e) => {
