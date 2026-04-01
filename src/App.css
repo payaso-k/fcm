@@ -1,25 +1,10 @@
 /* =========================================================
-   FC LINEUP MAKER - CLASSIC GOLD & RED THEME
-   (Layout Preserved, Colors Updated)
+   FC LINEUP MAKER - CUSTOM THEME
+   (Fully customizable 4 colors)
    ========================================================= */
 
-/* --- 1. カラーパレット定義（ロゴ配色） --- */
 :root {
-  /* メイン背景：ロゴのクリーム色 */
-  --bg-color: #f2eee2;
-  /* パネル背景：少し濃いクリーム色 */
-  --panel-bg: #e8e2d2;
-  /* 文字色：ロゴの濃い茶色 */
-  --text-color: #3e3226;
-  /* 枠線：薄い茶色 */
-  --border-color: #c4b6a6;
-  
-  /* アクセントカラー */
-  --accent-red: #9a2c2e;   /* OK / 決定 / 日曜 */
-  --accent-gold: #ca9e45;  /* Maybe / 土曜 */
-  --accent-dark: #3e3226;  /* No / 黒 */
-  
-  /* ピッチの色 */
+  /* ピッチの芝生（緑固定） */
   --pitch-dark: #2f4f2f;
   --pitch-light: #3a633a;
 }
@@ -40,8 +25,9 @@ button {
 body {
   margin: 0;
   padding: 0;
-  background-color: var(--bg-color);
-  color: var(--text-color);
+  /* 全体の背景と文字色をテーマに連動 */
+  background-color: var(--theme-bg);
+  color: var(--theme-main);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
@@ -49,8 +35,7 @@ body {
 
 /* --- 2. ヘッダー --- */
 .topbar {
-  background: var(--panel-bg);
-  border-bottom: 2px solid var(--border-color);
+  background: var(--theme-main);
   padding: 12px;
   display: flex;
   flex-direction: column;
@@ -61,25 +46,25 @@ body {
   width: 44px; height: 44px; 
   border-radius: 50%; 
   background: #fff; 
-  border: 2px solid var(--accent-gold);
+  border: 2px solid var(--theme-accent2); 
   overflow: hidden; flex-shrink: 0; 
 }
 .logoImg { width: 100%; height: 100%; object-fit: cover; }
-.logoPlaceholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #aaa; }
-.teamName { font-size: 20px; font-weight: 700; color: var(--accent-red); line-height: 1.2; }
+.logoPlaceholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 8px; color: var(--theme-main); opacity: 0.5; }
+.teamName { font-size: 20px; font-weight: 700; color: #fff; line-height: 1.2; }
 
 .controls { display: flex; justify-content: space-between; gap: 10px; }
 .btn { 
-  background: var(--accent-red);
-  border: 1px solid var(--accent-dark); 
-  color: #fff;
+  background: var(--theme-accent1); 
+  border: 1px solid var(--theme-main); 
+  color: #fff; 
   padding: 0 16px; height: 42px; border-radius: 8px; font-size: 13px; font-weight: bold; display: flex; align-items: center; justify-content: center; white-space: nowrap; 
 }
 .select { 
   flex: 1; height: 42px; 
-  background: #fff;
-  color: var(--text-color);
-  border: 1px solid var(--border-color); 
+  background: #fff; 
+  color: var(--theme-main); 
+  border: 1px solid var(--theme-accent2); 
   border-radius: 8px; text-align: center; font-size: 16px; font-weight: bold; 
 }
 
@@ -94,89 +79,133 @@ body {
   margin: 0 auto;
 }
 .panelHeader { margin-bottom: 8px; }
-.panelTitle { color: var(--accent-dark); font-weight: bold; font-size: 13px; letter-spacing: 1px; opacity: 0.7; }
+.panelTitle { color: var(--theme-main); font-weight: bold; font-size: 13px; letter-spacing: 1px; }
 
-/* --- 4. カレンダー --- */
+/* --- 4. カレンダー & 週間集計 --- */
 .section-calendar { padding: 0 12px; }
 .calendarCard { 
-  background: var(--panel-bg); 
+  background: var(--theme-bg); 
   padding: 12px; border-radius: 12px; 
-  border: 1px solid var(--border-color); margin-top: 10px; 
-  box-shadow: 0 2px 5px rgba(62, 50, 38, 0.1);
+  border: 1px solid color-mix(in srgb, var(--theme-main) 20%, transparent); 
+  margin-top: 10px; 
+  box-shadow: 0 2px 5px rgba(0,0,0, 0.05);
 }
-.calendarHeader { display: flex; justify-content: space-between; margin-bottom: 12px; font-weight: bold; color: var(--text-color); }
+.calendarHeader { display: flex; justify-content: space-between; margin-bottom: 12px; font-weight: bold; color: var(--theme-main); }
 .navBtn { 
   width: 32px; height: 32px; border-radius: 50%; 
-  border: 1px solid var(--accent-gold); 
-  color: var(--accent-red); 
+  border: 1px solid var(--theme-accent2); 
+  color: var(--theme-accent1); 
   display: flex; align-items: center; justify-content: center; background: #fff; 
 }
 
 .weekRow { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 6px; }
-.weekDay { text-align: center; font-size: 12px; color: var(--text-color); font-weight: bold; }
-.weekDay.sunday { color: var(--accent-red); }
-.weekDay.saturday { color: var(--accent-gold); }
+.weekDay { text-align: center; font-size: 12px; color: var(--theme-main); font-weight: bold; }
+.weekDay.sunday { color: var(--theme-accent1); }
+.weekDay.saturday { color: var(--theme-accent2); }
 
 .calendarGrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
 .dayCell { 
   aspect-ratio: 1; background: #fff; border-radius: 8px; 
-  color: var(--text-color); 
+  color: var(--theme-main); 
   border: 1px solid transparent;
   display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; 
   position: relative;
 }
-.dayCell.selected { background: var(--accent-red); color: #fff; font-weight: bold; }
-.dayCell.today { border: 2px solid var(--accent-gold); color: var(--text-color); }
+.dayCell.selected { background: var(--theme-accent1); color: #fff; font-weight: bold; }
+.dayCell.today { border: 2px solid var(--theme-accent2); color: var(--theme-main); }
+
+.summaryCard {
+  margin-top: 10px; padding: 8px 4px; 
+  background: color-mix(in srgb, var(--theme-main) 5%, transparent); 
+  border-radius: 8px; border: 1px solid color-mix(in srgb, var(--theme-main) 15%, transparent);
+}
+.summaryTitle {
+  font-size: 12px; font-weight: bold; color: var(--theme-main); opacity: 0.8; margin-bottom: 5px; text-align: center;
+}
+.summaryDay {
+  flex: 1; textAlign: 'center'; borderRadius: 6px; padding: 4px 0; cursor: pointer; border: 1px solid transparent;
+}
+.summaryDay.selected {
+  background: #fff;
+  border-color: var(--theme-accent2);
+}
+
 
 /* --- 5. 出欠リスト --- */
 .section-list { padding: 0 16px; }
-
-/* ★変更：列間のギャップを 10px → 6px に縮小 */
 .listGridWrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 
 .listRowCompact { 
   display: flex; flex-direction: column; 
   background: #fff; 
-  border-radius: 8px; /* 角丸も少し小さく */
-  border: 1px solid var(--border-color); 
+  padding: 6px; border-radius: 8px; gap: 3px;
+  border: 1px solid color-mix(in srgb, var(--theme-main) 20%, transparent); 
 }
 .listNameCompact { 
   background: transparent; border: none; 
-  border-bottom: 1px solid var(--border-color); 
-  color: var(--text-color); 
-  /* ★変更：margin-bottom: 10px; を削除して縦幅を削減 */
+  border-bottom: 1px solid color-mix(in srgb, var(--theme-main) 20%, transparent); 
+  color: var(--theme-main); 
   font-size: 13px; font-weight: 500; text-align: center; width: 100%; 
 }
 .listBtnsCompact { display: flex; justify-content: space-between; gap: 4px; }
+
+/* ボタンは指定色固定 */
 .listBtnCompact { 
-  flex: 1; border-radius: 4px; 
-  border: 1px solid var(--border-color); 
-  background: #f9f9f9; 
-  color: #999; 
+  flex: 1; width: 28px; height: 30px; font-size: 14px; border-radius: 4px; 
+  border: 1px solid color-mix(in srgb, var(--theme-main) 20%, transparent); 
+  background: color-mix(in srgb, var(--theme-main) 5%, transparent); 
+  color: color-mix(in srgb, var(--theme-main) 50%, transparent);
   display: flex; align-items: center; justify-content: center;
 }
-.listBtnCompact.ok.active { background: var(--accent-red); color: #fff; border-color: var(--accent-red); }
-.listBtnCompact.maybe.active { background: var(--accent-gold); color: #fff; border-color: var(--accent-gold); }
-.listBtnCompact.no.active { background: var(--accent-dark); color: #fff; border-color: var(--accent-dark); }
+.listBtnCompact.ok.active { background: var(--theme-accent1); color: #fff; border-color: var(--theme-accent1); }
+.listBtnCompact.maybe.active { background: var(--theme-accent2); color: #fff; border-color: var(--theme-accent2); }
+.listBtnCompact.no.active { background: var(--theme-main); color: #fff; border-color: var(--theme-main); }
+
+.deleteBtn {
+  background: var(--theme-accent1); color: #fff; border: none; border-radius: 4px; 
+  width: 20px; height: 20px; font-size: 10px; margin-right: 5px; cursor: pointer;
+}
+.addBtn {
+  background: var(--theme-main); color: #fff; border: none; border-radius: 6px; 
+  padding: 6px 16px; font-size: 13px; cursor: pointer; font-weight: bold; width: 100%;
+}
+
+/* メモ入力欄 */
+.personalMemoInput {
+  width: 100%; box-sizing: border-box; padding: 2px 4px; border-radius: 4px; 
+  border: 1px solid color-mix(in srgb, var(--theme-main) 20%, transparent); 
+  background: #fff; color: var(--theme-main); font-size: 11px;
+}
+.generalMemoInput {
+  width: 100%; min-height: 40px; padding: 8px; margin-bottom: 15px;
+  background: #fff; color: var(--theme-main); border-radius: 8px; font-size: 13px; resize: vertical; font-family: inherit; box-sizing: border-box;
+  border: 1px solid color-mix(in srgb, var(--theme-main) 30%, transparent);
+}
+.generalMemoInput:focus, .personalMemoInput:focus {
+  outline: 2px solid var(--theme-accent2);
+  border-color: transparent;
+}
+
 
 /* --- 6. ベンチエリア --- */
 .section-bench { padding: 0 16px; }
 .benchGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; }
 .benchCard { 
   background: #fff; 
-  border: 1px solid var(--border-color); 
+  border: 1px solid color-mix(in srgb, var(--theme-main) 20%, transparent); 
   padding: 8px 4px; border-radius: 8px; text-align: center; cursor: grab; 
 }
-.selected-m { border: 2px solid var(--accent-gold); background: #fffce0; }
-.benchName { font-size: 11px; margin-bottom: 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--text-color); }
-.benchStatus { font-weight: bold; font-size: 14px; color: var(--accent-dark); }
+.selected-m { border: 2px solid var(--theme-accent2); background: color-mix(in srgb, var(--theme-accent2) 10%, #fff); }
+.benchName { font-size: 11px; margin-bottom: 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--theme-main); }
+.benchStatus { font-weight: bold; font-size: 14px; color: var(--theme-main); }
+
 
 /* --- 7. ピッチ --- */
 .section-pitch {
   padding: 10px 0; 
-  background: var(--text-color); 
-  border-top: 4px solid var(--accent-gold);
-  border-bottom: 4px solid var(--accent-gold);
+  background: var(--theme-main); 
+  border-top: 4px solid var(--theme-accent2);
+  border-bottom: 4px solid var(--theme-accent2);
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -212,142 +241,71 @@ body {
 
 .posSlot {
   width: 58px; height: 58px;
-  position: absolute;
-  transform: translate(-50%, -50%);
+  position: absolute; transform: translate(-50%, -50%);
   background: rgba(255, 255, 255, 0.2); 
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  border-radius: 50%;
+  backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
+  border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 50%;
   display: flex; flex-direction: column; justify-content: center; align-items: center;
-  z-index: 10; cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  z-index: 10; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
-.waiting-drop { background: rgba(202, 158, 69, 0.5); border-color: var(--accent-gold); transform: translate(-50%, -50%) scale(1.1); }
+.waiting-drop { background: rgba(202, 158, 69, 0.5); border-color: var(--theme-accent2); transform: translate(-50%, -50%) scale(1.1); }
 .posRole { font-size: 10px; font-weight: 800; color: #fff; margin-bottom: 2px; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
 .posEmpty { font-size: 9px; color: rgba(255,255,255,0.9); font-weight: bold; }
 .posName { 
-  width: 50px; font-size: 12px; 
-  background: #fff; 
+  width: 50px; font-size: 12px; background: #fff; 
   border: #fff; border-radius: 12px; padding: 2px 0; overflow: hidden; text-align: center; font-weight: bold; 
-  color: var(--text-color); 
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3); 
+  color: var(--theme-main); box-shadow: 0 2px 4px rgba(0,0,0,0.3); 
 }
 
-.slot-ok { background: rgba(154, 44, 46, 0.7) !important; border-color: #fff !important; color: #fff; } 
-.slot-maybe { background: rgba(202, 158, 69, 0.7) !important; border-color: #fff !important; } 
+/* ピッチ上のOK/Maybeは色固定（視認性優先）*/
+.slot-ok { background: var(--theme-accent1) !important; border-color: #fff !important; color: #fff; } 
+.slot-maybe { background: var(--theme-accent2) !important; border-color: #fff !important; } 
+
+/* --- フォーメーション --- */
+.section-formation {
+  background: var(--theme-bg); padding: 15px; border-radius: 12px; 
+  border: 1px solid var(--theme-accent2); box-shadow: 0 2px 5px rgba(0,0,0, 0.1);
+}
 
 /* --- 8. 管理画面 --- */
 .adminPanelMobile { 
-  margin: 10px; padding: 15px; 
-  background: var(--panel-bg); 
-  border-radius: 12px; 
-  border: 2px solid var(--accent-gold); 
+  margin: 10px; padding: 15px; background: var(--theme-bg); 
+  border-radius: 12px; border: 2px solid var(--theme-accent2); 
   display: flex; flex-direction: column; gap: 15px; 
 }
 .adminField { display: flex; flex-direction: column; gap: 6px; }
-.adminLabel { font-size: 12px; color: var(--text-color); font-weight: bold; }
+.adminLabel { font-size: 12px; color: var(--theme-main); font-weight: bold; }
+.colorHint { font-size: 12px; color: var(--theme-main); opacity: 0.7; }
+
 .textInput { 
-  height: 44px; padding: 10px; 
-  background: #fff; 
-  border: 1px solid var(--border-color); 
-  color: var(--text-color); 
+  height: 44px; padding: 10px; background: #fff; color: var(--theme-main); 
+  border: 1px solid color-mix(in srgb, var(--theme-main) 30%, transparent); 
   border-radius: 8px; font-size: 16px; 
 }
-
-input[type="file"] {
-  width: 100%;
-  margin-top: 5px;
-  padding: 8px;
-  background: #fff;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  color: var(--text-color);
-  font-size: 14px;
+input[type="file"], input[type="color"] {
+  background: #fff; border: 1px solid color-mix(in srgb, var(--theme-main) 30%, transparent);
+  border-radius: 8px; color: var(--theme-main); padding: 8px;
 }
+
 
 /* ★★★ PC向けのレイアウト調整 ★★★ */
 @media (min-width: 768px) {
   .layout {
-    display: grid;
-    grid-template-columns: 350px 1fr;
-    grid-template-rows: auto auto auto;
-    align-items: start;
-    gap: 20px;
-    padding: 20px;
+    display: grid; grid-template-columns: 350px 1fr; grid-template-rows: auto auto auto;
+    align-items: start; gap: 20px; padding: 20px;
   }
-
-  .section-calendar {
-    grid-column: 1 / 2;
-    grid-row: 1 / 2;
-    max-width: 100%;
-  }
-  
-  .section-list {
-    grid-column: 1 / 2;
-    grid-row: 2 / 4;
-    overflow-y: auto;
-    max-height: 80vh; 
-  }
-  
-  .listGridWrapper {
-    grid-template-columns: 1fr; 
-  }
-
-  .section-bench {
-    grid-column: 2 / 3;
-    grid-row: 1 / 2;
-  }
-
-  .section-pitch {
-    grid-column: 2 / 3;
-    grid-row: 2 / 3;
-    background: transparent; 
-    border: none;
-    min-height: auto;
-  }
-
-  .section-formation {
-    grid-column: 2 / 3;
-    grid-row: 3 / 4;
-    max-width: 600px;
-    margin: 0 auto;
-    width: 100%;
-  }
+  .section-calendar { grid-column: 1 / 2; grid-row: 1 / 2; max-width: 100%; }
+  .section-list { grid-column: 1 / 2; grid-row: 2 / 4; overflow-y: auto; max-height: 80vh; }
+  .listGridWrapper { grid-template-columns: 1fr; }
+  .section-bench { grid-column: 2 / 3; grid-row: 1 / 2; }
+  .section-pitch { grid-column: 2 / 3; grid-row: 2 / 3; background: transparent; border: none; min-height: auto; }
+  .section-formation { grid-column: 2 / 3; grid-row: 3 / 4; max-width: 600px; margin: 0 auto; width: 100%; }
 }
 
 /* --- カレンダーのマーク（ドット） --- */
 .memo-dot {
-  position: absolute;
-  bottom: 4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 5px;
-  height: 5px;
-  background-color: var(--accent-red);
-  border-radius: 50%;
+  position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
+  width: 5px; height: 5px; background-color: var(--theme-accent1); border-radius: 50%;
 }
-.dayCell.selected .memo-dot {
-  background-color: #fff;
-}
-
-/* --- 全体メモ入力欄 --- */
-.generalMemoInput {
-  width: 100%;
-  min-height: 40px; /* ここも少し小さくしました */
-  padding: 8px;
-  background: #fff;
-  border: 1px solid var(--border-color);
-  color: var(--text-color);
-  border-radius: 8px;
-  font-size: 13px;
-  resize: vertical;
-  font-family: inherit;
-  box-sizing: border-box;
-}
-
-.generalMemoInput:focus {
-  outline: 2px solid var(--accent-gold);
-  border-color: transparent;
-}
+.dayCell.selected .memo-dot { background-color: #fff; }
