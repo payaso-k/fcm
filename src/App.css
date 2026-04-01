@@ -1,6 +1,5 @@
 /* =========================================================
-   FC LINEUP MAKER - CUSTOM THEME
-   (Fully customizable 4 colors)
+   FC LINEUP MAKER - CUSTOM THEME (5 Colors)
    ========================================================= */
 
 :root {
@@ -25,8 +24,8 @@ button {
 body {
   margin: 0;
   padding: 0;
-  /* ★変更：真っ白や固定色をやめ、選択した背景色を少し明るくして全体のベースに */
-  background-color: color-mix(in srgb, var(--theme-bg) 40%, #fff);
+  /* ★変更：ページの一番奥に pageBg を適用 */
+  background-color: var(--theme-page-bg);
   color: var(--theme-main);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
@@ -84,7 +83,7 @@ body {
 /* --- 4. カレンダー & 週間集計 --- */
 .section-calendar { padding: 0 12px; }
 .calendarCard { 
-  /* ★変更：パネルの背景には、選択した背景色をそのまま使用 */
+  /* パネル背景色 */
   background: var(--theme-bg); 
   padding: 12px; border-radius: 12px; 
   border: 1px solid color-mix(in srgb, var(--theme-main) 10%, transparent); 
@@ -107,7 +106,8 @@ body {
 .calendarGrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
 .dayCell { 
   aspect-ratio: 1; 
-  background: color-mix(in srgb, var(--theme-bg) 20%, #fff); /* 真っ白ではなく少し背景色を混ぜる */
+  /* ★日付部分はページ背景と同じ色に */
+  background: var(--theme-page-bg); 
   border-radius: 8px; 
   color: var(--theme-main); 
   border: 1px solid transparent;
@@ -125,14 +125,8 @@ body {
 .summaryTitle {
   font-size: 12px; font-weight: bold; color: var(--theme-main); opacity: 0.8; margin-bottom: 5px; text-align: center;
 }
-/* ★修正：ここが左寄せになっていた原因（CSSの文法ミス）を直しました */
 .summaryDay {
-  flex: 1; 
-  text-align: center; 
-  border-radius: 6px; 
-  padding: 4px 0; 
-  cursor: pointer; 
-  border: 1px solid transparent;
+  flex: 1; text-align: center; border-radius: 6px; padding: 4px 0; cursor: pointer; border: 1px solid transparent;
 }
 .summaryDay.selected {
   background: #fff;
@@ -146,7 +140,6 @@ body {
 
 .listRowCompact { 
   display: flex; flex-direction: column; 
-  /* ★変更：カードの背景を白からテーマ背景色へ */
   background: var(--theme-bg); 
   padding: 6px; border-radius: 8px; gap: 3px;
   border: 1px solid color-mix(in srgb, var(--theme-main) 10%, transparent); 
@@ -163,7 +156,8 @@ body {
 .listBtnCompact { 
   flex: 1; width: 28px; height: 30px; font-size: 14px; border-radius: 4px; 
   border: 1px solid color-mix(in srgb, var(--theme-main) 15%, transparent); 
-  background: color-mix(in srgb, var(--theme-main) 5%, transparent); 
+  /* ★非アクティブ時の背景を白に */
+  background: #fff; 
   color: color-mix(in srgb, var(--theme-main) 50%, transparent);
   display: flex; align-items: center; justify-content: center;
 }
@@ -201,7 +195,6 @@ body {
 .section-bench { padding: 0 16px; }
 .benchGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; }
 .benchCard { 
-  /* ★変更：ベンチのカードもテーマ背景色へ */
   background: var(--theme-bg); 
   border: 1px solid color-mix(in srgb, var(--theme-main) 15%, transparent); 
   padding: 8px 4px; border-radius: 8px; text-align: center; cursor: grab; 
