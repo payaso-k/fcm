@@ -328,6 +328,7 @@ input[type="file"], input[type="color"] {
   width: 5px; height: 5px; background-color: var(--theme-accent1); border-radius: 50%;
 }
 .dayCell.selected .memo-dot { background-color: #fff; }
+
 /* --- 画像書き出しボタン --- */
 .exportBtn {
   background: var(--theme-accent2);
