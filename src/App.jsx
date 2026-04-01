@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { initializeApp } from "firebase/app";
 import { getDatabase, ref, set, onValue } from "firebase/database";
 import { FORMATIONS } from "./formations";
 import html2canvas from "html2canvas"; // ★画像生成ライブラリを追加
