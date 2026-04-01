@@ -33,11 +33,10 @@ const INITIAL_MEMBERS = Array.from({ length: 20 }, (_, i) => ({
 
 const ADMIN_CODE_DEFAULT = "1234";
 
-// ★デフォルトカラー定義
 const DEFAULT_COLORS = {
-  main: "#3e3226",    // 焦げ茶
-  accent: "#ca9e45",  // 金
-  bg: "#e8e2d2"       // ベージュ
+  main: "#3e3226",    
+  accent: "#ca9e45",  
+  bg: "#e8e2d2"       
 };
 
 // --- Sub Components ---
@@ -387,13 +386,12 @@ export default function App() {
                 [selectedDateKey]: val
               }));
             }}
-            style={{ marginBottom: '15px' }} /* 余白を少し縮小 */
+            style={{ marginBottom: '15px' }}
           />
 
           <div className="panelHeader"><div className="panelTitle" style={{ color: themeMain }}>出欠確認</div></div>
           <div className="listGridWrapper">
             {membersList.map(m => (
-              {/* ★変更：paddingとgapを減らして超コンパクト化 */}
               <div key={m.id} className="listRowCompact" style={{ flexDirection: 'column', height: 'auto', padding: '6px', gap: '3px' }}>
                 <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center' }}>
                   
@@ -418,7 +416,6 @@ export default function App() {
                         className={`listBtnCompact ${type} ${status[m.id] === type ? "active" : ""}`} 
                         onClick={() => setStatusFor(m.id, type)} 
                         type="button"
-                        {/* ★変更：ボタンの高さを40px→30pxに、フォントサイズを縮小 */}
                         style={{ width: '28px', height: '30px', fontSize: '14px' }}
                       >
                         {type === "ok" ? "○" : type === "maybe" ? "△" : "×"}
@@ -438,7 +435,6 @@ export default function App() {
                       [selectedDateKey]: { ...(prev[selectedDateKey] || {}), [m.id]: val }
                     }));
                   }}
-                  {/* ★変更：パディングを削って入力欄を薄く */}
                   style={{ width: '100%', boxSizing: 'border-box', padding: '2px 4px', borderRadius: '4px', border: '1px solid #c4b6a6', background: '#fff', color: '#3e3226', fontSize: '11px' }}
                 />
               </div>
