@@ -33,11 +33,11 @@ const INITIAL_MEMBERS = Array.from({ length: 20 }, (_, i) => ({
 
 const ADMIN_CODE_DEFAULT = "1234";
 
-// ★変更：4色のテーマカラー構成
+// ★デフォルトカラー構成
 const DEFAULT_COLORS = {
-  main: "#3e3226",    // メイン（焦げ茶：文字、ヘッダー、NO）
-  accent1: "#9a2c2e", // アクセント1（赤：OK、日曜、削除）
-  accent2: "#ca9e45", // アクセント2（黄：Maybe、土曜、枠線）
+  main: "#3e3226",    // メイン（焦げ茶）
+  accent1: "#9a2c2e", // アクセント1（赤）
+  accent2: "#ca9e45", // アクセント2（黄）
   bg: "#e8e2d2"       // 背景（クリーム色）
 };
 
@@ -279,7 +279,7 @@ export default function App() {
   const benchMembers = membersList.filter(m => (status[m.id] === "ok" || status[m.id] === "maybe") && !Object.values(placedBySlot).includes(m.id));
 
   return (
-    // ★ルート要素にCSS変数をセット。これでCSS内の色が全て切り替わります
+    // ★ルート要素にCSS変数をセット
     <div className="page" style={{
       '--theme-main': themeMain,
       '--theme-accent1': themeAccent1,
