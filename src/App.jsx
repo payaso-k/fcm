@@ -33,12 +33,13 @@ const INITIAL_MEMBERS = Array.from({ length: 20 }, (_, i) => ({
 
 const ADMIN_CODE_DEFAULT = "1234";
 
-// ★デフォルトカラー構成
+// ★変更：5色のテーマカラー構成
 const DEFAULT_COLORS = {
-  main: "#3e3226",    // メイン（焦げ茶）
-  accent1: "#9a2c2e", // アクセント1（赤）
-  accent2: "#ca9e45", // アクセント2（黄）
-  bg: "#e8e2d2"       // 背景（クリーム色）
+  main: "#3e3226",    
+  accent1: "#9a2c2e", 
+  accent2: "#ca9e45", 
+  bg: "#e8e2d2",      // パネル背景（濃いクリーム）
+  pageBg: "#f2eee2"   // ページ背景（薄いクリーム：★追加）
 };
 
 // --- Sub Components ---
@@ -162,11 +163,12 @@ export default function App() {
   const [teamName, setTeamName] = useState("TEAM NAME");
   const [logoDataUrl, setLogoDataUrl] = useState("");
   
-  // ★4色の状態管理
+  // ★5色の状態管理
   const [themeMain, setThemeMain] = useState(DEFAULT_COLORS.main);
   const [themeAccent1, setThemeAccent1] = useState(DEFAULT_COLORS.accent1);
   const [themeAccent2, setThemeAccent2] = useState(DEFAULT_COLORS.accent2);
   const [themeBg, setThemeBg] = useState(DEFAULT_COLORS.bg);
+  const [themePageBg, setThemePageBg] = useState(DEFAULT_COLORS.pageBg); // ★追加
   
   const [isAdmin, setIsAdmin] = useState(false);
   const [isMaster, setIsMaster] = useState(false);
@@ -207,6 +209,7 @@ export default function App() {
         if (data.themeAccent1) setThemeAccent1(data.themeAccent1);
         if (data.themeAccent2) setThemeAccent2(data.themeAccent2);
         if (data.themeBg) setThemeBg(data.themeBg);
+        if (data.themePageBg) setThemePageBg(data.themePageBg); // ★追加
       }
       setIsLoaded(true);
     });
@@ -218,9 +221,9 @@ export default function App() {
     const dbRef = ref(db, 'teamData/');
     set(dbRef, {
       teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, membersList, generalMemosByDate,
-      themeMain, themeAccent1, themeAccent2, themeBg
+      themeMain, themeAccent1, themeAccent2, themeBg, themePageBg // ★追加
     });
-  }, [teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, membersList, generalMemosByDate, themeMain, themeAccent1, themeAccent2, themeBg, isLoaded]);
+  }, [teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, membersList, generalMemosByDate, themeMain, themeAccent1, themeAccent2, themeBg, themePageBg, isLoaded]);
 
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
@@ -271,7 +274,7 @@ export default function App() {
   };
 
   const handleDeleteMember = (id) => {
-    if (window.confirm("このメンバーを削除しますか？\n（過去のデータは残りますが、リストからは消えます）")) {
+    if (window.confirm("このメンバーを削除しますか？")) {
       setMembersList(membersList.filter(m => m.id !== id));
     }
   };
@@ -284,7 +287,8 @@ export default function App() {
       '--theme-main': themeMain,
       '--theme-accent1': themeAccent1,
       '--theme-accent2': themeAccent2,
-      '--theme-bg': themeBg
+      '--theme-bg': themeBg,
+      '--theme-page-bg': themePageBg
     }}>
       <header className="topbar">
         <div className="brandBar">
@@ -318,10 +322,10 @@ export default function App() {
           </div>
 
           <div className="adminField">
-            <label className="adminLabel">チームカラー設定 (4色)</label>
+            <label className="adminLabel">チームカラー設定 (5色)</label>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '5px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span className="colorHint">1. メイン（文字・ヘッダー・NO）</span>
+                <span className="colorHint">1. メイン（ヘッダー・NO・文字）</span>
                 <input type="color" value={themeMain} onChange={(e) => setThemeMain(e.target.value)} />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -333,8 +337,12 @@ export default function App() {
                 <input type="color" value={themeAccent2} onChange={(e) => setThemeAccent2(e.target.value)} />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span className="colorHint">4. 背景（全体背景・パネル背景）</span>
+                <span className="colorHint">4. パネル背景（カード等の土台）</span>
                 <input type="color" value={themeBg} onChange={(e) => setThemeBg(e.target.value)} />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span className="colorHint">5. ページ背景（一番奥・日付の色）</span>
+                <input type="color" value={themePageBg} onChange={(e) => setThemePageBg(e.target.value)} />
               </div>
             </div>
           </div>
