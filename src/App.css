@@ -113,30 +113,24 @@ body {
   aspect-ratio: 1; 
   background: #fff; 
   border-radius: 8px; 
-  color: var(--text-color); 
-  border: 2px solid transparent; /* ガタつき防止のため基本も2pxに */
+  color: var(--theme-main); /* 古い変数を修正し、メインの文字色に統一 */
+  border: 2px solid transparent; /* ガタつき防止のため2px */
   display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; 
   position: relative;
 }
 
-/* 1. 今日の日付（常に金の枠線をつける） */
+/* 1. 今日の日付（常に金枠） */
 .dayCell.today { 
-  border-color: var(--accent-gold); 
+  border-color: var(--theme-accent2) !important; 
 }
 
-/* 2. 選択された日付（赤背景・白文字） */
+/* 2. 選択された日付（赤背景・白文字・金枠） */
+/* ※ !important で最優先にし、選んだ日は必ずこの見た目になります */
 .dayCell.selected { 
-  background: var(--accent-red); 
-  color: #fff; 
-  font-weight: bold; 
-  border-color: var(--accent-red);
-}
-
-/* 3. 「今日」かつ「選択中」の場合（赤背景・白文字・金枠線） */
-.dayCell.today.selected {
-  background: var(--accent-red);
-  color: #fff;
-  border-color: var(--accent-gold);
+  background: var(--theme-accent1) !important; 
+  color: #fff !important; 
+  font-weight: bold !important; 
+  border-color: var(--theme-accent2) !important;
 }
 .summaryCard {
   margin-top: 10px; padding: 8px 4px; 
