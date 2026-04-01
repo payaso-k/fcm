@@ -118,7 +118,7 @@ body {
   position: relative;
 }
 .dayCell.today { border: 2px solid var(--accent-gold); color: var(--text-color); }
-.dayCell.selected { background: var(--accent-red); color: #fff; font-weight: bold; }
+.dayCell.selected { background: var(--accent-red); color: #fff; }
 
 .summaryCard {
   margin-top: 10px; padding: 8px 4px; 
