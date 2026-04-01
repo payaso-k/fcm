@@ -328,23 +328,23 @@ export default function App() {
             <label className="adminLabel">チームカラー設定 (5色)</label>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '5px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span className="colorHint">1. メイン（ヘッダー・NO・文字）</span>
+                <span className="colorHint">1. メイン（ヘッダー・×・文字）</span>
                 <input type="color" value={themeMain} onChange={(e) => setThemeMain(e.target.value)} />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span className="colorHint">2. アクセント1（OK・日曜・強調）</span>
+                <span className="colorHint">2. アクセント1（〇・日曜・強調）</span>
                 <input type="color" value={themeAccent1} onChange={(e) => setThemeAccent1(e.target.value)} />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span className="colorHint">3. アクセント2（Maybe・土曜・枠線）</span>
+                <span className="colorHint">3. アクセント2（△・土曜・枠線）</span>
                 <input type="color" value={themeAccent2} onChange={(e) => setThemeAccent2(e.target.value)} />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span className="colorHint">4. パネル背景（カード等の土台）</span>
+                <span className="colorHint">4. 背景１（カード等の土台）</span>
                 <input type="color" value={themeBg} onChange={(e) => setThemeBg(e.target.value)} />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span className="colorHint">5. ページ背景（一番奥・日付の色）</span>
+                <span className="colorHint">5. 背景２（一番外側・日付の色）</span>
                 <input type="color" value={themePageBg} onChange={(e) => setThemePageBg(e.target.value)} />
               </div>
             </div>
