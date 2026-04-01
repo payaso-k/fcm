@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, set, onValue } from "firebase/database";
 import { FORMATIONS } from "./formations";
+import html2canvas from "html2canvas"; // ★画像生成ライブラリを追加
 import "./App.css";
 
 // --- Firebase設定 ---
@@ -181,6 +182,9 @@ export default function App() {
   const [placedBySlotByDate, setPlacedBySlotByDate] = useState({});
   const [generalMemosByDate, setGeneralMemosByDate] = useState({});
   const [isLoaded, setIsLoaded] = useState(false);
+  
+  // ★画像書き出し中のローディング状態
+  const [isExporting, setIsExporting] = useState(false);
 
   const currentFormation = formationByDate[selectedDateKey] || defaultFormation || keys[0];
   const status = statusByDate[selectedDateKey] || {};
@@ -224,7 +228,6 @@ export default function App() {
     });
   }, [teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, membersList, generalMemosByDate, themeMain, themeAccent1, themeAccent2, themeBg, themePageBg, isLoaded]);
 
-  // ★追加：一番大元の背景色（bodyタグ）を直接指定の色で塗りつぶす処理
   useEffect(() => {
     document.body.style.backgroundColor = themePageBg;
   }, [themePageBg]);
@@ -280,6 +283,60 @@ export default function App() {
   const handleDeleteMember = (id) => {
     if (window.confirm("このメンバーを削除しますか？\n（過去のデータは残りますが、リストからは消えます）")) {
       setMembersList(membersList.filter(m => m.id !== id));
+    }
+  };
+
+  // ★追加：フォーメーションを画像として書き出す関数
+  const handleExportImage = async () => {
+    const target = document.getElementById("pitch-export-area");
+    if (!target) return;
+
+    setIsExporting(true);
+
+    try {
+      // ぼやけないように scale: 2 に設定
+      const canvas = await html2canvas(target, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: themeBg // 周りの背景色になじませる
+      });
+
+      const dataUrl = canvas.toDataURL("image/png");
+
+      // スマホ等の共有メニュー（Web Share API）が使えるか判定
+      if (navigator.share) {
+        try {
+          const response = await fetch(dataUrl);
+          const blob = await response.blob();
+          const file = new File([blob], `formation_${selectedDateKey}.png`, { type: 'image/png' });
+          
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              title: `${teamName} フォーメーション`,
+              files: [file]
+            });
+            setIsExporting(false);
+            return;
+          }
+        } catch (shareError) {
+          console.log("Share API キャンセルまたはエラー:", shareError);
+          // エラーやキャンセルの場合はそのまま下（通常ダウンロード）へフォールバック
+        }
+      }
+
+      // 共有メニューが使えない（PC等）場合は通常のダウンロード
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = `formation_${selectedDateKey}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+    } catch (error) {
+      console.error("画像生成エラー:", error);
+      alert("画像の生成に失敗しました。");
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -461,25 +518,35 @@ export default function App() {
         </div>
 
         <div className="section-pitch">
-          <div className="pitchWrap">
-            <div className="pitch">
-              <div className="lineLayer">
-                <div className="outerLine" /><div className="halfLine" /><div className="centerCircle" /><div className="centerSpot" />
-                <div className="penTop" /><div className="sixTop" /><div className="spotTop" /><div className="penBottom" /><div className="sixBottom" /><div className="spotBottom" />
+          {/* ★追加：画像書き出しボタンをピッチの上に配置 */}
+          <div style={{ width: '95%', maxWidth: '600px', display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+            <button className="exportBtn" onClick={handleExportImage} disabled={isExporting}>
+              {isExporting ? "⏳ 処理中..." : "📸 画像として書き出す"}
+            </button>
+          </div>
+
+          {/* ★追加：キャプチャ範囲を特定するために id="pitch-export-area" と少しのpaddingを追加 */}
+          <div id="pitch-export-area" style={{ padding: '10px', background: 'var(--theme-bg)', borderRadius: '16px' }}>
+            <div className="pitchWrap">
+              <div className="pitch">
+                <div className="lineLayer">
+                  <div className="outerLine" /><div className="halfLine" /><div className="centerCircle" /><div className="centerSpot" />
+                  <div className="penTop" /><div className="sixTop" /><div className="spotTop" /><div className="penBottom" /><div className="sixBottom" /><div className="spotBottom" />
+                </div>
+                {slots.map((s) => {
+                  const mId = placedBySlot[s.id];
+                  const st = mId ? status[mId] || "none" : "none";
+                  return (
+                    <div key={s.id} className={`posSlot slot-${st} ${selectedMemberId ? "waiting-drop" : ""}`} style={{ left: `${s.x}%`, top: `${s.y}%` }}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => placeMember(e.dataTransfer.getData("text/memberId"), s.id)}
+                      onClick={() => { if (selectedMemberId) placeMember(selectedMemberId, s.id); else if (mId) removeFromSlot(s.id); }}>
+                      <div className="posRole">{s.role}</div>
+                      {mId ? <button className={`posName status-${st}`} type="button">{names[mId] || MEMBERS.find(x => x.id === mId)?.label || "NAME"}</button> : <div className="posEmpty">DROP</div>}
+                    </div>
+                  );
+                })}
               </div>
-              {slots.map((s) => {
-                const mId = placedBySlot[s.id];
-                const st = mId ? status[mId] || "none" : "none";
-                return (
-                  <div key={s.id} className={`posSlot slot-${st} ${selectedMemberId ? "waiting-drop" : ""}`} style={{ left: `${s.x}%`, top: `${s.y}%` }}
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={(e) => placeMember(e.dataTransfer.getData("text/memberId"), s.id)}
-                    onClick={() => { if (selectedMemberId) placeMember(selectedMemberId, s.id); else if (mId) removeFromSlot(s.id); }}>
-                    <div className="posRole">{s.role}</div>
-                    {mId ? <button className={`posName status-${st}`} type="button">{names[mId] || MEMBERS.find(x => x.id === mId)?.label || "NAME"}</button> : <div className="posEmpty">DROP</div>}
-                  </div>
-                );
-              })}
             </div>
           </div>
         </div>
@@ -500,4 +567,28 @@ export default function App() {
       </div>
     </div>
   );
+}
+2. src/App.css にボタンのスタイルを追加
+ファイルの一番下に、書き出しボタンのデザインを追記してください。（既存のコードは消さずに下に追加するだけでOKです）
+
+CSS
+/* --- 画像書き出しボタン --- */
+.exportBtn {
+  background: var(--theme-accent2);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: opacity 0.2s;
+}
+
+.exportBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
