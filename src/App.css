@@ -25,8 +25,8 @@ button {
 body {
   margin: 0;
   padding: 0;
-  /* 全体の背景と文字色をテーマに連動 */
-  background-color: var(--theme-bg);
+  /* ★変更：真っ白や固定色をやめ、選択した背景色を少し明るくして全体のベースに */
+  background-color: color-mix(in srgb, var(--theme-bg) 40%, #fff);
   color: var(--theme-main);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
@@ -84,11 +84,12 @@ body {
 /* --- 4. カレンダー & 週間集計 --- */
 .section-calendar { padding: 0 12px; }
 .calendarCard { 
+  /* ★変更：パネルの背景には、選択した背景色をそのまま使用 */
   background: var(--theme-bg); 
   padding: 12px; border-radius: 12px; 
-  border: 1px solid color-mix(in srgb, var(--theme-main) 20%, transparent); 
+  border: 1px solid color-mix(in srgb, var(--theme-main) 10%, transparent); 
   margin-top: 10px; 
-  box-shadow: 0 2px 5px rgba(0,0,0, 0.05);
+  box-shadow: 0 4px 6px rgba(0,0,0, 0.05);
 }
 .calendarHeader { display: flex; justify-content: space-between; margin-bottom: 12px; font-weight: bold; color: var(--theme-main); }
 .navBtn { 
@@ -105,7 +106,9 @@ body {
 
 .calendarGrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
 .dayCell { 
-  aspect-ratio: 1; background: #fff; border-radius: 8px; 
+  aspect-ratio: 1; 
+  background: color-mix(in srgb, var(--theme-bg) 20%, #fff); /* 真っ白ではなく少し背景色を混ぜる */
+  border-radius: 8px; 
   color: var(--theme-main); 
   border: 1px solid transparent;
   display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; 
@@ -117,13 +120,19 @@ body {
 .summaryCard {
   margin-top: 10px; padding: 8px 4px; 
   background: color-mix(in srgb, var(--theme-main) 5%, transparent); 
-  border-radius: 8px; border: 1px solid color-mix(in srgb, var(--theme-main) 15%, transparent);
+  border-radius: 8px; border: 1px solid color-mix(in srgb, var(--theme-main) 10%, transparent);
 }
 .summaryTitle {
   font-size: 12px; font-weight: bold; color: var(--theme-main); opacity: 0.8; margin-bottom: 5px; text-align: center;
 }
+/* ★修正：ここが左寄せになっていた原因（CSSの文法ミス）を直しました */
 .summaryDay {
-  flex: 1; textAlign: 'center'; borderRadius: 6px; padding: 4px 0; cursor: pointer; border: 1px solid transparent;
+  flex: 1; 
+  text-align: center; 
+  border-radius: 6px; 
+  padding: 4px 0; 
+  cursor: pointer; 
+  border: 1px solid transparent;
 }
 .summaryDay.selected {
   background: #fff;
@@ -137,9 +146,11 @@ body {
 
 .listRowCompact { 
   display: flex; flex-direction: column; 
-  background: #fff; 
+  /* ★変更：カードの背景を白からテーマ背景色へ */
+  background: var(--theme-bg); 
   padding: 6px; border-radius: 8px; gap: 3px;
-  border: 1px solid color-mix(in srgb, var(--theme-main) 20%, transparent); 
+  border: 1px solid color-mix(in srgb, var(--theme-main) 10%, transparent); 
+  box-shadow: 0 2px 4px rgba(0,0,0,0.03);
 }
 .listNameCompact { 
   background: transparent; border: none; 
@@ -149,10 +160,9 @@ body {
 }
 .listBtnsCompact { display: flex; justify-content: space-between; gap: 4px; }
 
-/* ボタンは指定色固定 */
 .listBtnCompact { 
   flex: 1; width: 28px; height: 30px; font-size: 14px; border-radius: 4px; 
-  border: 1px solid color-mix(in srgb, var(--theme-main) 20%, transparent); 
+  border: 1px solid color-mix(in srgb, var(--theme-main) 15%, transparent); 
   background: color-mix(in srgb, var(--theme-main) 5%, transparent); 
   color: color-mix(in srgb, var(--theme-main) 50%, transparent);
   display: flex; align-items: center; justify-content: center;
@@ -191,9 +201,11 @@ body {
 .section-bench { padding: 0 16px; }
 .benchGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; }
 .benchCard { 
-  background: #fff; 
-  border: 1px solid color-mix(in srgb, var(--theme-main) 20%, transparent); 
+  /* ★変更：ベンチのカードもテーマ背景色へ */
+  background: var(--theme-bg); 
+  border: 1px solid color-mix(in srgb, var(--theme-main) 15%, transparent); 
   padding: 8px 4px; border-radius: 8px; text-align: center; cursor: grab; 
+  box-shadow: 0 2px 4px rgba(0,0,0,0.03);
 }
 .selected-m { border: 2px solid var(--theme-accent2); background: color-mix(in srgb, var(--theme-accent2) 10%, #fff); }
 .benchName { font-size: 11px; margin-bottom: 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--theme-main); }
@@ -258,14 +270,14 @@ body {
   color: var(--theme-main); box-shadow: 0 2px 4px rgba(0,0,0,0.3); 
 }
 
-/* ピッチ上のOK/Maybeは色固定（視認性優先）*/
 .slot-ok { background: var(--theme-accent1) !important; border-color: #fff !important; color: #fff; } 
 .slot-maybe { background: var(--theme-accent2) !important; border-color: #fff !important; } 
 
 /* --- フォーメーション --- */
 .section-formation {
   background: var(--theme-bg); padding: 15px; border-radius: 12px; 
-  border: 1px solid var(--theme-accent2); box-shadow: 0 2px 5px rgba(0,0,0, 0.1);
+  border: 1px solid color-mix(in srgb, var(--theme-main) 10%, transparent); 
+  box-shadow: 0 4px 6px rgba(0,0,0, 0.05);
 }
 
 /* --- 8. 管理画面 --- */
