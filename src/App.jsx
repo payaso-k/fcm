@@ -35,9 +35,9 @@ const ADMIN_CODE_DEFAULT = "1234";
 
 // ★変更：5色のテーマカラー構成
 const DEFAULT_COLORS = {
-  main: "#3e3226",    
-  accent1: "#9a2c2e", 
-  accent2: "#ca9e45", 
+  main: "#3e3226",    // メイン（焦げ茶）
+  accent1: "#9a2c2e", // アクセント1（赤）
+  accent2: "#ca9e45", // アクセント2（黄）
   bg: "#e8e2d2",      // パネル背景（濃いクリーム）
   pageBg: "#f2eee2"   // ページ背景（薄いクリーム：★追加）
 };
@@ -274,7 +274,7 @@ export default function App() {
   };
 
   const handleDeleteMember = (id) => {
-    if (window.confirm("このメンバーを削除しますか？")) {
+    if (window.confirm("このメンバーを削除しますか？\n（過去のデータは残りますが、リストからは消えます）")) {
       setMembersList(membersList.filter(m => m.id !== id));
     }
   };
@@ -325,7 +325,7 @@ export default function App() {
             <label className="adminLabel">チームカラー設定 (5色)</label>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '5px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span className="colorHint">1. メイン（ヘッダー・NO・文字）</span>
+                <span className="colorHint">1. メイン（文字・ヘッダー・NO）</span>
                 <input type="color" value={themeMain} onChange={(e) => setThemeMain(e.target.value)} />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
