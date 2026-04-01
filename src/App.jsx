@@ -33,9 +33,16 @@ const INITIAL_MEMBERS = Array.from({ length: 20 }, (_, i) => ({
 
 const ADMIN_CODE_DEFAULT = "1234";
 
+// ★デフォルトカラー定義
+const DEFAULT_COLORS = {
+  main: "#3e3226",    // 焦げ茶
+  accent: "#ca9e45",  // 金
+  bg: "#e8e2d2"       // ベージュ
+};
+
 // --- Sub Components ---
 
-function WeeklySummary({ currentKey, statusByDate, onSelectDate, membersCount }) {
+function WeeklySummary({ currentKey, statusByDate, onSelectDate, membersCount, colors }) {
   if (!currentKey) return null;
 
   const targetDate = new Date(currentKey);
@@ -80,12 +87,12 @@ function WeeklySummary({ currentKey, statusByDate, onSelectDate, membersCount })
               style={{ 
                 flex: 1, 
                 textAlign: 'center', 
-                border: isSelected ? '2px solid #ca9e45' : '1px solid transparent',
+                border: isSelected ? `2px solid ${colors.accent}` : '1px solid transparent',
                 borderRadius: '6px',
                 padding: '4px 0',
                 background: isSelected ? '#fff' : 'transparent',
                 color: '#333',
-                cursor: 'pointer' 
+                cursor: 'pointer'
               }}
             >
               <div style={{ fontWeight: 'bold', color: isSun ? '#e03e3e' : isSat ? '#3e7ae0' : '#333' }}>
@@ -105,7 +112,7 @@ function WeeklySummary({ currentKey, statusByDate, onSelectDate, membersCount })
   );
 }
 
-function Calendar({ monthDate, selectedKey, onSelectDate, onPrev, onNext, generalMemosByDate = {} }) {
+function Calendar({ monthDate, selectedKey, onSelectDate, onPrev, onNext, colors, generalMemosByDate = {} }) {
   const start = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
   const end = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
   const startDow = (start.getDay() + 6) % 7; 
@@ -134,14 +141,14 @@ function Calendar({ monthDate, selectedKey, onSelectDate, onPrev, onNext, genera
           const key = toKey(d);
           const isToday = key === toKey(new Date());
           const isSelected = key === selectedKey;
-          
           const hasMemo = generalMemosByDate[key] && generalMemosByDate[key].trim() !== "";
-
+          
           return (
             <button
               key={key}
               type="button"
-              className={`dayCell ${isSelected ? "selected" : ""} ${isToday ? "today" : ""}`}
+              className={`dayCell ${isToday ? "today" : ""}`}
+              style={isSelected ? { borderColor: colors.accent, color: colors.accent, fontWeight: 'bold', background: '#fff' } : {}}
               onClick={() => onSelectDate(key)}
             >
               {d.getDate()}
@@ -163,6 +170,11 @@ export default function App() {
   const [defaultFormation, setDefaultFormation] = useState(keys[0] || "3-4-2-1");
   const [teamName, setTeamName] = useState("TEAM NAME");
   const [logoDataUrl, setLogoDataUrl] = useState("");
+  
+  const [themeMain, setThemeMain] = useState(DEFAULT_COLORS.main);
+  const [themeAccent, setThemeAccent] = useState(DEFAULT_COLORS.accent);
+  const [themeBg, setThemeBg] = useState(DEFAULT_COLORS.bg);
+  
   const [isAdmin, setIsAdmin] = useState(false);
   const [isMaster, setIsMaster] = useState(false);
   const [adminCode, setAdminCode] = useState(ADMIN_CODE_DEFAULT);
@@ -173,15 +185,15 @@ export default function App() {
   const [statusByDate, setStatusByDate] = useState({});
   const [memosByDate, setMemosByDate] = useState({});
   const [placedBySlotByDate, setPlacedBySlotByDate] = useState({});
-  
   const [generalMemosByDate, setGeneralMemosByDate] = useState({});
-  
   const [isLoaded, setIsLoaded] = useState(false);
 
   const currentFormation = formationByDate[selectedDateKey] || defaultFormation || keys[0];
   const status = statusByDate[selectedDateKey] || {};
   const placedBySlot = placedBySlotByDate[selectedDateKey] || {};
   const slots = useMemo(() => FORMATIONS[currentFormation] ?? [], [currentFormation]);
+
+  const currentColors = { main: themeMain, accent: themeAccent, bg: themeBg };
 
   useEffect(() => {
     const dbRef = ref(db, 'teamData/');
@@ -199,6 +211,12 @@ export default function App() {
         if (data.adminCode) setAdminCode(data.adminCode);
         if (data.membersList) setMembersList(data.membersList);
         if (data.generalMemosByDate) setGeneralMemosByDate(data.generalMemosByDate);
+        
+        if (data.themeMain) setThemeMain(data.themeMain);
+        else if (data.themeColor) setThemeMain(data.themeColor); 
+        
+        if (data.themeAccent) setThemeAccent(data.themeAccent);
+        if (data.themeBg) setThemeBg(data.themeBg);
       }
       setIsLoaded(true);
     });
@@ -209,19 +227,10 @@ export default function App() {
     if (!isLoaded) return;
     const dbRef = ref(db, 'teamData/');
     set(dbRef, {
-      teamName, 
-      logoDataUrl, 
-      names, 
-      formationByDate, 
-      defaultFormation, 
-      statusByDate, 
-      memosByDate, 
-      placedBySlotByDate, 
-      adminCode,
-      membersList,
-      generalMemosByDate
+      teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, membersList, generalMemosByDate,
+      themeMain, themeAccent, themeBg
     });
-  }, [teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, membersList, generalMemosByDate, isLoaded]);
+  }, [teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, membersList, generalMemosByDate, themeMain, themeAccent, themeBg, isLoaded]);
 
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
@@ -272,7 +281,7 @@ export default function App() {
   };
 
   const handleDeleteMember = (id) => {
-    if (window.confirm("このメンバーを削除しますか？\n（過去のデータは残りますが、リストからは消えます）")) {
+    if (window.confirm("このメンバーを削除しますか？")) {
       setMembersList(membersList.filter(m => m.id !== id));
     }
   };
@@ -281,12 +290,12 @@ export default function App() {
 
   return (
     <div className="page">
-      <header className="topbar">
+      <header className="topbar" style={{ background: themeMain, borderBottom: 'none' }}>
         <div className="brandBar">
           <div className="logoBox">
             {logoDataUrl ? <img className="logoImg" src={logoDataUrl} alt="logo" /> : <div className="logoPlaceholder">LOGO</div>}
           </div>
-          <div className="teamName">{teamName}</div>
+          <div className="teamName" style={{ color: '#fff' }}>{teamName}</div>
         </div>
         <div className="controls">
           <button className="btn" type="button" onClick={() => {
@@ -311,6 +320,25 @@ export default function App() {
             <label className="adminLabel">チームロゴ変更</label>
             <input type="file" accept="image/*" onChange={handleLogoChange} />
           </div>
+          
+          <div className="adminField">
+            <label className="adminLabel">チームカラー設定</label>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '5px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: '12px', color: '#ccc' }}>1. メイン（ヘッダー等）</span>
+                <input type="color" value={themeMain} onChange={(e) => setThemeMain(e.target.value)} style={{ cursor: 'pointer', border: `2px solid ${themeMain}` }} />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: '12px', color: '#ccc' }}>2. アクセント（ボタン等）</span>
+                <input type="color" value={themeAccent} onChange={(e) => setThemeAccent(e.target.value)} style={{ cursor: 'pointer', border: `2px solid ${themeAccent}` }} />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: '12px', color: '#ccc' }}>3. 背景（フォーメーション）</span>
+                <input type="color" value={themeBg} onChange={(e) => setThemeBg(e.target.value)} style={{ cursor: 'pointer', border: `2px solid ${themeBg}` }} />
+              </div>
+            </div>
+          </div>
+
           <div className="adminField">
             <label className="adminLabel">全体デフォルトフォーメーション</label>
             <select className="select" value={defaultFormation} onChange={(e) => setDefaultFormation(e.target.value)}>
@@ -318,15 +346,14 @@ export default function App() {
             </select>
           </div>
           <div className="adminField">
-            <label className="adminLabel" style={{ color: '#ca9e45' }}>管理者パスコード変更</label>
-            <input className="textInput" type="text" value={adminCode} onChange={(e) => setAdminCode(e.target.value)} style={{ border: '1px solid #ca9e45' }} />
+            <label className="adminLabel" style={{ color: themeAccent }}>管理者パスコード変更</label>
+            <input className="textInput" type="text" value={adminCode} onChange={(e) => setAdminCode(e.target.value)} style={{ border: `1px solid ${themeAccent}` }} />
           </div>
         </div>
       )}
 
       <div className="layout">
         
-        {/* 1. カレンダー */}
         <div className="section-calendar">
           <Calendar 
             monthDate={monthDate} 
@@ -334,6 +361,7 @@ export default function App() {
             onSelectDate={setSelectedDateKey} 
             onPrev={() => setMonthDate(addMonths(monthDate, -1))} 
             onNext={() => setMonthDate(addMonths(monthDate, 1))} 
+            colors={currentColors}
             generalMemosByDate={generalMemosByDate}
           />
           <WeeklySummary 
@@ -341,13 +369,12 @@ export default function App() {
             statusByDate={statusByDate} 
             onSelectDate={setSelectedDateKey} 
             membersCount={membersList.length} 
+            colors={currentColors} 
           />
         </div>
 
-        {/* 2. 全体メモ ＆ 出欠リスト */}
         <div className="section-list">
-          
-          <div className="panelHeader"><div className="panelTitle">全体メモ</div></div>
+          <div className="panelHeader"><div className="panelTitle" style={{ color: themeMain }}>全体メモ</div></div>
           <textarea
             className="generalMemoInput"
             placeholder="全体への連絡事項"
@@ -360,13 +387,14 @@ export default function App() {
                 [selectedDateKey]: val
               }));
             }}
-            style={{ marginBottom: '20px' }}
+            style={{ marginBottom: '15px' }} /* 余白を少し縮小 */
           />
 
-          <div className="panelHeader"><div className="panelTitle">出欠確認</div></div>
+          <div className="panelHeader"><div className="panelTitle" style={{ color: themeMain }}>出欠確認</div></div>
           <div className="listGridWrapper">
             {membersList.map(m => (
-              <div key={m.id} className="listRowCompact" style={{ flexDirection: 'column', height: 'auto', padding: '8px', gap: '5px' }}>
+              {/* ★変更：paddingとgapを減らして超コンパクト化 */}
+              <div key={m.id} className="listRowCompact" style={{ flexDirection: 'column', height: 'auto', padding: '6px', gap: '3px' }}>
                 <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center' }}>
                   
                   {(isAdmin || isMaster) && (
@@ -390,7 +418,8 @@ export default function App() {
                         className={`listBtnCompact ${type} ${status[m.id] === type ? "active" : ""}`} 
                         onClick={() => setStatusFor(m.id, type)} 
                         type="button"
-                        style={{ width: '24px', height: '40px', fontSize: '18px' }}
+                        {/* ★変更：ボタンの高さを40px→30pxに、フォントサイズを縮小 */}
+                        style={{ width: '28px', height: '30px', fontSize: '14px' }}
                       >
                         {type === "ok" ? "○" : type === "maybe" ? "△" : "×"}
                       </button>
@@ -409,20 +438,21 @@ export default function App() {
                       [selectedDateKey]: { ...(prev[selectedDateKey] || {}), [m.id]: val }
                     }));
                   }}
-                  style={{ width: '100%', boxSizing: 'border-box', padding: '4px', borderRadius: '4px', border: '1px solid #c4b6a6', background: '#fff', color: '#3e3226', fontSize: '12px' }}
+                  {/* ★変更：パディングを削って入力欄を薄く */}
+                  style={{ width: '100%', boxSizing: 'border-box', padding: '2px 4px', borderRadius: '4px', border: '1px solid #c4b6a6', background: '#fff', color: '#3e3226', fontSize: '11px' }}
                 />
               </div>
             ))}
           </div>
 
           {(isAdmin || isMaster) && (
-            <div style={{ marginTop: '15px', textAlign: 'center' }}>
+            <div style={{ marginTop: '10px', textAlign: 'center' }}>
               <button 
                 type="button" 
                 onClick={handleAddMember}
                 style={{ 
-                  background: '#2f4f2f', color: '#fff', border: 'none', borderRadius: '6px', 
-                  padding: '8px 16px', fontSize: '14px', cursor: 'pointer', fontWeight: 'bold', width: '100%'
+                  background: themeAccent, color: '#fff', border: 'none', borderRadius: '6px', 
+                  padding: '6px 16px', fontSize: '13px', cursor: 'pointer', fontWeight: 'bold', width: '100%'
                 }}
               >
                 ＋ メンバーを追加
@@ -431,9 +461,8 @@ export default function App() {
           )}
         </div>
 
-        {/* 3. ベンチ */}
         <div className="section-bench">
-          <div className="panelHeader"><div className="panelTitle">ベンチ（待機メンバー）</div></div>
+          <div className="panelHeader"><div className="panelTitle" style={{ color: themeMain }}>ベンチ（待機メンバー）</div></div>
           <div className="benchGrid">
             {benchMembers.map(m => (
               <div key={m.id} className={`benchCard status-${status[m.id]} ${selectedMemberId === m.id ? "selected-m" : ""}`} draggable onDragStart={(e) => e.dataTransfer.setData("text/memberId", m.id)} onClick={() => setSelectedMemberId(m.id === selectedMemberId ? null : m.id)}>
@@ -444,7 +473,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* 4. ピッチ (★ベンチのすぐ下に移動) */}
         <div className="section-pitch" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div className="pitchWrap">
             <div className="pitch">
@@ -469,14 +497,13 @@ export default function App() {
           </div>
         </div>
 
-        {/* 5. フォーメーション選択 (★ピッチの下に移動) */}
-        <div className="section-formation" style={{ background: '#e8e2d2', padding: '15px', borderRadius: '12px', border: '1px solid #c4b6a6', boxShadow: '0 2px 5px rgba(62, 50, 38, 0.1)' }}>
-           <div className="panelHeader" style={{ borderBottom: '2px solid #9a2c2e', marginBottom: '15px', paddingBottom: '10px' }}>
-              <div className="panelTitle" style={{ color: '#3e3226', fontWeight: 'bold' }}>フォーメーション変更</div>
+        <div className="section-formation" style={{ background: themeBg, padding: '15px', borderRadius: '12px', border: `1px solid ${themeAccent}`, boxShadow: '0 2px 5px rgba(62, 50, 38, 0.1)' }}>
+           <div className="panelHeader" style={{ borderBottom: `2px solid ${themeMain}`, marginBottom: '15px', paddingBottom: '10px' }}>
+              <div className="panelTitle" style={{ color: themeMain, fontWeight: 'bold' }}>フォーメーション変更</div>
            </div>
            <select 
              className="select" 
-             style={{ width: '100%', maxWidth: '100%', cursor: 'pointer', background: '#fff', color: '#3e3226', border: '1px solid #c4b6a6' }}
+             style={{ width: '100%', maxWidth: '100%', cursor: 'pointer', background: '#fff', color: '#333', border: '1px solid #ccc' }}
              value={currentFormation} 
              onChange={(e) => setFormationByDate(prev => ({ ...prev, [selectedDateKey]: e.target.value }))}
            >
