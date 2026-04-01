@@ -105,7 +105,6 @@ function WeeklySummary({ currentKey, statusByDate, onSelectDate, membersCount })
   );
 }
 
-// ★変更：引数に generalMemosByDate を追加
 function Calendar({ monthDate, selectedKey, onSelectDate, onPrev, onNext, generalMemosByDate = {} }) {
   const start = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
   const end = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
@@ -136,7 +135,6 @@ function Calendar({ monthDate, selectedKey, onSelectDate, onPrev, onNext, genera
           const isToday = key === toKey(new Date());
           const isSelected = key === selectedKey;
           
-          // ★追加：その日に全体メモが存在するかどうかを判定
           const hasMemo = generalMemosByDate[key] && generalMemosByDate[key].trim() !== "";
 
           return (
@@ -147,7 +145,6 @@ function Calendar({ monthDate, selectedKey, onSelectDate, onPrev, onNext, genera
               onClick={() => onSelectDate(key)}
             >
               {d.getDate()}
-              {/* ★追加：メモがあればドットを表示 */}
               {hasMemo && <div className="memo-dot" />}
             </button>
           );
@@ -177,7 +174,6 @@ export default function App() {
   const [memosByDate, setMemosByDate] = useState({});
   const [placedBySlotByDate, setPlacedBySlotByDate] = useState({});
   
-  // ★追加：全体メモの状態管理
   const [generalMemosByDate, setGeneralMemosByDate] = useState({});
   
   const [isLoaded, setIsLoaded] = useState(false);
@@ -202,8 +198,6 @@ export default function App() {
         if (data.placedBySlotByDate) setPlacedBySlotByDate(data.placedBySlotByDate);
         if (data.adminCode) setAdminCode(data.adminCode);
         if (data.membersList) setMembersList(data.membersList);
-        
-        // ★追加：全体メモを読み込み
         if (data.generalMemosByDate) setGeneralMemosByDate(data.generalMemosByDate);
       }
       setIsLoaded(true);
@@ -225,7 +219,7 @@ export default function App() {
       placedBySlotByDate, 
       adminCode,
       membersList,
-      generalMemosByDate // ★追加：全体メモを保存
+      generalMemosByDate
     });
   }, [teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, membersList, generalMemosByDate, isLoaded]);
 
@@ -334,7 +328,6 @@ export default function App() {
         
         {/* 1. カレンダー */}
         <div className="section-calendar">
-          {/* ★変更：Calendarに generalMemosByDate を渡す */}
           <Calendar 
             monthDate={monthDate} 
             selectedKey={selectedDateKey} 
@@ -354,7 +347,6 @@ export default function App() {
         {/* 2. 全体メモ ＆ 出欠リスト */}
         <div className="section-list">
           
-          {/* ★追加：全体メモ欄（出欠リストのすぐ上に配置） */}
           <div className="panelHeader"><div className="panelTitle">全体メモ</div></div>
           <textarea
             className="generalMemoInput"
@@ -368,7 +360,7 @@ export default function App() {
                 [selectedDateKey]: val
               }));
             }}
-            style={{ marginBottom: '20px' }} // 下の出欠確認との余白
+            style={{ marginBottom: '20px' }}
           />
 
           <div className="panelHeader"><div className="panelTitle">出欠確認</div></div>
@@ -452,22 +444,7 @@ export default function App() {
           </div>
         </div>
 
-        {/* フォーメーション選択 */}
-        <div className="section-formation" style={{ background: '#e8e2d2', padding: '15px', borderRadius: '12px', border: '1px solid #c4b6a6', boxShadow: '0 2px 5px rgba(62, 50, 38, 0.1)' }}>
-           <div className="panelHeader" style={{ borderBottom: '2px solid #9a2c2e', marginBottom: '15px', paddingBottom: '10px' }}>
-              <div className="panelTitle" style={{ color: '#3e3226', fontWeight: 'bold' }}>フォーメーション変更</div>
-           </div>
-           <select 
-             className="select" 
-             style={{ width: '100%', maxWidth: '100%', cursor: 'pointer', background: '#fff', color: '#3e3226', border: '1px solid #c4b6a6' }}
-             value={currentFormation} 
-             onChange={(e) => setFormationByDate(prev => ({ ...prev, [selectedDateKey]: e.target.value }))}
-           >
-             {keys.map(k => <option key={k} value={k}>{k}</option>)}
-           </select>
-        </div>
-
-        {/* 4. ピッチ */}
+        {/* 4. ピッチ (★ベンチのすぐ下に移動) */}
         <div className="section-pitch" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div className="pitchWrap">
             <div className="pitch">
@@ -490,6 +467,21 @@ export default function App() {
               })}
             </div>
           </div>
+        </div>
+
+        {/* 5. フォーメーション選択 (★ピッチの下に移動) */}
+        <div className="section-formation" style={{ background: '#e8e2d2', padding: '15px', borderRadius: '12px', border: '1px solid #c4b6a6', boxShadow: '0 2px 5px rgba(62, 50, 38, 0.1)' }}>
+           <div className="panelHeader" style={{ borderBottom: '2px solid #9a2c2e', marginBottom: '15px', paddingBottom: '10px' }}>
+              <div className="panelTitle" style={{ color: '#3e3226', fontWeight: 'bold' }}>フォーメーション変更</div>
+           </div>
+           <select 
+             className="select" 
+             style={{ width: '100%', maxWidth: '100%', cursor: 'pointer', background: '#fff', color: '#3e3226', border: '1px solid #c4b6a6' }}
+             value={currentFormation} 
+             onChange={(e) => setFormationByDate(prev => ({ ...prev, [selectedDateKey]: e.target.value }))}
+           >
+             {keys.map(k => <option key={k} value={k}>{k}</option>)}
+           </select>
         </div>
 
       </div>
