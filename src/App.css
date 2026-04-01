@@ -19,7 +19,7 @@
   --accent-gold: #ca9e45;  /* Maybe / 土曜 */
   --accent-dark: #3e3226;  /* No / 黒 */
   
-  /* ピッチの色（ここは芝生なので緑のまま、少し落ち着かせました） */
+  /* ピッチの色 */
   --pitch-dark: #2f4f2f;
   --pitch-light: #3a633a;
 }
@@ -50,7 +50,7 @@ body {
 /* --- 2. ヘッダー --- */
 .topbar {
   background: var(--panel-bg);
-  border-bottom: 2px solid var(--border-color); /* 枠線を少し太く */
+  border-bottom: 2px solid var(--border-color);
   padding: 12px;
   display: flex;
   flex-direction: column;
@@ -61,35 +61,33 @@ body {
   width: 44px; height: 44px; 
   border-radius: 50%; 
   background: #fff; 
-  border: 2px solid var(--accent-gold); /* 枠を金に */
+  border: 2px solid var(--accent-gold);
   overflow: hidden; flex-shrink: 0; 
 }
 .logoImg { width: 100%; height: 100%; object-fit: cover; }
 .logoPlaceholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #aaa; }
-.teamName { font-size: 20px; font-weight: 700; color: var(--accent-red); line-height: 1.2; } /* チーム名を赤に */
+.teamName { font-size: 20px; font-weight: 700; color: var(--accent-red); line-height: 1.2; }
 
 .controls { display: flex; justify-content: space-between; gap: 10px; }
 .btn { 
-  background: var(--accent-red); /* ボタンを赤に */
+  background: var(--accent-red);
   border: 1px solid var(--accent-dark); 
-  color: #fff; /* 文字は白 */
+  color: #fff;
   padding: 0 16px; height: 42px; border-radius: 8px; font-size: 13px; font-weight: bold; display: flex; align-items: center; justify-content: center; white-space: nowrap; 
 }
 .select { 
   flex: 1; height: 42px; 
-  background: #fff; /* 白背景 */
-  color: var(--text-color); /* 茶色文字 */
+  background: #fff;
+  color: var(--text-color);
   border: 1px solid var(--border-color); 
   border-radius: 8px; text-align: center; font-size: 16px; font-weight: bold; 
 }
-
 
 /* --- 3. レイアウト全体 --- */
 .layout {
   display: flex;
   flex-direction: column;
-  /* ★変更：下の余白を100pxから40pxに減らし、全体を短くしました */
-  padding-bottom: 40px; 
+  padding-bottom: 40px;
   gap: 20px;
   width: 100%;
   max-width: 1200px; 
@@ -98,14 +96,13 @@ body {
 .panelHeader { margin-bottom: 8px; }
 .panelTitle { color: var(--accent-dark); font-weight: bold; font-size: 13px; letter-spacing: 1px; opacity: 0.7; }
 
-
 /* --- 4. カレンダー --- */
 .section-calendar { padding: 0 12px; }
 .calendarCard { 
   background: var(--panel-bg); 
   padding: 12px; border-radius: 12px; 
   border: 1px solid var(--border-color); margin-top: 10px; 
-  box-shadow: 0 2px 5px rgba(62, 50, 38, 0.1); /* 薄い影を追加 */
+  box-shadow: 0 2px 5px rgba(62, 50, 38, 0.1);
 }
 .calendarHeader { display: flex; justify-content: space-between; margin-bottom: 12px; font-weight: bold; color: var(--text-color); }
 .navBtn { 
@@ -126,39 +123,41 @@ body {
   color: var(--text-color); 
   border: 1px solid transparent;
   display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; 
-  position: relative; /* ドット配置用 */
+  position: relative;
 }
 .dayCell.selected { background: var(--accent-red); color: #fff; font-weight: bold; }
 .dayCell.today { border: 2px solid var(--accent-gold); color: var(--text-color); }
 
-
-/* --- 5. 出欠リスト（2列表示） --- */
+/* --- 5. 出欠リスト --- */
 .section-list { padding: 0 16px; }
-.listGridWrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* ★変更：列間のギャップを 10px → 6px に縮小 */
+.listGridWrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
 .listRowCompact { 
   display: flex; flex-direction: column; 
-  background: #fff; /* カード白 */
-  padding: 10px; border-radius: 10px; 
+  background: #fff; 
+  border-radius: 8px; /* 角丸も少し小さく */
   border: 1px solid var(--border-color); 
 }
 .listNameCompact { 
   background: transparent; border: none; 
   border-bottom: 1px solid var(--border-color); 
   color: var(--text-color); 
-  font-size: 14px; font-weight: 500; margin-bottom: 10px; text-align: center; width: 100%; 
+  /* ★変更：margin-bottom: 10px; を削除して縦幅を削減 */
+  font-size: 13px; font-weight: 500; text-align: center; width: 100%; 
 }
-.listBtnsCompact { display: flex; justify-content: space-between; gap: 6px; }
+.listBtnsCompact { display: flex; justify-content: space-between; gap: 4px; }
 .listBtnCompact { 
-  flex: 1; height: 34px; border-radius: 6px; 
+  flex: 1; border-radius: 4px; 
   border: 1px solid var(--border-color); 
   background: #f9f9f9; 
   color: #999; 
-  display: flex; align-items: center; justify-content: center; font-size: 14px; 
+  display: flex; align-items: center; justify-content: center;
 }
 .listBtnCompact.ok.active { background: var(--accent-red); color: #fff; border-color: var(--accent-red); }
 .listBtnCompact.maybe.active { background: var(--accent-gold); color: #fff; border-color: var(--accent-gold); }
 .listBtnCompact.no.active { background: var(--accent-dark); color: #fff; border-color: var(--accent-dark); }
-
 
 /* --- 6. ベンチエリア --- */
 .section-bench { padding: 0 16px; }
@@ -172,10 +171,8 @@ body {
 .benchName { font-size: 11px; margin-bottom: 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--text-color); }
 .benchStatus { font-weight: bold; font-size: 14px; color: var(--accent-dark); }
 
-
 /* --- 7. ピッチ --- */
 .section-pitch {
-  /* ★変更：上下の無駄な余白を削り、強制高さ(min-height)を解除して短くしました */
   padding: 10px 0; 
   background: var(--text-color); 
   border-top: 4px solid var(--accent-gold);
@@ -183,11 +180,9 @@ body {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  min-height: auto; 
 }
 
 .pitchWrap {
-  /* ★変更：アスペクト比を0.7から0.75にし、少しだけ縦を短く(横長に)しました */
   width: 95%; max-width: 600px; aspect-ratio: 0.75; position: relative;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
   border-radius: 12px;
@@ -243,7 +238,6 @@ body {
 .slot-ok { background: rgba(154, 44, 46, 0.7) !important; border-color: #fff !important; color: #fff; } 
 .slot-maybe { background: rgba(202, 158, 69, 0.7) !important; border-color: #fff !important; } 
 
-
 /* --- 8. 管理画面 --- */
 .adminPanelMobile { 
   margin: 10px; padding: 15px; 
@@ -272,7 +266,6 @@ input[type="file"] {
   color: var(--text-color);
   font-size: 14px;
 }
-
 
 /* ★★★ PC向けのレイアウト調整 ★★★ */
 @media (min-width: 768px) {
@@ -307,7 +300,6 @@ input[type="file"] {
     grid-row: 1 / 2;
   }
 
-  /* ★変更：ピッチをベンチの下(中段)に移動 */
   .section-pitch {
     grid-column: 2 / 3;
     grid-row: 2 / 3;
@@ -316,7 +308,6 @@ input[type="file"] {
     min-height: auto;
   }
 
-  /* ★変更：フォーメーションを一番下(下段)に移動 */
   .section-formation {
     grid-column: 2 / 3;
     grid-row: 3 / 4;
@@ -344,13 +335,13 @@ input[type="file"] {
 /* --- 全体メモ入力欄 --- */
 .generalMemoInput {
   width: 100%;
-  min-height: 60px;
-  padding: 10px;
+  min-height: 40px; /* ここも少し小さくしました */
+  padding: 8px;
   background: #fff;
   border: 1px solid var(--border-color);
   color: var(--text-color);
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 13px;
   resize: vertical;
   font-family: inherit;
   box-sizing: border-box;
