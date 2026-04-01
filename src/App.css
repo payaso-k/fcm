@@ -108,18 +108,35 @@ body {
 .weekDay.saturday { color: var(--theme-accent2); }
 
 .calendarGrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+/* --- カレンダーのセル基本 --- */
 .dayCell { 
   aspect-ratio: 1; 
-  background: var(--theme-page-bg); /* 日付の背景色 */
+  background: #fff; 
   border-radius: 8px; 
-  color: var(--theme-main); 
+  color: var(--text-color); 
   border: 1px solid transparent;
-  display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  font-size: 14px; 
+  font-weight: 500; 
   position: relative;
+  cursor: pointer;
 }
-.dayCell.today { border: 2px solid var(--accent-gold); color: var(--text-color); }
-.dayCell.selected { background: var(--accent-red); color: #fff; }
 
+/* 1. 「今日」のスタイル（枠線だけつける） */
+.dayCell.today { 
+  border: 2px solid var(--accent-gold) !important; 
+  color: var(--text-color); 
+}
+
+/* 2. 「選択中」のスタイル（最優先で上書き） */
+/* !important をつけることで、「今日」であっても選択されたら白文字を強制します */
+.dayCell.selected { 
+  background: var(--accent-red) !important; 
+  color: #fff !important; 
+  font-weight: bold !important;
+}
 .summaryCard {
   margin-top: 10px; padding: 8px 4px; 
   background: color-mix(in srgb, var(--theme-main) 5%, transparent); 
