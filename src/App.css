@@ -88,9 +88,9 @@ body {
 .layout {
   display: flex;
   flex-direction: column;
-  padding-bottom: 100px;
+  /* ★変更：下の余白を100pxから40pxに減らし、全体を短くしました */
+  padding-bottom: 40px; 
   gap: 20px;
-  /* ★追加：PCでは中央寄せ & 最大幅制限 */
   width: 100%;
   max-width: 1200px; 
   margin: 0 auto;
@@ -126,6 +126,7 @@ body {
   color: var(--text-color); 
   border: 1px solid transparent;
   display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; 
+  position: relative; /* ドット配置用 */
 }
 .dayCell.selected { background: var(--accent-red); color: #fff; font-weight: bold; }
 .dayCell.today { border: 2px solid var(--accent-gold); color: var(--text-color); }
@@ -172,27 +173,28 @@ body {
 .benchStatus { font-weight: bold; font-size: 14px; color: var(--accent-dark); }
 
 
-/* --- 7. ピッチ（背景を高級感のある茶色に変更） --- */
+/* --- 7. ピッチ --- */
 .section-pitch {
-  padding: 20px 0;
-  background: var(--text-color); /* ここを濃い茶色に */
+  /* ★変更：上下の無駄な余白を削り、強制高さ(min-height)を解除して短くしました */
+  padding: 10px 0; 
+  background: var(--text-color); 
   border-top: 4px solid var(--accent-gold);
   border-bottom: 4px solid var(--accent-gold);
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  min-height: 500px;
+  min-height: auto; 
 }
 
 .pitchWrap {
-  width: 95%; max-width: 600px; aspect-ratio: 0.7; position: relative;
+  /* ★変更：アスペクト比を0.7から0.75にし、少しだけ縦を短く(横長に)しました */
+  width: 95%; max-width: 600px; aspect-ratio: 0.75; position: relative;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
   border-radius: 12px;
 }
 
 .pitch {
   width: 100%; height: 100%;
-  /* 芝生の色（少し落ち着いたトーンに調整） */
   background: repeating-linear-gradient(
     to bottom,
     var(--pitch-dark),
@@ -217,7 +219,7 @@ body {
   width: 58px; height: 58px;
   position: absolute;
   transform: translate(-50%, -50%);
-  background: rgba(255, 255, 255, 0.2); /* ガラス感を少し明るく */
+  background: rgba(255, 255, 255, 0.2); 
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
   border: 1px solid rgba(255, 255, 255, 0.6);
@@ -232,15 +234,14 @@ body {
 .posEmpty { font-size: 9px; color: rgba(255,255,255,0.9); font-weight: bold; }
 .posName { 
   width: 50px; font-size: 12px; 
-  background: #fff; /* 名前背景は白 */
+  background: #fff; 
   border: #fff; border-radius: 12px; padding: 2px 0; overflow: hidden; text-align: center; font-weight: bold; 
-  color: var(--text-color); /* 文字は茶色 */
+  color: var(--text-color); 
   box-shadow: 0 2px 4px rgba(0,0,0,0.3); 
 }
 
-/* ピッチ上のステータス色も変更 */
-.slot-ok { background: rgba(154, 44, 46, 0.7) !important; border-color: #fff !important; color: #fff; } /* 赤 */
-.slot-maybe { background: rgba(202, 158, 69, 0.7) !important; border-color: #fff !important; } /* 金 */
+.slot-ok { background: rgba(154, 44, 46, 0.7) !important; border-color: #fff !important; color: #fff; } 
+.slot-maybe { background: rgba(202, 158, 69, 0.7) !important; border-color: #fff !important; } 
 
 
 /* --- 8. 管理画面 --- */
@@ -248,14 +249,14 @@ body {
   margin: 10px; padding: 15px; 
   background: var(--panel-bg); 
   border-radius: 12px; 
-  border: 2px solid var(--accent-gold); /* 枠を金に */
+  border: 2px solid var(--accent-gold); 
   display: flex; flex-direction: column; gap: 15px; 
 }
 .adminField { display: flex; flex-direction: column; gap: 6px; }
 .adminLabel { font-size: 12px; color: var(--text-color); font-weight: bold; }
 .textInput { 
   height: 44px; padding: 10px; 
-  background: #fff; /* 白背景 */
+  background: #fff; 
   border: 1px solid var(--border-color); 
   color: var(--text-color); 
   border-radius: 8px; font-size: 16px; 
@@ -272,12 +273,11 @@ input[type="file"] {
   font-size: 14px;
 }
 
+
 /* ★★★ PC向けのレイアウト調整 ★★★ */
 @media (min-width: 768px) {
-  /* 全体の幅を制限 */
   .layout {
     display: grid;
-    /* 左側にカレンダーとリスト、右側にピッチ */
     grid-template-columns: 350px 1fr;
     grid-template-rows: auto auto auto;
     align-items: start;
@@ -285,56 +285,48 @@ input[type="file"] {
     padding: 20px;
   }
 
-  /* カレンダーを左上に */
   .section-calendar {
     grid-column: 1 / 2;
     grid-row: 1 / 2;
-    /* カレンダーの幅を固定 */
     max-width: 100%;
   }
   
-  /* 出欠リストを左下に */
   .section-list {
     grid-column: 1 / 2;
     grid-row: 2 / 4;
     overflow-y: auto;
-    max-height: 80vh; /* スクロール可能に */
+    max-height: 80vh; 
   }
   
-  /* リストを1列表示に戻す（PCの左側サイドバーに収めるため） */
   .listGridWrapper {
     grid-template-columns: 1fr; 
   }
 
-  /* ベンチエリアを右上に */
   .section-bench {
     grid-column: 2 / 3;
     grid-row: 1 / 2;
   }
 
-  /* フォーメーション選択を右のベンチ下に */
-  .section-formation {
+  /* ★変更：ピッチをベンチの下(中段)に移動 */
+  .section-pitch {
     grid-column: 2 / 3;
     grid-row: 2 / 3;
+    background: transparent; 
+    border: none;
+    min-height: auto;
+  }
+
+  /* ★変更：フォーメーションを一番下(下段)に移動 */
+  .section-formation {
+    grid-column: 2 / 3;
+    grid-row: 3 / 4;
     max-width: 600px;
     margin: 0 auto;
     width: 100%;
   }
-
-  /* ピッチを右下に */
-  .section-pitch {
-    grid-column: 2 / 3;
-    grid-row: 3 / 4;
-    background: transparent; /* PCでは全体の背景に馴染ませる */
-    border: none;
-    min-height: auto;
-  }
 }
+
 /* --- カレンダーのマーク（ドット） --- */
-.dayCell {
-  position: relative; /* ドットを配置するために追加 */
-}
-
 .memo-dot {
   position: absolute;
   bottom: 4px;
@@ -345,8 +337,6 @@ input[type="file"] {
   background-color: var(--accent-red);
   border-radius: 50%;
 }
-
-/* 選択されている時はドットを白にして目立たせる */
 .dayCell.selected .memo-dot {
   background-color: #fff;
 }
