@@ -542,7 +542,8 @@ export default function App() {
                       onDrop={(e) => placeMember(e.dataTransfer.getData("text/memberId"), s.id)}
                       onClick={() => { if (selectedMemberId) placeMember(selectedMemberId, s.id); else if (mId) removeFromSlot(s.id); }}>
                       <div className="posRole">{s.role}</div>
-                      {mId ? <button className={`posName status-${st}`} type="button">{names[mId] || MEMBERS.find(x => x.id === mId)?.label || "NAME"}</button> : <div className="posEmpty">DROP</div>}
+                      {/* ↓ ここがMEMBERSになっていてフリーズする原因だったため、membersListに修正しました */}
+                      {mId ? <button className={`posName status-${st}`} type="button">{names[mId] || membersList.find(x => x.id === mId)?.label || "NAME"}</button> : <div className="posEmpty">DROP</div>}
                     </div>
                   );
                 })}
