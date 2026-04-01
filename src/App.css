@@ -119,19 +119,24 @@ body {
   position: relative;
 }
 
-/* 1. 今日の日付（金の枠線でアクセント・最優先で維持） */
+/* 1. 今日の日付（常に金の枠線をつける） */
 .dayCell.today { 
-  border-color: var(--accent-gold) !important; 
-  color: var(--text-color); 
-  font-weight: bold;
+  border-color: var(--accent-gold); 
 }
 
-/* 2. 選択された日付（赤背景・白文字・最優先） */
-/* ※ここにあった border-color を削除しました */
+/* 2. 選択された日付（赤背景・白文字） */
 .dayCell.selected { 
-  background: var(--accent-red) !important; 
-  color: #fff !important; 
-  font-weight: bold !important; 
+  background: var(--accent-red); 
+  color: #fff; 
+  font-weight: bold; 
+  border-color: var(--accent-red);
+}
+
+/* 3. 「今日」かつ「選択中」の場合（赤背景・白文字・金枠線） */
+.dayCell.today.selected {
+  background: var(--accent-red);
+  color: #fff;
+  border-color: var(--accent-gold);
 }
 .summaryCard {
   margin-top: 10px; padding: 8px 4px; 
