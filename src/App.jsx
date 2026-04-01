@@ -568,27 +568,3 @@ export default function App() {
     </div>
   );
 }
-2. src/App.css にボタンのスタイルを追加
-ファイルの一番下に、書き出しボタンのデザインを追記してください。（既存のコードは消さずに下に追加するだけでOKです）
-
-CSS
-/* --- 画像書き出しボタン --- */
-.exportBtn {
-  background: var(--theme-accent2);
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 16px;
-  font-size: 13px;
-  font-weight: bold;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  transition: opacity 0.2s;
-}
-
-.exportBtn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
