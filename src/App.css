@@ -24,7 +24,8 @@ button {
 body {
   margin: 0;
   padding: 0;
-  background-color: var(--theme-page-bg); /* ページ背景色 */
+  /* ★変更：ページの一番奥に pageBg を適用 */
+  background-color: var(--theme-page-bg);
   color: var(--theme-main);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
@@ -43,7 +44,7 @@ body {
 .logoBox { 
   width: 44px; height: 44px; 
   border-radius: 50%; 
-  background: var(--theme-page-bg); /* 白を排除 */
+  background: #fff; 
   border: 2px solid var(--theme-accent2); 
   overflow: hidden; flex-shrink: 0; 
 }
@@ -60,7 +61,7 @@ body {
 }
 .select { 
   flex: 1; height: 42px; 
-  background: var(--theme-page-bg); /* 白を排除 */
+  background: #fff; 
   color: var(--theme-main); 
   border: 1px solid var(--theme-accent2); 
   border-radius: 8px; text-align: center; font-size: 16px; font-weight: bold; 
@@ -82,6 +83,7 @@ body {
 /* --- 4. カレンダー & 週間集計 --- */
 .section-calendar { padding: 0 12px; }
 .calendarCard { 
+  /* パネル背景色 */
   background: var(--theme-bg); 
   padding: 12px; border-radius: 12px; 
   border: 1px solid color-mix(in srgb, var(--theme-main) 10%, transparent); 
@@ -93,8 +95,7 @@ body {
   width: 32px; height: 32px; border-radius: 50%; 
   border: 1px solid var(--theme-accent2); 
   color: var(--theme-accent1); 
-  display: flex; align-items: center; justify-content: center; 
-  background: var(--theme-page-bg); /* 白を排除 */
+  display: flex; align-items: center; justify-content: center; background: #fff; 
 }
 
 .weekRow { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 6px; }
@@ -105,7 +106,8 @@ body {
 .calendarGrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
 .dayCell { 
   aspect-ratio: 1; 
-  background: var(--theme-page-bg); /* 日付の背景色 */
+  /* ★日付部分はページ背景と同じ色に */
+  background: var(--theme-page-bg); 
   border-radius: 8px; 
   color: var(--theme-main); 
   border: 1px solid transparent;
@@ -127,7 +129,7 @@ body {
   flex: 1; text-align: center; border-radius: 6px; padding: 4px 0; cursor: pointer; border: 1px solid transparent;
 }
 .summaryDay.selected {
-  background: var(--theme-page-bg); /* 選択枠の背景を馴染ませる */
+  background: #fff;
   border-color: var(--theme-accent2);
 }
 
@@ -154,7 +156,8 @@ body {
 .listBtnCompact { 
   flex: 1; width: 28px; height: 30px; font-size: 14px; border-radius: 4px; 
   border: 1px solid color-mix(in srgb, var(--theme-main) 15%, transparent); 
-  background: var(--theme-page-bg); /* 白を排除し、日付と同じ色に */
+  /* ★非アクティブ時の背景を白に */
+  background: #fff; 
   color: color-mix(in srgb, var(--theme-main) 50%, transparent);
   display: flex; align-items: center; justify-content: center;
 }
@@ -175,13 +178,11 @@ body {
 .personalMemoInput {
   width: 100%; box-sizing: border-box; padding: 2px 4px; border-radius: 4px; 
   border: 1px solid color-mix(in srgb, var(--theme-main) 20%, transparent); 
-  background: var(--theme-page-bg); /* 白を排除 */
-  color: var(--theme-main); font-size: 11px;
+  background: #fff; color: var(--theme-main); font-size: 11px;
 }
 .generalMemoInput {
   width: 100%; min-height: 40px; padding: 8px; margin-bottom: 15px;
-  background: var(--theme-page-bg); /* 白を排除 */
-  color: var(--theme-main); border-radius: 8px; font-size: 13px; resize: vertical; font-family: inherit; box-sizing: border-box;
+  background: #fff; color: var(--theme-main); border-radius: 8px; font-size: 13px; resize: vertical; font-family: inherit; box-sizing: border-box;
   border: 1px solid color-mix(in srgb, var(--theme-main) 30%, transparent);
 }
 .generalMemoInput:focus, .personalMemoInput:focus {
@@ -199,10 +200,7 @@ body {
   padding: 8px 4px; border-radius: 8px; text-align: center; cursor: grab; 
   box-shadow: 0 2px 4px rgba(0,0,0,0.03);
 }
-.selected-m { 
-  border: 2px solid var(--theme-accent2); 
-  background: color-mix(in srgb, var(--theme-accent2) 20%, var(--theme-page-bg)); 
-}
+.selected-m { border: 2px solid var(--theme-accent2); background: color-mix(in srgb, var(--theme-accent2) 10%, #fff); }
 .benchName { font-size: 11px; margin-bottom: 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--theme-main); }
 .benchStatus { font-weight: bold; font-size: 14px; color: var(--theme-main); }
 
@@ -260,9 +258,8 @@ body {
 .posRole { font-size: 10px; font-weight: 800; color: #fff; margin-bottom: 2px; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
 .posEmpty { font-size: 9px; color: rgba(255,255,255,0.9); font-weight: bold; }
 .posName { 
-  width: 50px; font-size: 12px; 
-  background: var(--theme-page-bg); /* 白を排除 */
-  border: transparent; border-radius: 12px; padding: 2px 0; overflow: hidden; text-align: center; font-weight: bold; 
+  width: 50px; font-size: 12px; background: #fff; 
+  border: #fff; border-radius: 12px; padding: 2px 0; overflow: hidden; text-align: center; font-weight: bold; 
   color: var(--theme-main); box-shadow: 0 2px 4px rgba(0,0,0,0.3); 
 }
 
@@ -287,15 +284,12 @@ body {
 .colorHint { font-size: 12px; color: var(--theme-main); opacity: 0.7; }
 
 .textInput { 
-  height: 44px; padding: 10px; 
-  background: var(--theme-page-bg); /* 白を排除 */
-  color: var(--theme-main); 
+  height: 44px; padding: 10px; background: #fff; color: var(--theme-main); 
   border: 1px solid color-mix(in srgb, var(--theme-main) 30%, transparent); 
   border-radius: 8px; font-size: 16px; 
 }
 input[type="file"], input[type="color"] {
-  background: var(--theme-page-bg); /* 白を排除 */
-  border: 1px solid color-mix(in srgb, var(--theme-main) 30%, transparent);
+  background: #fff; border: 1px solid color-mix(in srgb, var(--theme-main) 30%, transparent);
   border-radius: 8px; color: var(--theme-main); padding: 8px;
 }
 
