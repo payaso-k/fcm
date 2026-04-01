@@ -223,12 +223,13 @@ body {
 
 .pitch {
   width: 100%; height: 100%;
+  /* ★修正：html2canvasが解釈できるように、CSS変数を直接の色指定に置き換え */
   background: repeating-linear-gradient(
     to bottom,
-    var(--pitch-dark),
-    var(--pitch-dark) 10%,
-    var(--pitch-light) 10%,
-    var(--pitch-light) 20%
+    #2f4f2f,
+    #2f4f2f 10%,
+    #3a633a 10%,
+    #3a633a 20%
   );
   border: 4px solid rgba(255,255,255,0.8);
   border-radius: 12px;
