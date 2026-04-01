@@ -25,6 +25,7 @@ const toKey = (d) => {
   const dd = String(d.getDate()).padStart(2, "0");
   return `${yyyy}-${mm}-${dd}`;
 };
+
 const addMonths = (d, n) => new Date(d.getFullYear(), d.getMonth() + n, 1);
 
 const INITIAL_MEMBERS = Array.from({ length: 20 }, (_, i) => ({
@@ -44,7 +45,6 @@ const DEFAULT_COLORS = {
 };
 
 // --- Sub Components ---
-
 function WeeklySummary({ currentKey, statusByDate, onSelectDate, membersCount }) {
   if (!currentKey) return null;
 
@@ -294,16 +294,14 @@ export default function App() {
     setIsExporting(true);
 
     try {
-      // ぼやけないように scale: 2 に設定
       const canvas = await html2canvas(target, {
         scale: 2,
         useCORS: true,
-        backgroundColor: themeBg // 周りの背景色になじませる
+        backgroundColor: themeBg 
       });
 
       const dataUrl = canvas.toDataURL("image/png");
 
-      // スマホ等の共有メニュー（Web Share API）が使えるか判定
       if (navigator.share) {
         try {
           const response = await fetch(dataUrl);
@@ -320,11 +318,9 @@ export default function App() {
           }
         } catch (shareError) {
           console.log("Share API キャンセルまたはエラー:", shareError);
-          // エラーやキャンセルの場合はそのまま下（通常ダウンロード）へフォールバック
         }
       }
 
-      // 共有メニューが使えない（PC等）場合は通常のダウンロード
       const link = document.createElement("a");
       link.href = dataUrl;
       link.download = `formation_${selectedDateKey}.png`;
@@ -517,37 +513,34 @@ export default function App() {
           </div>
         </div>
 
-        <div className="section-pitch">
-          {/* ★追加：画像書き出しボタンをピッチの上に配置 */}
+        {/* ★修正済み：レイアウト崩れを防ぐ設定と、正しいIDの配置 */}
+        <div className="section-pitch" style={{ flexDirection: 'column', alignItems: 'center' }}>
+          
           <div style={{ width: '95%', maxWidth: '600px', display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
             <button className="exportBtn" onClick={handleExportImage} disabled={isExporting}>
               {isExporting ? "⏳ 処理中..." : "📸 画像として書き出す"}
             </button>
           </div>
 
-          {/* ★追加：キャプチャ範囲を特定するために id="pitch-export-area" と少しのpaddingを追加 */}
-          <div id="pitch-export-area" style={{ padding: '10px', background: 'var(--theme-bg)', borderRadius: '16px' }}>
-            <div className="pitchWrap">
-              <div className="pitch">
-                <div className="lineLayer">
-                  <div className="outerLine" /><div className="halfLine" /><div className="centerCircle" /><div className="centerSpot" />
-                  <div className="penTop" /><div className="sixTop" /><div className="spotTop" /><div className="penBottom" /><div className="sixBottom" /><div className="spotBottom" />
-                </div>
-                {slots.map((s) => {
-                  const mId = placedBySlot[s.id];
-                  const st = mId ? status[mId] || "none" : "none";
-                  return (
-                    <div key={s.id} className={`posSlot slot-${st} ${selectedMemberId ? "waiting-drop" : ""}`} style={{ left: `${s.x}%`, top: `${s.y}%` }}
-                      onDragOver={(e) => e.preventDefault()}
-                      onDrop={(e) => placeMember(e.dataTransfer.getData("text/memberId"), s.id)}
-                      onClick={() => { if (selectedMemberId) placeMember(selectedMemberId, s.id); else if (mId) removeFromSlot(s.id); }}>
-                      <div className="posRole">{s.role}</div>
-                      {/* ↓ ここがMEMBERSになっていてフリーズする原因だったため、membersListに修正しました */}
-                      {mId ? <button className={`posName status-${st}`} type="button">{names[mId] || membersList.find(x => x.id === mId)?.label || "NAME"}</button> : <div className="posEmpty">DROP</div>}
-                    </div>
-                  );
-                })}
+          <div className="pitchWrap" id="pitch-export-area">
+            <div className="pitch">
+              <div className="lineLayer">
+                <div className="outerLine" /><div className="halfLine" /><div className="centerCircle" /><div className="centerSpot" />
+                <div className="penTop" /><div className="sixTop" /><div className="spotTop" /><div className="penBottom" /><div className="sixBottom" /><div className="spotBottom" />
               </div>
+              {slots.map((s) => {
+                const mId = placedBySlot[s.id];
+                const st = mId ? status[mId] || "none" : "none";
+                return (
+                  <div key={s.id} className={`posSlot slot-${st} ${selectedMemberId ? "waiting-drop" : ""}`} style={{ left: `${s.x}%`, top: `${s.y}%` }}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => placeMember(e.dataTransfer.getData("text/memberId"), s.id)}
+                    onClick={() => { if (selectedMemberId) placeMember(selectedMemberId, s.id); else if (mId) removeFromSlot(s.id); }}>
+                    <div className="posRole">{s.role}</div>
+                    {mId ? <button className={`posName status-${st}`} type="button">{names[mId] || membersList.find(x => x.id === mId)?.label || "NAME"}</button> : <div className="posEmpty">DROP</div>}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
