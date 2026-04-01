@@ -518,7 +518,7 @@ export default function App() {
           
           <div style={{ width: '95%', maxWidth: '600px', display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
             <button className="exportBtn" onClick={handleExportImage} disabled={isExporting}>
-              {isExporting ? "⏳ 処理中..." : "📸 画像として書き出す"}
+              {isExporting ? "⏳ 処理中..." : "画像として書き出す"}
             </button>
           </div>
 
