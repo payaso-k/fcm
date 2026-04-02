@@ -1,3 +1,13 @@
+ご提案ありがとうございます！レイアウトを整理して、名前をしっかり表示しつつ、操作性も高める形に修正しました。
+
+ご要望通り、「1段目に名前・一括ボタン・出欠ボタン」、「2段目にメモ欄」という構成にしています。また、カレンダーマークは廃止し、デザインに馴染むスマートな「一括」ボタンに変更しました。
+
+今回も **src/App.jsx の「全消しコピペ」**で一発で適用できます。
+
+🛠️ 改良版 App.jsx（全消しコピペ）
+GitHubで src/App.jsx を開き、中身をすべて消してから、以下のコードを貼り付けて保存してください。
+
+JavaScript
 import { useEffect, useMemo, useState } from "react";
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, set, onValue } from "firebase/database";
@@ -184,7 +194,7 @@ export default function App() {
   
   const [isExporting, setIsExporting] = useState(false);
   
-  // ★追加：一括入力モーダルを開いているメンバーのIDを保存するステート
+  // 一括入力モーダルを開いているメンバーのIDを保存するステート
   const [batchModalMemberId, setBatchModalMemberId] = useState(null);
 
   const currentFormation = formationByDate[selectedDateKey] || defaultFormation || keys[0];
@@ -192,7 +202,7 @@ export default function App() {
   const placedBySlot = placedBySlotByDate[selectedDateKey] || {};
   const slots = useMemo(() => FORMATIONS[currentFormation] ?? [], [currentFormation]);
 
-  // ★追加：現在選択されている日付から「その週の月〜日」のリストを作る
+  // 現在選択されている日付から「その週の月〜日」のリストを作る
   const currentWeekDates = useMemo(() => {
     const target = new Date(selectedDateKey);
     const day = target.getDay();
@@ -456,25 +466,30 @@ export default function App() {
           <div className="panelHeader"><div className="panelTitle">出欠確認</div></div>
           <div className="listGridWrapper">
             {membersList.map(m => (
-              <div key={m.id} className="listRowCompact">
-                <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center' }}>
-                  
+              <div key={m.id} className="listRowCompact" style={{ flexDirection: 'column', gap: '8px' }}>
+                {/* 1段目: 名前と一括ボタンと出欠ボタン */}
+                <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center', gap: '4px' }}>
                   {(isAdmin || isMaster) && (
-                    <button type="button" className="deleteBtn" onClick={() => handleDeleteMember(m.id)}>×</button>
+                    <button type="button" className="deleteBtn" onClick={() => handleDeleteMember(m.id)} style={{ margin: 0 }}>×</button>
                   )}
-
-                  <input className="listNameCompact" value={names[m.id] || ""} placeholder={m.label} onChange={(e) => setNames({ ...names, [m.id]: e.target.value })} />
+                  <input 
+                    className="listNameCompact" 
+                    value={names[m.id] || ""} 
+                    placeholder={m.label} 
+                    onChange={(e) => setNames({ ...names, [m.id]: e.target.value })} 
+                    style={{ flex: 1, textAlign: 'left', paddingLeft: '4px', borderBottom: 'none' }}
+                  />
                   
-                  {/* ★追加：一括入力ボタン */}
+                  {/* スマートな一括ボタン */}
                   <button
                     type="button"
                     onClick={() => setBatchModalMemberId(m.id)}
                     style={{
-                      padding: '4px', fontSize: '13px', background: 'var(--theme-accent2)', color: '#fff', 
-                      border: 'none', borderRadius: '4px', marginLeft: '6px', marginRight: '6px', cursor: 'pointer'
+                      padding: '4px 8px', fontSize: '11px', background: 'var(--theme-accent2)', color: '#fff', 
+                      border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold'
                     }}
                   >
-                    📅
+                    一括
                   </button>
 
                   <div className="listBtnsCompact">
@@ -490,10 +505,12 @@ export default function App() {
                     ))}
                   </div>
                 </div>
+                
+                {/* 2段目: メモ欄 */}
                 <input
                   type="text"
                   className="personalMemoInput"
-                  placeholder="memo..."
+                  placeholder="メモを入力..."
                   key={`${m.id}-${selectedDateKey}`}
                   defaultValue={(memosByDate[selectedDateKey] || {})[m.id] || ""}
                   onBlur={(e) => {
@@ -503,6 +520,7 @@ export default function App() {
                       [selectedDateKey]: { ...(prev[selectedDateKey] || {}), [m.id]: val }
                     }));
                   }}
+                  style={{ width: '100%' }}
                 />
               </div>
             ))}
@@ -572,7 +590,7 @@ export default function App() {
 
       </div>
 
-      {/* ★追加：週間一括入力用のモーダル（ポップアップ） */}
+      {/* 週間一括入力用のモーダル */}
       {batchModalMemberId && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
@@ -611,7 +629,7 @@ export default function App() {
                             setStatusByDate(prev => {
                               const dayData = { ...(prev[k] || {}) };
                               if (dayData[batchModalMemberId] === type) {
-                                delete dayData[batchModalMemberId]; // すでに選択されていれば解除
+                                delete dayData[batchModalMemberId]; 
                               } else {
                                 dayData[batchModalMemberId] = type;
                               }
