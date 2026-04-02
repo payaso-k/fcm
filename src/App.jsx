@@ -619,7 +619,7 @@ export default function App() {
                   <input
                     type="text"
                     className="personalMemoInput"
-                    placeholder="メモを入力..."
+                    placeholder="memo..."
                     key={`${m.id}-${selectedDateKey}`}
                     defaultValue={(memosByDate[selectedDateKey] || {})[m.id] || ""}
                     onBlur={(e) => {
