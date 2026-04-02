@@ -163,6 +163,9 @@ export default function App() {
   const [teamName, setTeamName] = useState("TEAM NAME");
   const [logoDataUrl, setLogoDataUrl] = useState("");
   
+  // ★追加：メンバー個別のアイコン画像
+  const [memberImages, setMemberImages] = useState({});
+
   const [themeMain, setThemeMain] = useState(DEFAULT_COLORS.main);
   const [themeAccent1, setThemeAccent1] = useState(DEFAULT_COLORS.accent1);
   const [themeAccent2, setThemeAccent2] = useState(DEFAULT_COLORS.accent2);
@@ -183,8 +186,6 @@ export default function App() {
   const [isLoaded, setIsLoaded] = useState(false);
   
   const [isExporting, setIsExporting] = useState(false);
-  
-  // 一括入力モーダルを開いているメンバーのIDを保存するステート
   const [batchModalMemberId, setBatchModalMemberId] = useState(null);
 
   const currentFormation = formationByDate[selectedDateKey] || defaultFormation || keys[0];
@@ -192,7 +193,6 @@ export default function App() {
   const placedBySlot = placedBySlotByDate[selectedDateKey] || {};
   const slots = useMemo(() => FORMATIONS[currentFormation] ?? [], [currentFormation]);
 
-  // 現在選択されている日付から「その週の月〜日」のリストを作る
   const currentWeekDates = useMemo(() => {
     const target = new Date(selectedDateKey);
     const day = target.getDay();
@@ -223,6 +223,7 @@ export default function App() {
         if (data.adminCode) setAdminCode(data.adminCode);
         if (data.membersList) setMembersList(data.membersList);
         if (data.generalMemosByDate) setGeneralMemosByDate(data.generalMemosByDate);
+        if (data.memberImages) setMemberImages(data.memberImages); // 画像読み込み
         
         if (data.themeMain) setThemeMain(data.themeMain);
         if (data.themeAccent1) setThemeAccent1(data.themeAccent1);
@@ -240,9 +241,9 @@ export default function App() {
     const dbRef = ref(db, 'teamData/');
     set(dbRef, {
       teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, membersList, generalMemosByDate,
-      themeMain, themeAccent1, themeAccent2, themeBg, themePageBg 
+      themeMain, themeAccent1, themeAccent2, themeBg, themePageBg, memberImages // 画像保存
     });
-  }, [teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, membersList, generalMemosByDate, themeMain, themeAccent1, themeAccent2, themeBg, themePageBg, isLoaded]);
+  }, [teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, membersList, generalMemosByDate, themeMain, themeAccent1, themeAccent2, themeBg, themePageBg, memberImages, isLoaded]);
 
   useEffect(() => {
     document.body.style.backgroundColor = themePageBg;
@@ -299,6 +300,12 @@ export default function App() {
   const handleDeleteMember = (id) => {
     if (window.confirm("このメンバーを削除しますか？\n（過去のデータは残りますが、リストからは消えます）")) {
       setMembersList(membersList.filter(m => m.id !== id));
+      // 画像も削除
+      setMemberImages(prev => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
     }
   };
 
@@ -414,6 +421,57 @@ export default function App() {
             <label className="adminLabel" style={{ color: 'var(--theme-accent1)' }}>管理者パスコード変更</label>
             <input className="textInput" type="text" value={adminCode} onChange={(e) => setAdminCode(e.target.value)} style={{ borderColor: 'var(--theme-accent1)' }} />
           </div>
+
+          {/* ★追加：メンバーアイコン登録画面 */}
+          <div className="adminField" style={{ marginTop: '10px' }}>
+            <label className="adminLabel">
+              メンバーのアイコン画像設定
+              <span style={{ fontSize: '10px', fontWeight: 'normal', color: 'var(--theme-accent1)', display: 'block' }}>
+                ※推奨: 正方形で2MB以下の画像
+              </span>
+            </label>
+            <div style={{ 
+              maxHeight: '220px', overflowY: 'auto', padding: '10px', 
+              background: '#fff', borderRadius: '8px', 
+              border: '1px solid color-mix(in srgb, var(--theme-main) 30%, transparent)' 
+            }}>
+              {membersList.map(m => (
+                <div key={`img-${m.id}`} style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingBottom: '8px', borderBottom: '1px solid #eee', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '13px', width: '70px', overflow: 'hidden', whiteSpace: 'nowrap', color: 'var(--theme-main)', fontWeight: 'bold' }}>
+                    {names[m.id] || m.label}
+                  </span>
+                  
+                  <input type="file" accept="image/*" style={{ flex: 1, fontSize: '11px', padding: 0, border: 'none' }} onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    if (file.size > 2 * 1024 * 1024) { 
+                      alert("画像サイズが大きすぎます。2MB以下の画像にしてください。"); 
+                      e.target.value = ''; 
+                      return; 
+                    }
+                    const r = new FileReader();
+                    r.onload = (ev) => setMemberImages(prev => ({ ...prev, [m.id]: ev.target.result }));
+                    r.readAsDataURL(file);
+                  }} />
+
+                  {memberImages[m.id] && (
+                    <img src={memberImages[m.id]} alt="icon" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--theme-accent2)' }} />
+                  )}
+
+                  {memberImages[m.id] && (
+                    <button type="button" onClick={() => {
+                      if(window.confirm('この画像を削除しますか？')) {
+                        setMemberImages(prev => { const n = {...prev}; delete n[m.id]; return n; });
+                      }
+                    }} style={{ background: 'var(--theme-main)', color: '#fff', padding: '4px 8px', borderRadius: '4px', fontSize: '10px', cursor: 'pointer' }}>
+                      削除
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
         </div>
       )}
 
@@ -463,6 +521,7 @@ export default function App() {
                   {(isAdmin || isMaster) && (
                     <button type="button" className="deleteBtn" onClick={() => handleDeleteMember(m.id)} style={{ margin: 0 }}>×</button>
                   )}
+                  {/* ★修正: borderBottom: 'none' を削除して下線を復活 */}
                   <input 
                     className="listNameCompact" 
                     value={names[m.id] || ""} 
@@ -500,7 +559,7 @@ export default function App() {
                   <input
                     type="text"
                     className="personalMemoInput"
-                    placeholder="memo..."
+                    placeholder="メモを入力..."
                     key={`${m.id}-${selectedDateKey}`}
                     defaultValue={(memosByDate[selectedDateKey] || {})[m.id] || ""}
                     onBlur={(e) => {
@@ -552,13 +611,45 @@ export default function App() {
               {slots.map((s) => {
                 const mId = placedBySlot[s.id];
                 const st = mId ? status[mId] || "none" : "none";
+                const hasImage = mId && memberImages[mId];
+
                 return (
-                  <div key={s.id} className={`posSlot slot-${st} ${selectedMemberId ? "waiting-drop" : ""}`} style={{ left: `${s.x}%`, top: `${s.y}%` }}
+                  <div key={s.id} className={`posSlot slot-${st} ${selectedMemberId ? "waiting-drop" : ""}`} 
+                    style={{ 
+                      left: `${s.x}%`, top: `${s.y}%`,
+                      // ★追加：画像があれば背景に設定
+                      backgroundImage: hasImage ? `url(${memberImages[mId]})` : 'none',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      border: hasImage ? `3px solid ${st === 'ok' ? 'var(--theme-accent1)' : 'var(--theme-accent2)'}` : ''
+                    }}
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={(e) => placeMember(e.dataTransfer.getData("text/memberId"), s.id)}
-                    onClick={() => { if (selectedMemberId) placeMember(selectedMemberId, s.id); else if (mId) removeFromSlot(s.id); }}>
-                    <div className="posRole">{s.role}</div>
-                    {mId ? <button className={`posName status-${st}`} type="button">{names[mId] || membersList.find(x => x.id === mId)?.label || "NAME"}</button> : <div className="posEmpty">DROP</div>}
+                    onClick={() => { if (selectedMemberId) placeMember(selectedMemberId, s.id); else if (mId) removeFromSlot(s.id); }}
+                  >
+                    
+                    {/* ★役割（ST, CBなど）のバッジ。画像がある場合は左上に浮かせる */}
+                    <div className="posRole" style={hasImage ? {
+                      position: 'absolute', top: '-6px', left: '-10px',
+                      background: 'var(--theme-main)', padding: '2px 4px',
+                      borderRadius: '4px', zIndex: 20, border: '1px solid #fff'
+                    } : {}}>
+                      {s.role}
+                    </div>
+
+                    {/* ★名前タグ。画像がある場合はアイコンの下にぶら下げる */}
+                    {mId ? (
+                      <button className={`posName status-${st}`} type="button"
+                        style={hasImage ? {
+                          position: 'absolute', bottom: '-14px', left: '50%', transform: 'translateX(-50%)',
+                          width: '64px', zIndex: 20
+                        } : {}}
+                      >
+                        {names[mId] || membersList.find(x => x.id === mId)?.label || "NAME"}
+                      </button>
+                    ) : (
+                      <div className="posEmpty">DROP</div>
+                    )}
                   </div>
                 );
               })}
