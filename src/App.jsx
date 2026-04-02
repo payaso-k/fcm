@@ -344,7 +344,6 @@ export default function App() {
 
   const benchMembers = membersList.filter(m => (status[m.id] === "ok" || status[m.id] === "maybe") && !Object.values(placedBySlot).includes(m.id));
 
-  // CSSに依存せず、React側で強制的にピッチの緑色を指定
   const pitchStyle = {
     backgroundColor: '#2f4f2f',
     backgroundImage: `linear-gradient(
@@ -433,6 +432,7 @@ export default function App() {
             <input className="textInput" type="text" value={adminCode} onChange={(e) => setAdminCode(e.target.value)} style={{ borderColor: 'var(--theme-accent1)' }} />
           </div>
 
+          {/* ★修正: スクロールを解除し、全メンバーをリスト表示。名前が潰れないように修正 */}
           <div className="adminField" style={{ marginTop: '10px' }}>
             <label className="adminLabel">
               メンバーのアイコン画像設定
@@ -441,17 +441,22 @@ export default function App() {
               </span>
             </label>
             <div style={{ 
-              maxHeight: '220px', overflowY: 'auto', padding: '10px', 
+              padding: '10px', 
               background: '#fff', borderRadius: '8px', 
               border: '1px solid color-mix(in srgb, var(--theme-main) 30%, transparent)' 
             }}>
               {membersList.map(m => (
                 <div key={`img-${m.id}`} style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingBottom: '8px', borderBottom: '1px solid #eee', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '13px', width: '70px', overflow: 'hidden', whiteSpace: 'nowrap', color: 'var(--theme-main)', fontWeight: 'bold' }}>
+                  
+                  <span style={{ 
+                    fontSize: '13px', width: '80px', minWidth: '80px', flexShrink: 0, 
+                    overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', 
+                    color: 'var(--theme-main)', fontWeight: 'bold' 
+                  }}>
                     {names[m.id] || m.label}
                   </span>
                   
-                  <input type="file" accept="image/*" style={{ flex: 1, fontSize: '11px', padding: 0, border: 'none' }} onChange={(e) => {
+                  <input type="file" accept="image/*" style={{ flex: 1, minWidth: 0, fontSize: '11px', padding: 0, border: 'none' }} onChange={(e) => {
                     const file = e.target.files[0];
                     if (!file) return;
                     if (file.size > 2 * 1024 * 1024) { 
@@ -465,7 +470,7 @@ export default function App() {
                   }} />
 
                   {memberImages[m.id] && (
-                    <img src={memberImages[m.id]} alt="icon" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--theme-accent2)' }} />
+                    <img src={memberImages[m.id]} alt="icon" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--theme-accent2)', flexShrink: 0 }} />
                   )}
 
                   {memberImages[m.id] && (
@@ -473,7 +478,7 @@ export default function App() {
                       if(window.confirm('この画像を削除しますか？')) {
                         setMemberImages(prev => { const n = {...prev}; delete n[m.id]; return n; });
                       }
-                    }} style={{ background: 'var(--theme-main)', color: '#fff', padding: '4px 8px', borderRadius: '4px', fontSize: '10px', cursor: 'pointer' }}>
+                    }} style={{ background: 'var(--theme-main)', color: '#fff', padding: '4px 8px', borderRadius: '4px', fontSize: '10px', cursor: 'pointer', flexShrink: 0 }}>
                       削除
                     </button>
                   )}
@@ -531,7 +536,6 @@ export default function App() {
                   {(isAdmin || isMaster) && (
                     <button type="button" className="deleteBtn" onClick={() => handleDeleteMember(m.id)} style={{ margin: 0 }}>×</button>
                   )}
-                  {/* ★修正: 余計な背景色を消し、今まで通りのシンプルな下線に戻しました */}
                   <input 
                     className="listNameCompact" 
                     value={names[m.id] || ""} 
@@ -654,26 +658,32 @@ export default function App() {
                       {s.role}
                     </div>
 
-                    {/* ★修正: ピッチの名前をEA SPORTS FC風のダークガラスパネルに！ */}
+                    {/* ★修正: CSSの強制色塗りを無効化し、直接ガラスデザインを適用 */}
                     {mId ? (
-                      <div className={`posName status-${st}`}
+                      <div 
                         style={{
                           ...(hasImage ? {
                             position: 'absolute', bottom: '-14px', left: '50%', transform: 'translateX(-50%)',
-                            width: 'max-content', minWidth: '45px', maxWidth: '75px', 
-                          } : {}),
+                            width: 'max-content', minWidth: '45px', maxWidth: '75px'
+                          } : {
+                            width: '85%', marginTop: '2px'
+                          }),
                           zIndex: 10,
-                          padding: '3px 8px', 
+                          padding: '2px 6px', 
                           fontSize: '10.5px', 
                           fontWeight: 'bold',
-                          borderRadius: '10px',
+                          borderRadius: '8px',
                           boxShadow: '0 3px 6px rgba(0,0,0,0.6)',
-                          background: 'rgba(0, 0, 0, 0.4)', // ダーク半透明（ガラス風）
-                          backdropFilter: 'blur(2px)',
+                          background: 'rgba(0, 0, 0, 0.3)', // ★ここで透明度を調整
+                          backdropFilter: 'blur(2px)',      // ★ここでガラスの強さを調整
                           WebkitBackdropFilter: 'blur(4px)',
-                          border: `1px solid ${st === 'ok' ? 'var(--theme-accent1)' : st === 'maybe' ? 'var(--theme-accent2)' : 'rgba(255,255,255,0.4)'}`, // ステータスカラーで光る枠線
-                          color: '#ffffff', // 白文字
-                          textShadow: '0 1px 2px rgba(0,0,0,0.9)' // 視認性を高める影
+                          border: `1px solid ${st === 'ok' ? 'var(--theme-accent1)' : st === 'maybe' ? 'var(--theme-accent2)' : 'rgba(255,255,255,0.4)'}`,
+                          color: '#ffffff',
+                          textShadow: '0 1px 2px rgba(0,0,0,0.9)',
+                          textAlign: 'center',
+                          overflow: 'hidden',
+                          whiteSpace: 'nowrap',
+                          textOverflow: 'ellipsis'
                         }}
                       >
                         {names[mId] || membersList.find(x => x.id === mId)?.label || "NAME"}
