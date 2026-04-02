@@ -1,13 +1,3 @@
-ご提案ありがとうございます！レイアウトを整理して、名前をしっかり表示しつつ、操作性も高める形に修正しました。
-
-ご要望通り、「1段目に名前・一括ボタン・出欠ボタン」、「2段目にメモ欄」という構成にしています。また、カレンダーマークは廃止し、デザインに馴染むスマートな「一括」ボタンに変更しました。
-
-今回も **src/App.jsx の「全消しコピペ」**で一発で適用できます。
-
-🛠️ 改良版 App.jsx（全消しコピペ）
-GitHubで src/App.jsx を開き、中身をすべて消してから、以下のコードを貼り付けて保存してください。
-
-JavaScript
 import { useEffect, useMemo, useState } from "react";
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, set, onValue } from "firebase/database";
