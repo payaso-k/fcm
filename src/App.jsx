@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, set, onValue } from "firebase/database";
 import { FORMATIONS } from "./formations";
-import html2canvas from "html2canvas"; // ★画像生成ライブラリを追加
+import html2canvas from "html2canvas";
 import "./App.css";
 
 // --- Firebase設定 ---
@@ -35,7 +35,6 @@ const INITIAL_MEMBERS = Array.from({ length: 20 }, (_, i) => ({
 
 const ADMIN_CODE_DEFAULT = "1234";
 
-// ★5色のテーマカラー構成
 const DEFAULT_COLORS = {
   main: "#3e3226",    
   accent1: "#9a2c2e", 
@@ -183,13 +182,30 @@ export default function App() {
   const [generalMemosByDate, setGeneralMemosByDate] = useState({});
   const [isLoaded, setIsLoaded] = useState(false);
   
-  // ★画像書き出し中のローディング状態
   const [isExporting, setIsExporting] = useState(false);
+  
+  // ★追加：一括入力モーダルを開いているメンバーのIDを保存するステート
+  const [batchModalMemberId, setBatchModalMemberId] = useState(null);
 
   const currentFormation = formationByDate[selectedDateKey] || defaultFormation || keys[0];
   const status = statusByDate[selectedDateKey] || {};
   const placedBySlot = placedBySlotByDate[selectedDateKey] || {};
   const slots = useMemo(() => FORMATIONS[currentFormation] ?? [], [currentFormation]);
+
+  // ★追加：現在選択されている日付から「その週の月〜日」のリストを作る
+  const currentWeekDates = useMemo(() => {
+    const target = new Date(selectedDateKey);
+    const day = target.getDay();
+    const diff = target.getDate() - (day === 0 ? 6 : day - 1);
+    const monday = new Date(target.setDate(diff));
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      days.push(d);
+    }
+    return days;
+  }, [selectedDateKey]);
 
   useEffect(() => {
     const dbRef = ref(db, 'teamData/');
@@ -286,33 +302,20 @@ export default function App() {
     }
   };
 
-  // ★追加：フォーメーションを画像として書き出す関数
   const handleExportImage = async () => {
     const target = document.getElementById("pitch-export-area");
     if (!target) return;
-
     setIsExporting(true);
-
     try {
-      const canvas = await html2canvas(target, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: themeBg 
-      });
-
+      const canvas = await html2canvas(target, { scale: 2, useCORS: true, backgroundColor: themeBg });
       const dataUrl = canvas.toDataURL("image/png");
-
       if (navigator.share) {
         try {
           const response = await fetch(dataUrl);
           const blob = await response.blob();
           const file = new File([blob], `formation_${selectedDateKey}.png`, { type: 'image/png' });
-          
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({
-              title: `${teamName} フォーメーション`,
-              files: [file]
-            });
+            await navigator.share({ title: `${teamName} フォーメーション`, files: [file] });
             setIsExporting(false);
             return;
           }
@@ -320,14 +323,12 @@ export default function App() {
           console.log("Share API キャンセルまたはエラー:", shareError);
         }
       }
-
       const link = document.createElement("a");
       link.href = dataUrl;
       link.download = `formation_${selectedDateKey}.png`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-
     } catch (error) {
       console.error("画像生成エラー:", error);
       alert("画像の生成に失敗しました。");
@@ -463,6 +464,19 @@ export default function App() {
                   )}
 
                   <input className="listNameCompact" value={names[m.id] || ""} placeholder={m.label} onChange={(e) => setNames({ ...names, [m.id]: e.target.value })} />
+                  
+                  {/* ★追加：一括入力ボタン */}
+                  <button
+                    type="button"
+                    onClick={() => setBatchModalMemberId(m.id)}
+                    style={{
+                      padding: '4px', fontSize: '13px', background: 'var(--theme-accent2)', color: '#fff', 
+                      border: 'none', borderRadius: '4px', marginLeft: '6px', marginRight: '6px', cursor: 'pointer'
+                    }}
+                  >
+                    📅
+                  </button>
+
                   <div className="listBtnsCompact">
                     {["ok", "maybe", "no"].map(type => (
                       <button 
@@ -513,12 +527,10 @@ export default function App() {
           </div>
         </div>
 
-        {/* ★修正済み：レイアウト崩れを防ぐ設定と、正しいIDの配置 */}
         <div className="section-pitch" style={{ flexDirection: 'column', alignItems: 'center' }}>
-          
           <div style={{ width: '95%', maxWidth: '600px', display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
             <button className="exportBtn" onClick={handleExportImage} disabled={isExporting}>
-              {isExporting ? "⏳ 処理中..." : "画像として書き出す"}
+              {isExporting ? "⏳ 処理中..." : "📸 画像として書き出す"}
             </button>
           </div>
 
@@ -559,6 +571,77 @@ export default function App() {
         </div>
 
       </div>
+
+      {/* ★追加：週間一括入力用のモーダル（ポップアップ） */}
+      {batchModalMemberId && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000,
+          display: 'flex', justifyContent: 'center', alignItems: 'center'
+        }} onClick={() => setBatchModalMemberId(null)}>
+          <div style={{
+            background: 'var(--theme-bg)', padding: '20px', borderRadius: '12px',
+            width: '90%', maxWidth: '350px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)'
+          }} onClick={e => e.stopPropagation()}>
+            <h3 style={{ marginTop: 0, color: 'var(--theme-main)', textAlign: 'center', borderBottom: '1px solid var(--theme-accent2)', paddingBottom: '10px' }}>
+              {names[batchModalMemberId] || 'Member'} <span style={{fontSize:'14px', fontWeight:'normal'}}>の週間出欠</span>
+            </h3>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '15px' }}>
+              {currentWeekDates.map(d => {
+                const k = toKey(d);
+                const st = (statusByDate[k] || {})[batchModalMemberId];
+                const WEEKS = ["日", "月", "火", "水", "木", "金", "土"];
+                const isSat = d.getDay() === 6;
+                const isSun = d.getDay() === 0;
+                return (
+                  <div key={k} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{
+                      fontWeight: 'bold', fontSize: '14px',
+                      color: isSun ? 'var(--theme-accent1)' : isSat ? 'var(--theme-accent2)' : 'var(--theme-main)'
+                    }}>
+                      {d.getMonth()+1}/{d.getDate()} ({WEEKS[d.getDay()]})
+                    </div>
+                    <div className="listBtnsCompact" style={{ width: '130px' }}>
+                      {["ok", "maybe", "no"].map(type => (
+                        <button
+                          key={type}
+                          className={`listBtnCompact ${type} ${st === type ? "active" : ""}`}
+                          onClick={() => {
+                            setStatusByDate(prev => {
+                              const dayData = { ...(prev[k] || {}) };
+                              if (dayData[batchModalMemberId] === type) {
+                                delete dayData[batchModalMemberId]; // すでに選択されていれば解除
+                              } else {
+                                dayData[batchModalMemberId] = type;
+                              }
+                              return { ...prev, [k]: dayData };
+                            });
+                          }}
+                          type="button"
+                        >
+                          {type === "ok" ? "○" : type === "maybe" ? "△" : "×"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <button
+              onClick={() => setBatchModalMemberId(null)}
+              style={{
+                width: '100%', padding: '10px', marginTop: '20px',
+                background: 'var(--theme-main)', color: '#fff', border: 'none',
+                borderRadius: '8px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer'
+              }}
+            >
+              完了
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
