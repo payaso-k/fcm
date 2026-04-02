@@ -619,7 +619,7 @@ export default function App() {
         <div className="section-pitch" style={{ flexDirection: 'column', alignItems: 'center' }}>
           <div style={{ width: '95%', maxWidth: '600px', display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
             <button className="exportBtn" onClick={handleExportImage} disabled={isExporting}>
-              {isExporting ? "⏳ 処理中..." : "📸 画像として書き出す"}
+              {isExporting ? "⏳ 処理中..." : "画像として書き出す"}
             </button>
           </div>
 
@@ -683,8 +683,8 @@ export default function App() {
                           fontWeight: 'bold',
                           borderRadius: '10px',
                           boxShadow: '0 3px 6px rgba(0,0,0,0.6)',
-                          background: 'rgba(0, 0, 0, 0.65)',
-                          backdropFilter: 'blur(4px)',
+                          background: 'rgba(0, 0, 0, 0.4)',
+                          backdropFilter: 'blur(2px)',
                           WebkitBackdropFilter: 'blur(4px)',
                           border: `1px solid ${st === 'ok' ? 'var(--theme-accent1)' : st === 'maybe' ? 'var(--theme-accent2)' : 'rgba(255,255,255,0.4)'}`,
                           color: '#ffffff',
