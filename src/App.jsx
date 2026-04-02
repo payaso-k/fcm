@@ -457,7 +457,8 @@ export default function App() {
           <div className="listGridWrapper">
             {membersList.map(m => (
               <div key={m.id} className="listRowCompact" style={{ flexDirection: 'column', gap: '8px' }}>
-                {/* 1段目: 名前と一括ボタンと出欠ボタン */}
+                
+                {/* 1段目: 名前と出欠ボタン */}
                 <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center', gap: '4px' }}>
                   {(isAdmin || isMaster) && (
                     <button type="button" className="deleteBtn" onClick={() => handleDeleteMember(m.id)} style={{ margin: 0 }}>×</button>
@@ -469,18 +470,6 @@ export default function App() {
                     onChange={(e) => setNames({ ...names, [m.id]: e.target.value })} 
                     style={{ flex: 1, textAlign: 'left', paddingLeft: '4px', borderBottom: 'none' }}
                   />
-                  
-                  {/* スマートな一括ボタン */}
-                  <button
-                    type="button"
-                    onClick={() => setBatchModalMemberId(m.id)}
-                    style={{
-                      padding: '4px 8px', fontSize: '11px', background: 'var(--theme-accent2)', color: '#fff', 
-                      border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold'
-                    }}
-                  >
-                    一括
-                  </button>
 
                   <div className="listBtnsCompact">
                     {["ok", "maybe", "no"].map(type => (
@@ -496,22 +485,34 @@ export default function App() {
                   </div>
                 </div>
                 
-                {/* 2段目: メモ欄 */}
-                <input
-                  type="text"
-                  className="personalMemoInput"
-                  placeholder="メモを入力..."
-                  key={`${m.id}-${selectedDateKey}`}
-                  defaultValue={(memosByDate[selectedDateKey] || {})[m.id] || ""}
-                  onBlur={(e) => {
-                    const val = e.target.value;
-                    setMemosByDate(prev => ({
-                      ...prev,
-                      [selectedDateKey]: { ...(prev[selectedDateKey] || {}), [m.id]: val }
-                    }));
-                  }}
-                  style={{ width: '100%' }}
-                />
+                {/* 2段目: 一括ボタンとメモ欄 */}
+                <div style={{ display: 'flex', width: '100%', alignItems: 'center', gap: '6px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setBatchModalMemberId(m.id)}
+                    style={{
+                      padding: '4px 10px', fontSize: '11px', background: 'var(--theme-accent2)', color: '#fff', 
+                      border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', flexShrink: 0
+                    }}
+                  >
+                    一括
+                  </button>
+                  <input
+                    type="text"
+                    className="personalMemoInput"
+                    placeholder="メモを入力..."
+                    key={`${m.id}-${selectedDateKey}`}
+                    defaultValue={(memosByDate[selectedDateKey] || {})[m.id] || ""}
+                    onBlur={(e) => {
+                      const val = e.target.value;
+                      setMemosByDate(prev => ({
+                        ...prev,
+                        [selectedDateKey]: { ...(prev[selectedDateKey] || {}), [m.id]: val }
+                      }));
+                    }}
+                    style={{ flex: 1 }}
+                  />
+                </div>
               </div>
             ))}
           </div>
