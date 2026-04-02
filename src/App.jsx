@@ -248,7 +248,6 @@ export default function App() {
     document.body.style.backgroundColor = themePageBg;
   }, [themePageBg]);
 
-  // ★ロゴ画像の圧縮処理
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -271,7 +270,6 @@ export default function App() {
         canvas.height = height;
         const ctx = canvas.getContext("2d");
         ctx.drawImage(img, 0, 0, width, height);
-        // 軽量なPNGとして保存
         setLogoDataUrl(canvas.toDataURL("image/png"));
       };
       img.src = ev.target.result;
@@ -478,7 +476,6 @@ export default function App() {
                     {names[m.id] || m.label}
                   </span>
                   
-                  {/* ★修正: 画像の自動圧縮＆正方形トリミング処理を追加 */}
                   <input type="file" accept="image/*" style={{ flex: 1, minWidth: 0, fontSize: '11px', padding: 0, border: 'none' }} onChange={(e) => {
                     const file = e.target.files[0];
                     if (!file) return;
@@ -575,19 +572,13 @@ export default function App() {
                   {(isAdmin || isMaster) && (
                     <button type="button" className="deleteBtn" onClick={() => handleDeleteMember(m.id)} style={{ margin: 0 }}>×</button>
                   )}
+                  {/* ★修正: 余計な背景色や枠線を消し、元通りのシンプルな下線に完全に戻しました */}
                   <input 
                     className="listNameCompact" 
                     value={names[m.id] || ""} 
                     placeholder={m.label} 
                     onChange={(e) => setNames({ ...names, [m.id]: e.target.value })} 
-                    style={{ 
-                      flex: 1, textAlign: 'left', 
-                      padding: '4px 8px',
-                      backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                      borderRadius: '4px',
-                      border: '1px solid color-mix(in srgb, var(--theme-main) 20%, transparent)',
-                      color: 'var(--theme-main)',
-                    }}
+                    style={{ flex: 1, textAlign: 'left', paddingLeft: '4px' }}
                   />
 
                   <div className="listBtnsCompact">
@@ -721,7 +712,7 @@ export default function App() {
                           fontWeight: 'bold',
                           borderRadius: '10px',
                           boxShadow: '0 3px 6px rgba(0,0,0,0.6)',
-                          background: 'rgba(0, 0, 0, 0.3)',
+                          background: 'rgba(0, 0, 0, 0.35)',
                           backdropFilter: 'blur(2px)',
                           WebkitBackdropFilter: 'blur(4px)',
                           border: `1px solid ${st === 'ok' ? 'var(--theme-accent1)' : st === 'maybe' ? 'var(--theme-accent2)' : 'rgba(255,255,255,0.4)'}`,
