@@ -248,11 +248,34 @@ export default function App() {
     document.body.style.backgroundColor = themePageBg;
   }, [themePageBg]);
 
+  // ★ロゴ画像の圧縮処理
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (e) => setLogoDataUrl(e.target.result);
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const MAX_SIZE = 300;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
+        } else {
+          if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+        // 軽量なPNGとして保存
+        setLogoDataUrl(canvas.toDataURL("image/png"));
+      };
+      img.src = ev.target.result;
+    };
     reader.readAsDataURL(file);
   };
 
@@ -344,7 +367,6 @@ export default function App() {
 
   const benchMembers = membersList.filter(m => (status[m.id] === "ok" || status[m.id] === "maybe") && !Object.values(placedBySlot).includes(m.id));
 
-  // ピッチの背景色指定
   const pitchStyle = {
     backgroundColor: '#2f4f2f',
     backgroundImage: `linear-gradient(
@@ -436,8 +458,8 @@ export default function App() {
           <div className="adminField" style={{ marginTop: '10px' }}>
             <label className="adminLabel">
               メンバーのアイコン画像設定
-              <span style={{ fontSize: '10px', fontWeight: 'normal', color: 'var(--theme-accent1)', display: 'block' }}>
-                ※推奨: 正方形で2MB以下の画像
+              <span style={{ fontSize: '10px', fontWeight: 'normal', color: 'var(--theme-main)', display: 'block', opacity: 0.7 }}>
+                ※アップロード時に自動で中心が正方形に切り取られ、超軽量サイズに圧縮されます。
               </span>
             </label>
             <div style={{ 
@@ -456,17 +478,34 @@ export default function App() {
                     {names[m.id] || m.label}
                   </span>
                   
+                  {/* ★修正: 画像の自動圧縮＆正方形トリミング処理を追加 */}
                   <input type="file" accept="image/*" style={{ flex: 1, minWidth: 0, fontSize: '11px', padding: 0, border: 'none' }} onChange={(e) => {
                     const file = e.target.files[0];
                     if (!file) return;
-                    if (file.size > 2 * 1024 * 1024) { 
-                      alert("画像サイズが大きすぎます。2MB以下の画像にしてください。"); 
-                      e.target.value = ''; 
-                      return; 
-                    }
-                    const r = new FileReader();
-                    r.onload = (ev) => setMemberImages(prev => ({ ...prev, [m.id]: ev.target.result }));
-                    r.readAsDataURL(file);
+                    
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                      const img = new Image();
+                      img.onload = () => {
+                        const canvas = document.createElement("canvas");
+                        const size = 120; // アイコン用に120pxに圧縮
+                        canvas.width = size;
+                        canvas.height = size;
+                        const ctx = canvas.getContext("2d");
+                        
+                        // 画像の中央を正方形にトリミングしてリサイズ
+                        const min = Math.min(img.width, img.height);
+                        const sx = (img.width - min) / 2;
+                        const sy = (img.height - min) / 2;
+                        ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size);
+                        
+                        // JPEGで画質70%に落とし、データベースを圧迫しない超軽量化
+                        const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+                        setMemberImages(prev => ({ ...prev, [m.id]: dataUrl }));
+                      };
+                      img.src = ev.target.result;
+                    };
+                    reader.readAsDataURL(file);
                   }} />
 
                   {memberImages[m.id] && (
@@ -665,7 +704,6 @@ export default function App() {
                       {s.role}
                     </div>
 
-                    {/* ★修正: 1列で表示し、はみ出る場合は「...」にする設定を追加 */}
                     {mId ? (
                       <div 
                         style={{
@@ -676,22 +714,20 @@ export default function App() {
                           }),
                           width: 'max-content', 
                           minWidth: '45px', 
-                          maxWidth: '80px', // 約6文字分の幅
+                          maxWidth: '80px',
                           zIndex: 10,
                           padding: '3px 6px', 
                           fontSize: '10.5px', 
                           fontWeight: 'bold',
                           borderRadius: '10px',
                           boxShadow: '0 3px 6px rgba(0,0,0,0.6)',
-                          background: 'rgba(0, 0, 0, 0.4)',
+                          background: 'rgba(0, 0, 0, 0.3)',
                           backdropFilter: 'blur(2px)',
                           WebkitBackdropFilter: 'blur(4px)',
                           border: `1px solid ${st === 'ok' ? 'var(--theme-accent1)' : st === 'maybe' ? 'var(--theme-accent2)' : 'rgba(255,255,255,0.4)'}`,
                           color: '#ffffff',
                           textShadow: '0 1px 2px rgba(0,0,0,0.9)',
                           textAlign: 'center',
-                          
-                          // ↓ この3行で「絶対に1列」「はみ出たら...」にする魔法
                           whiteSpace: 'nowrap',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis'
