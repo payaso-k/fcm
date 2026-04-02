@@ -531,12 +531,20 @@ export default function App() {
                   {(isAdmin || isMaster) && (
                     <button type="button" className="deleteBtn" onClick={() => handleDeleteMember(m.id)} style={{ margin: 0 }}>×</button>
                   )}
+                  {/* ★修正: 名前入力欄のスタイルをおしゃれに（半透明の背景、角丸、うっすら枠線） */}
                   <input 
                     className="listNameCompact" 
                     value={names[m.id] || ""} 
                     placeholder={m.label} 
                     onChange={(e) => setNames({ ...names, [m.id]: e.target.value })} 
-                    style={{ flex: 1, textAlign: 'left', paddingLeft: '4px' }}
+                    style={{ 
+                      flex: 1, textAlign: 'left', 
+                      padding: '4px 8px',
+                      backgroundColor: 'rgba(255, 255, 255, 0.2)', // 半透明の白
+                      borderRadius: '4px',
+                      border: '1px solid color-mix(in srgb, var(--theme-main) 20%, transparent)', // うっすらとした枠線
+                      color: 'var(--theme-main)',
+                    }}
                   />
 
                   <div className="listBtnsCompact">
@@ -612,7 +620,7 @@ export default function App() {
           </div>
 
           <div className="pitchWrap" id="pitch-export-area">
-            {/* ★修正: ピッチの背景色を強制的に指定 */}
+            {/* ★ピッチの背景色を強制的に指定 */}
             <div className="pitch" style={pitchStyle}>
               <div className="lineLayer">
                 <div className="outerLine" /><div className="halfLine" /><div className="centerCircle" /><div className="centerSpot" />
