@@ -344,7 +344,7 @@ export default function App() {
 
   const benchMembers = membersList.filter(m => (status[m.id] === "ok" || status[m.id] === "maybe") && !Object.values(placedBySlot).includes(m.id));
 
-  // ★画像書き出しエラー対策：CSSに依存せず、React側で強制的にピッチの緑色を指定
+  // CSSに依存せず、React側で強制的にピッチの緑色を指定
   const pitchStyle = {
     backgroundColor: '#2f4f2f',
     backgroundImage: `linear-gradient(
@@ -531,20 +531,13 @@ export default function App() {
                   {(isAdmin || isMaster) && (
                     <button type="button" className="deleteBtn" onClick={() => handleDeleteMember(m.id)} style={{ margin: 0 }}>×</button>
                   )}
-                  {/* ★修正: 名前入力欄のスタイルをおしゃれに（半透明の背景、角丸、うっすら枠線） */}
+                  {/* ★修正: 余計な背景色を消し、今まで通りのシンプルな下線に戻しました */}
                   <input 
                     className="listNameCompact" 
                     value={names[m.id] || ""} 
                     placeholder={m.label} 
                     onChange={(e) => setNames({ ...names, [m.id]: e.target.value })} 
-                    style={{ 
-                      flex: 1, textAlign: 'left', 
-                      padding: '4px 8px',
-                      backgroundColor: 'rgba(255, 255, 255, 0.2)', // 半透明の白
-                      borderRadius: '4px',
-                      border: '1px solid color-mix(in srgb, var(--theme-main) 20%, transparent)', // うっすらとした枠線
-                      color: 'var(--theme-main)',
-                    }}
+                    style={{ flex: 1, textAlign: 'left', paddingLeft: '4px' }}
                   />
 
                   <div className="listBtnsCompact">
@@ -620,7 +613,6 @@ export default function App() {
           </div>
 
           <div className="pitchWrap" id="pitch-export-area">
-            {/* ★ピッチの背景色を強制的に指定 */}
             <div className="pitch" style={pitchStyle}>
               <div className="lineLayer">
                 <div className="outerLine" /><div className="halfLine" /><div className="centerCircle" /><div className="centerSpot" />
@@ -642,7 +634,6 @@ export default function App() {
                     onClick={() => { if (selectedMemberId) placeMember(selectedMemberId, s.id); else if (mId) removeFromSlot(s.id); }}
                   >
                     
-                    {/* ★修正: CSSの塗りつぶしを無視して画像を一番手前に表示 */}
                     {hasImage && (
                       <img
                         src={memberImages[mId]}
@@ -663,15 +654,26 @@ export default function App() {
                       {s.role}
                     </div>
 
+                    {/* ★修正: ピッチの名前をEA SPORTS FC風のダークガラスパネルに！ */}
                     {mId ? (
                       <div className={`posName status-${st}`}
                         style={{
                           ...(hasImage ? {
                             position: 'absolute', bottom: '-14px', left: '50%', transform: 'translateX(-50%)',
-                            width: 'max-content', minWidth: '40px', maxWidth: '70px', zIndex: 10,
-                            padding: '2px 6px', fontSize: '11px', boxShadow: '0 2px 4px rgba(0,0,0,0.4)'
-                          } : { zIndex: 10 }),
-                          border: 'none'
+                            width: 'max-content', minWidth: '45px', maxWidth: '75px', 
+                          } : {}),
+                          zIndex: 10,
+                          padding: '3px 8px', 
+                          fontSize: '10.5px', 
+                          fontWeight: 'bold',
+                          borderRadius: '10px',
+                          boxShadow: '0 3px 6px rgba(0,0,0,0.6)',
+                          background: 'rgba(0, 0, 0, 0.65)', // ダーク半透明（ガラス風）
+                          backdropFilter: 'blur(4px)',
+                          WebkitBackdropFilter: 'blur(4px)',
+                          border: `1px solid ${st === 'ok' ? 'var(--theme-accent1)' : st === 'maybe' ? 'var(--theme-accent2)' : 'rgba(255,255,255,0.4)'}`, // ステータスカラーで光る枠線
+                          color: '#ffffff', // 白文字
+                          textShadow: '0 1px 2px rgba(0,0,0,0.9)' // 視認性を高める影
                         }}
                       >
                         {names[mId] || membersList.find(x => x.id === mId)?.label || "NAME"}
