@@ -468,7 +468,7 @@ export default function App() {
                     value={names[m.id] || ""} 
                     placeholder={m.label} 
                     onChange={(e) => setNames({ ...names, [m.id]: e.target.value })} 
-                    style={{ flex: 1, textAlign: 'left', paddingLeft: '4px', borderBottom: 'none' }}
+                    style={{ flex: 1, textAlign: 'left', paddingLeft: '4px' }}
                   />
 
                   <div className="listBtnsCompact">
@@ -500,7 +500,7 @@ export default function App() {
                   <input
                     type="text"
                     className="personalMemoInput"
-                    placeholder="メモを入力..."
+                    placeholder="memo..."
                     key={`${m.id}-${selectedDateKey}`}
                     defaultValue={(memosByDate[selectedDateKey] || {})[m.id] || ""}
                     onBlur={(e) => {
