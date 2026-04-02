@@ -163,7 +163,6 @@ export default function App() {
   const [teamName, setTeamName] = useState("TEAM NAME");
   const [logoDataUrl, setLogoDataUrl] = useState("");
   
-  // ★追加：メンバー個別のアイコン画像
   const [memberImages, setMemberImages] = useState({});
 
   const [themeMain, setThemeMain] = useState(DEFAULT_COLORS.main);
@@ -223,7 +222,7 @@ export default function App() {
         if (data.adminCode) setAdminCode(data.adminCode);
         if (data.membersList) setMembersList(data.membersList);
         if (data.generalMemosByDate) setGeneralMemosByDate(data.generalMemosByDate);
-        if (data.memberImages) setMemberImages(data.memberImages); // 画像読み込み
+        if (data.memberImages) setMemberImages(data.memberImages);
         
         if (data.themeMain) setThemeMain(data.themeMain);
         if (data.themeAccent1) setThemeAccent1(data.themeAccent1);
@@ -241,7 +240,7 @@ export default function App() {
     const dbRef = ref(db, 'teamData/');
     set(dbRef, {
       teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, membersList, generalMemosByDate,
-      themeMain, themeAccent1, themeAccent2, themeBg, themePageBg, memberImages // 画像保存
+      themeMain, themeAccent1, themeAccent2, themeBg, themePageBg, memberImages
     });
   }, [teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, membersList, generalMemosByDate, themeMain, themeAccent1, themeAccent2, themeBg, themePageBg, memberImages, isLoaded]);
 
@@ -300,7 +299,6 @@ export default function App() {
   const handleDeleteMember = (id) => {
     if (window.confirm("このメンバーを削除しますか？\n（過去のデータは残りますが、リストからは消えます）")) {
       setMembersList(membersList.filter(m => m.id !== id));
-      // 画像も削除
       setMemberImages(prev => {
         const next = { ...prev };
         delete next[id];
@@ -345,6 +343,19 @@ export default function App() {
   };
 
   const benchMembers = membersList.filter(m => (status[m.id] === "ok" || status[m.id] === "maybe") && !Object.values(placedBySlot).includes(m.id));
+
+  // ★画像書き出しエラー対策：CSSに依存せず、React側で強制的にピッチの緑色を指定
+  const pitchStyle = {
+    backgroundColor: '#2f4f2f',
+    backgroundImage: `linear-gradient(
+      to bottom,
+      #2f4f2f 0%, #2f4f2f 10%, #3a633a 10%, #3a633a 20%,
+      #2f4f2f 20%, #2f4f2f 30%, #3a633a 30%, #3a633a 40%,
+      #2f4f2f 40%, #2f4f2f 50%, #3a633a 50%, #3a633a 60%,
+      #2f4f2f 60%, #2f4f2f 70%, #3a633a 70%, #3a633a 80%,
+      #2f4f2f 80%, #2f4f2f 90%, #3a633a 90%, #3a633a 100%
+    )`
+  };
 
   return (
     <div className="page" style={{
@@ -422,7 +433,6 @@ export default function App() {
             <input className="textInput" type="text" value={adminCode} onChange={(e) => setAdminCode(e.target.value)} style={{ borderColor: 'var(--theme-accent1)' }} />
           </div>
 
-          {/* ★追加：メンバーアイコン登録画面 */}
           <div className="adminField" style={{ marginTop: '10px' }}>
             <label className="adminLabel">
               メンバーのアイコン画像設定
@@ -521,7 +531,6 @@ export default function App() {
                   {(isAdmin || isMaster) && (
                     <button type="button" className="deleteBtn" onClick={() => handleDeleteMember(m.id)} style={{ margin: 0 }}>×</button>
                   )}
-                  {/* ★修正: borderBottom: 'none' を削除して下線を復活 */}
                   <input 
                     className="listNameCompact" 
                     value={names[m.id] || ""} 
@@ -603,7 +612,8 @@ export default function App() {
           </div>
 
           <div className="pitchWrap" id="pitch-export-area">
-            <div className="pitch">
+            {/* ★修正: ピッチの背景色を強制的に指定 */}
+            <div className="pitch" style={pitchStyle}>
               <div className="lineLayer">
                 <div className="outerLine" /><div className="halfLine" /><div className="centerCircle" /><div className="centerSpot" />
                 <div className="penTop" /><div className="sixTop" /><div className="spotTop" /><div className="penBottom" /><div className="sixBottom" /><div className="spotBottom" />
@@ -617,38 +627,49 @@ export default function App() {
                   <div key={s.id} className={`posSlot slot-${st} ${selectedMemberId ? "waiting-drop" : ""}`} 
                     style={{ 
                       left: `${s.x}%`, top: `${s.y}%`,
-                      // ★追加：画像があれば背景に設定
-                      backgroundImage: hasImage ? `url(${memberImages[mId]})` : 'none',
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      border: hasImage ? `3px solid ${st === 'ok' ? 'var(--theme-accent1)' : 'var(--theme-accent2)'}` : ''
+                      border: hasImage ? `2px solid ${st === 'ok' ? 'var(--theme-accent1)' : 'var(--theme-accent2)'}` : ''
                     }}
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={(e) => placeMember(e.dataTransfer.getData("text/memberId"), s.id)}
                     onClick={() => { if (selectedMemberId) placeMember(selectedMemberId, s.id); else if (mId) removeFromSlot(s.id); }}
                   >
                     
-                    {/* ★役割（ST, CBなど）のバッジ。画像がある場合は左上に浮かせる */}
+                    {/* ★修正: CSSの塗りつぶしを無視して画像を一番手前に表示 */}
+                    {hasImage && (
+                      <img
+                        src={memberImages[mId]}
+                        alt="icon"
+                        style={{
+                          position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
+                          borderRadius: '50%', objectFit: 'cover', zIndex: 1
+                        }}
+                      />
+                    )}
+
                     <div className="posRole" style={hasImage ? {
-                      position: 'absolute', top: '-6px', left: '-10px',
+                      position: 'absolute', top: '-8px', left: '-12px',
                       background: 'var(--theme-main)', padding: '2px 4px',
-                      borderRadius: '4px', zIndex: 20, border: '1px solid #fff'
-                    } : {}}>
+                      borderRadius: '4px', zIndex: 10, border: '1px solid #fff',
+                      fontSize: '9px'
+                    } : { zIndex: 10 }}>
                       {s.role}
                     </div>
 
-                    {/* ★名前タグ。画像がある場合はアイコンの下にぶら下げる */}
                     {mId ? (
-                      <button className={`posName status-${st}`} type="button"
-                        style={hasImage ? {
-                          position: 'absolute', bottom: '-14px', left: '50%', transform: 'translateX(-50%)',
-                          width: '64px', zIndex: 20
-                        } : {}}
+                      <div className={`posName status-${st}`}
+                        style={{
+                          ...(hasImage ? {
+                            position: 'absolute', bottom: '-14px', left: '50%', transform: 'translateX(-50%)',
+                            width: 'max-content', minWidth: '40px', maxWidth: '70px', zIndex: 10,
+                            padding: '2px 6px', fontSize: '11px', boxShadow: '0 2px 4px rgba(0,0,0,0.4)'
+                          } : { zIndex: 10 }),
+                          border: 'none'
+                        }}
                       >
                         {names[mId] || membersList.find(x => x.id === mId)?.label || "NAME"}
-                      </button>
+                      </div>
                     ) : (
-                      <div className="posEmpty">DROP</div>
+                      <div className="posEmpty" style={{ zIndex: 10 }}>DROP</div>
                     )}
                   </div>
                 );
