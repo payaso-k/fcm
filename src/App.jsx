@@ -344,6 +344,7 @@ export default function App() {
 
   const benchMembers = membersList.filter(m => (status[m.id] === "ok" || status[m.id] === "maybe") && !Object.values(placedBySlot).includes(m.id));
 
+  // ピッチの背景色指定
   const pitchStyle = {
     backgroundColor: '#2f4f2f',
     backgroundImage: `linear-gradient(
@@ -432,7 +433,6 @@ export default function App() {
             <input className="textInput" type="text" value={adminCode} onChange={(e) => setAdminCode(e.target.value)} style={{ borderColor: 'var(--theme-accent1)' }} />
           </div>
 
-          {/* ★修正: スクロールを解除し、全メンバーをリスト表示。名前が潰れないように修正 */}
           <div className="adminField" style={{ marginTop: '10px' }}>
             <label className="adminLabel">
               メンバーのアイコン画像設定
@@ -541,7 +541,14 @@ export default function App() {
                     value={names[m.id] || ""} 
                     placeholder={m.label} 
                     onChange={(e) => setNames({ ...names, [m.id]: e.target.value })} 
-                    style={{ flex: 1, textAlign: 'left', paddingLeft: '4px' }}
+                    style={{ 
+                      flex: 1, textAlign: 'left', 
+                      padding: '4px 8px',
+                      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                      borderRadius: '4px',
+                      border: '1px solid color-mix(in srgb, var(--theme-main) 20%, transparent)',
+                      color: 'var(--theme-main)',
+                    }}
                   />
 
                   <div className="listBtnsCompact">
@@ -612,7 +619,7 @@ export default function App() {
         <div className="section-pitch" style={{ flexDirection: 'column', alignItems: 'center' }}>
           <div style={{ width: '95%', maxWidth: '600px', display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
             <button className="exportBtn" onClick={handleExportImage} disabled={isExporting}>
-              {isExporting ? "⏳ 処理中..." : "画像として書き出す"}
+              {isExporting ? "⏳ 処理中..." : "📸 画像として書き出す"}
             </button>
           </div>
 
@@ -658,31 +665,35 @@ export default function App() {
                       {s.role}
                     </div>
 
-                    {/* ★修正: CSSの強制色塗りを無効化し、直接ガラスデザインを適用 */}
+                    {/* ★修正: 1列で表示し、はみ出る場合は「...」にする設定を追加 */}
                     {mId ? (
                       <div 
                         style={{
                           ...(hasImage ? {
                             position: 'absolute', bottom: '-14px', left: '50%', transform: 'translateX(-50%)',
-                            width: 'max-content', minWidth: '45px', maxWidth: '75px'
                           } : {
-                            width: '85%', marginTop: '2px'
+                            marginTop: '2px'
                           }),
+                          width: 'max-content', 
+                          minWidth: '45px', 
+                          maxWidth: '80px', // 約6文字分の幅
                           zIndex: 10,
-                          padding: '2px 6px', 
+                          padding: '3px 6px', 
                           fontSize: '10.5px', 
                           fontWeight: 'bold',
-                          borderRadius: '8px',
+                          borderRadius: '10px',
                           boxShadow: '0 3px 6px rgba(0,0,0,0.6)',
-                          background: 'rgba(0, 0, 0, 0.3)', // ★ここで透明度を調整
-                          backdropFilter: 'blur(2px)',      // ★ここでガラスの強さを調整
+                          background: 'rgba(0, 0, 0, 0.65)',
+                          backdropFilter: 'blur(4px)',
                           WebkitBackdropFilter: 'blur(4px)',
                           border: `1px solid ${st === 'ok' ? 'var(--theme-accent1)' : st === 'maybe' ? 'var(--theme-accent2)' : 'rgba(255,255,255,0.4)'}`,
                           color: '#ffffff',
                           textShadow: '0 1px 2px rgba(0,0,0,0.9)',
                           textAlign: 'center',
-                          overflow: 'hidden',
+                          
+                          // ↓ この3行で「絶対に1列」「はみ出たら...」にする魔法
                           whiteSpace: 'nowrap',
+                          overflow: 'hidden',
                           textOverflow: 'ellipsis'
                         }}
                       >
