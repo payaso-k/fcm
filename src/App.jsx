@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { initializeApp } from "firebase/app";
-import { getDatabase, ref, set, onValue } from "firebase/database";
+// ★修正：データベースの一部だけを更新する「update」機能を追加
+import { getDatabase, ref, set, onValue, update } from "firebase/database";
 import { FORMATIONS } from "./formations";
 import html2canvas from "html2canvas";
 import "./App.css";
@@ -235,23 +236,22 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  // ★修正：通信大渋滞を防ぐためのデバウンス（遅延保存）処理を追加しました！
+  // ★修正：テキストデータと画像データの保存ルートを分離
   useEffect(() => {
     if (!isLoaded) return;
     
-    // 入力があるたびに、1秒(1000ミリ秒)待ってから通信するようにタイマーをセット
     const timerId = setTimeout(() => {
       const dbRef = ref(db, 'teamData/');
-      set(dbRef, {
-        teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, membersList, generalMemosByDate,
-        themeMain, themeAccent1, themeAccent2, themeBg, themePageBg, memberImages
+      // ★画像データ（memberImages, logoDataUrl）はここから除外しました
+      update(dbRef, {
+        teamName, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, membersList, generalMemosByDate,
+        themeMain, themeAccent1, themeAccent2, themeBg, themePageBg
       });
     }, 1000);
 
-    // もし1秒以内に次の入力が来たら、前のタイマーをキャンセルして数え直す（渋滞防止）
     return () => clearTimeout(timerId);
-
-  }, [teamName, logoDataUrl, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, membersList, generalMemosByDate, themeMain, themeAccent1, themeAccent2, themeBg, themePageBg, memberImages, isLoaded]);
+  // ★依存配列からも画像を外して、文字入力時に写真データを触らないようにしました
+  }, [teamName, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, membersList, generalMemosByDate, themeMain, themeAccent1, themeAccent2, themeBg, themePageBg, isLoaded]);
 
   useEffect(() => {
     document.body.style.backgroundColor = themePageBg;
@@ -279,7 +279,11 @@ export default function App() {
         canvas.height = height;
         const ctx = canvas.getContext("2d");
         ctx.drawImage(img, 0, 0, width, height);
-        setLogoDataUrl(canvas.toDataURL("image/png"));
+        const dataUrl = canvas.toDataURL("image/png");
+        
+        setLogoDataUrl(dataUrl);
+        // ★ロゴ画像を変更した時だけ、単独でピンポイント保存
+        update(ref(db, 'teamData'), { logoDataUrl: dataUrl });
       };
       img.src = ev.target.result;
     };
@@ -334,6 +338,8 @@ export default function App() {
         delete next[id];
         return next;
       });
+      // ★メンバー削除時、その人の画像データも単独で綺麗に削除
+      update(ref(db, 'teamData/memberImages'), { [id]: null });
     }
   };
 
@@ -494,20 +500,21 @@ export default function App() {
                       const img = new Image();
                       img.onload = () => {
                         const canvas = document.createElement("canvas");
-                        const size = 120; // アイコン用に120pxに圧縮
+                        const size = 120;
                         canvas.width = size;
                         canvas.height = size;
                         const ctx = canvas.getContext("2d");
                         
-                        // 画像の中央を正方形にトリミングしてリサイズ
                         const min = Math.min(img.width, img.height);
                         const sx = (img.width - min) / 2;
                         const sy = (img.height - min) / 2;
                         ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size);
                         
-                        // JPEGで画質70%に落とし、データベースを圧迫しない超軽量化
                         const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
                         setMemberImages(prev => ({ ...prev, [m.id]: dataUrl }));
+                        
+                        // ★画像を登録した瞬間に、その人の画像データだけを単独でピンポイント保存
+                        update(ref(db, 'teamData/memberImages'), { [m.id]: dataUrl });
                       };
                       img.src = ev.target.result;
                     };
@@ -522,6 +529,8 @@ export default function App() {
                     <button type="button" onClick={() => {
                       if(window.confirm('この画像を削除しますか？')) {
                         setMemberImages(prev => { const n = {...prev}; delete n[m.id]; return n; });
+                        // ★画像を削除した瞬間に、その人の画像データだけを単独で削除
+                        update(ref(db, 'teamData/memberImages'), { [m.id]: null });
                       }
                     }} style={{ background: 'var(--theme-main)', color: '#fff', padding: '4px 8px', borderRadius: '4px', fontSize: '10px', cursor: 'pointer', flexShrink: 0 }}>
                       削除
@@ -720,7 +729,7 @@ export default function App() {
                           fontWeight: 'bold',
                           borderRadius: '10px',
                           boxShadow: '0 3px 6px rgba(0,0,0,0.6)',
-                          background: 'rgba(0, 0, 0, 0.35)',
+                          background: 'rgba(0, 0, 0, 0.4)',
                           backdropFilter: 'blur(2px)',
                           WebkitBackdropFilter: 'blur(4px)',
                           border: `1px solid ${st === 'ok' ? 'var(--theme-accent1)' : st === 'maybe' ? 'var(--theme-accent2)' : 'rgba(255,255,255,0.4)'}`,
