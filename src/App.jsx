@@ -236,21 +236,25 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  // ★修正：テキストデータと画像データの保存ルートを分離
+  // ★修正：テキストデータと画像データの保存ルートを分離し、消去時にnullを送るよう修正
   useEffect(() => {
     if (!isLoaded) return;
     
     const timerId = setTimeout(() => {
       const dbRef = ref(db, 'teamData/');
-      // ★画像データ（memberImages, logoDataUrl）はここから除外しました
       update(dbRef, {
-        teamName, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, membersList, generalMemosByDate,
-        themeMain, themeAccent1, themeAccent2, themeBg, themePageBg
+        teamName, defaultFormation, adminCode, membersList,
+        themeMain, themeAccent1, themeAccent2, themeBg, themePageBg,
+        names: Object.keys(names).length > 0 ? names : null,
+        formationByDate: Object.keys(formationByDate).length > 0 ? formationByDate : null,
+        statusByDate: Object.keys(statusByDate).length > 0 ? statusByDate : null,
+        memosByDate: Object.keys(memosByDate).length > 0 ? memosByDate : null,
+        placedBySlotByDate: Object.keys(placedBySlotByDate).length > 0 ? placedBySlotByDate : null,
+        generalMemosByDate: Object.keys(generalMemosByDate).length > 0 ? generalMemosByDate : null
       });
     }, 1000);
 
     return () => clearTimeout(timerId);
-  // ★依存配列からも画像を外して、文字入力時に写真データを触らないようにしました
   }, [teamName, names, formationByDate, defaultFormation, statusByDate, memosByDate, placedBySlotByDate, adminCode, membersList, generalMemosByDate, themeMain, themeAccent1, themeAccent2, themeBg, themePageBg, isLoaded]);
 
   useEffect(() => {
@@ -279,8 +283,8 @@ export default function App() {
         canvas.height = height;
         const ctx = canvas.getContext("2d");
         ctx.drawImage(img, 0, 0, width, height);
-        const dataUrl = canvas.toDataURL("image/png");
         
+        const dataUrl = canvas.toDataURL("image/png");
         setLogoDataUrl(dataUrl);
         // ★ロゴ画像を変更した時だけ、単独でピンポイント保存
         update(ref(db, 'teamData'), { logoDataUrl: dataUrl });
@@ -424,7 +428,8 @@ export default function App() {
         <div className="adminPanelMobile">
           <div className="adminField">
             <label className="adminLabel">チーム名設定</label>
-            <input className="textInput" value={teamName} onChange={(e) => setTeamName(e.target.value)} />
+            {/* ★エコーバグ修正：入力を終えた時（onBlur）にのみ保存するようにしました */}
+            <input className="textInput" defaultValue={teamName} onBlur={(e) => setTeamName(e.target.value)} />
           </div>
           <div className="adminField">
             <label className="adminLabel">チームロゴ変更</label>
@@ -465,7 +470,8 @@ export default function App() {
           </div>
           <div className="adminField">
             <label className="adminLabel" style={{ color: 'var(--theme-accent1)' }}>管理者パスコード変更</label>
-            <input className="textInput" type="text" value={adminCode} onChange={(e) => setAdminCode(e.target.value)} style={{ borderColor: 'var(--theme-accent1)' }} />
+            {/* ★エコーバグ修正：入力を終えた時（onBlur）にのみ保存するようにしました */}
+            <input className="textInput" type="text" defaultValue={adminCode} onBlur={(e) => setAdminCode(e.target.value)} style={{ borderColor: 'var(--theme-accent1)' }} />
           </div>
 
           <div className="adminField" style={{ marginTop: '10px' }}>
@@ -500,16 +506,18 @@ export default function App() {
                       const img = new Image();
                       img.onload = () => {
                         const canvas = document.createElement("canvas");
-                        const size = 120;
+                        const size = 120; // アイコン用に120pxに圧縮
                         canvas.width = size;
                         canvas.height = size;
                         const ctx = canvas.getContext("2d");
                         
+                        // 画像の中央を正方形にトリミングしてリサイズ
                         const min = Math.min(img.width, img.height);
                         const sx = (img.width - min) / 2;
                         const sy = (img.height - min) / 2;
                         ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size);
                         
+                        // JPEGで画質70%に落とし、データベースを圧迫しない超軽量化
                         const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
                         setMemberImages(prev => ({ ...prev, [m.id]: dataUrl }));
                         
@@ -590,11 +598,12 @@ export default function App() {
                   {(isAdmin || isMaster) && (
                     <button type="button" className="deleteBtn" onClick={() => handleDeleteMember(m.id)} style={{ margin: 0 }}>×</button>
                   )}
+                  {/* ★エコーバグ修正：入力を終えた時（onBlur）にのみ保存するようにしました */}
                   <input 
                     className="listNameCompact" 
-                    value={names[m.id] || ""} 
+                    defaultValue={names[m.id] || ""} 
                     placeholder={m.label} 
-                    onChange={(e) => setNames({ ...names, [m.id]: e.target.value })} 
+                    onBlur={(e) => setNames(prev => ({ ...prev, [m.id]: e.target.value }))} 
                     style={{ flex: 1, textAlign: 'left', paddingLeft: '4px' }}
                   />
 
@@ -666,7 +675,7 @@ export default function App() {
         <div className="section-pitch" style={{ flexDirection: 'column', alignItems: 'center' }}>
           <div style={{ width: '95%', maxWidth: '600px', display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
             <button className="exportBtn" onClick={handleExportImage} disabled={isExporting}>
-              {isExporting ? "⏳ 処理中..." : "書き出す"}
+              {isExporting ? "⏳ 処理中..." : "画像として書き出す"}
             </button>
           </div>
 
@@ -729,7 +738,7 @@ export default function App() {
                           fontWeight: 'bold',
                           borderRadius: '10px',
                           boxShadow: '0 3px 6px rgba(0,0,0,0.6)',
-                          background: 'rgba(0, 0, 0, 0.4)',
+                          background: 'rgba(0, 0, 0, 0.35)',
                           backdropFilter: 'blur(2px)',
                           WebkitBackdropFilter: 'blur(4px)',
                           border: `1px solid ${st === 'ok' ? 'var(--theme-accent1)' : st === 'maybe' ? 'var(--theme-accent2)' : 'rgba(255,255,255,0.4)'}`,
